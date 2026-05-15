@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1565C0">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CLP">
+<title>CLP — Calendario de Limpieza Programada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2196F3;
+  --primary-light: #64B5F6;
+  --primary-dark: #1565C0;
+  --primary-faint: #E3F2FD;
+  --bg: #F5F0E8;
+  --gold: #C9A96E;
+  --text: #1A2B3C;
+  --text-soft: #7A8C9A;
+  --border: #E5DFD4;
+  --white: #FFFFFF;
+  --danger: #C62828;
+  --state-pending-text: #F9A825; --state-pending-bg: #FFFDE7; --state-pending-border: #FFD54F;
+  --state-progress-text: #1565C0; --state-progress-bg: #E3F2FD; --state-progress-border: #64B5F6;
+  --state-completed-text: #2E7D32; --state-completed-bg: #E8F5E9; --state-completed-border: #81C784;
+  --state-assigned-text: #C2185B; --state-assigned-bg: #FCE4EC; --state-assigned-border: #F06292;
+  --state-overdue-text: #E65100; --state-overdue-bg: #FFF3E0; --state-overdue-border: #FFB74D;
+  --sp-bedroom-bg: #BBDEFB; --sp-bedroom: #1565C0;
+  --sp-bathroom-bg: #FFCDD2; --sp-bathroom: #C2185B;
+  --sp-kitchen-bg: #C8E6C9; --sp-kitchen: #2E7D32;
+  --sp-living-bg: #FFE0B2; --sp-living: #E65100;
+  --sp-garden-bg: #DCEDC8; --sp-garden: #388E3C;
+  --sp-laundry-bg: #B3E5FC; --sp-laundry: #0277BD;
+  --sp-pets-bg: #E1BEE7; --sp-pets: #7B1FA2;
+  --sp-home-bg: #E8EAF6; --sp-home: #1A2B3C;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-tech: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --nav-height: 68px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overscroll-behavior: none; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow: hidden; }
+#root { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+.main { flex: 1; overflow-y: auto; overflow-x: hidden; padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 20px); -webkit-overflow-scrolling: touch; position: relative; }
+
+/* HEADER */
+.blue-header { background: linear-gradient(180deg, var(--primary-dark), #1976D2); color: var(--white); padding: calc(20px + var(--safe-top)) 22px 30px; border-radius: 0 0 28px 28px; position: relative; }
+.blue-header .bell { position: absolute; top: calc(22px + var(--safe-top)); right: 22px; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 18px; border: none; color: white; cursor: pointer; }
+.blue-header .bell::after { content: ''; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: #FFD54F; border-radius: 50%; border: 2px solid var(--primary-dark); }
+.blue-header .back { background: none; border: none; color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.blue-header .back .arrow { font-size: 18px; line-height: 1; }
+.blue-header .eyebrow { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.65); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 4px; }
+.blue-header h1 { font-family: var(--font-tech); font-weight: 600; font-size: 26px; color: white; letter-spacing: -0.3px; line-height: 1.15; }
+.blue-header h1.large { font-size: 30px; }
+.blue-header .sub { font-size: 12.5px; color: rgba(255,255,255,0.75); margin-top: 6px; }
+.greeting-name { font-family: var(--font-tech); font-weight: 600; font-size: 34px; line-height: 1.05; letter-spacing: -0.5px; color: white; display: flex; align-items: center; gap: 10px; }
+.greeting-name .wave { font-size: 28px; animation: wave 2.5s ease-in-out infinite; transform-origin: 70% 70%; }
+@keyframes wave { 0%,60%,100%{transform:rotate(0)} 10%,30%{transform:rotate(14deg)} 20%{transform:rotate(-8deg)} 40%{transform:rotate(10deg)} 50%{transform:rotate(-4deg)} }
+.blue-header .category-badge { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+
+/* STATS */
+.stats-container { margin: -20px 16px 0; background: white; border-radius: 20px; padding: 14px 12px; box-shadow: 0 4px 16px rgba(26,43,60,0.08); border: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; position: relative; z-index: 2; }
+.stat { text-align: center; padding: 4px 2px; }
+.stat-icon { width: 38px; height: 38px; border-radius: 10px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 19px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.stat-pending .stat-icon { background: var(--state-pending-bg); }
+.stat-progress .stat-icon { background: var(--state-progress-bg); }
+.stat-assigned .stat-icon { background: var(--state-assigned-bg); }
+.stat-completed .stat-icon { background: var(--state-completed-bg); }
+.stat-num { font-family: var(--font-tech); font-size: 22px; font-weight: 600; line-height: 1; margin-bottom: 3px; }
+.stat-pending .stat-num { color: var(--state-pending-text); }
+.stat-progress .stat-num { color: var(--state-progress-text); }
+.stat-assigned .stat-num { color: var(--state-assigned-text); }
+.stat-completed .stat-num { color: var(--state-completed-text); }
+.stat-label { font-size: 10px; color: var(--text-soft); font-weight: 500; letter-spacing: 0.2px; }
+
+.quote { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--text-soft); text-align: center; padding: 22px 28px 6px; line-height: 1.4; }
+.quote::before { content: '“'; color: var(--gold); margin-right: 2px; }
+.quote::after { content: '”'; color: var(--gold); margin-left: 2px; }
+
+.section-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px 10px; }
+.section-head .title { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; }
+.section-head .link { font-size: 12.5px; color: var(--primary-dark); font-weight: 500; cursor: pointer; border: none; background: none; }
+.section-head .link.muted { color: var(--text-soft); }
+
+/* TASK CARD */
+.task { background: white; border-radius: 14px; margin: 0 16px 8px; padding: 12px 14px 12px 18px; display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(26,43,60,0.04); border: 1px solid var(--border); cursor: pointer; transition: transform 0.1s; }
+.task:active { transform: scale(0.98); }
+.task::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--primary); }
+.task.s-pending::before { background: var(--state-pending-border); }
+.task.s-progress::before { background: var(--state-progress-border); }
+.task.s-completed::before { background: var(--state-completed-border); }
+.task.s-assigned::before { background: var(--state-assigned-border); }
+.task.s-overdue::before { background: var(--state-overdue-border); }
+.task-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--space-bg); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.task-body { flex: 1; min-width: 0; }
+.task-name { font-size: 14.5px; font-weight: 600; color: var(--text); line-height: 1.25; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-meta { font-size: 11.5px; color: var(--text-soft); }
+.task-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.badge { font-size: 9.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; padding: 4px 8px; border-radius: 8px; }
+.badge-overdue { background: var(--state-overdue-bg); color: var(--state-overdue-text); }
+.badge-assigned { background: var(--state-assigned-bg); color: var(--state-assigned-text); }
+.badge-progress { background: var(--state-progress-bg); color: var(--state-progress-text); }
+.check { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.check.done { background: var(--primary); border-color: var(--primary); color: white; font-size: 14px; }
+.check.done::after { content: '✓'; font-weight: 700; }
+.task.s-completed .task-name { text-decoration: line-through; font-style: italic; color: var(--text-soft); font-weight: 500; }
+.task.s-completed { opacity: 0.55; }
+.empty { text-align: center; padding: 28px 22px; color: var(--text-soft); font-family: var(--font-display); font-style: italic; font-size: 15px; }
+
+/* TABS */
+.view-tabs, .shop-tabs { display: flex; background: white; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.view-tabs::-webkit-scrollbar, .shop-tabs::-webkit-scrollbar { display: none; }
+.view-tab, .shop-tab { flex: 1; min-width: max-content; padding: 14px 18px 13px; background: none; border: none; font-size: 13.5px; font-weight: 500; color: var(--text-soft); cursor: pointer; position: relative; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.view-tab.active, .shop-tab.active { color: var(--primary-dark); font-weight: 600; }
+.view-tab.active::after, .shop-tab.active::after { content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2.5px; background: var(--primary-dark); border-radius: 2px 2px 0 0; }
+.shop-tab .badge-count { background: var(--state-pending-bg); color: var(--state-pending-text); font-family: var(--font-tech); font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; }
+
+/* SEMANA */
+.week-nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px 0; background: white; }
+.week-nav-arrow { background: none; border: none; color: var(--primary-dark); font-size: 18px; cursor: pointer; padding: 4px 8px; }
+.week-nav-title { font-family: var(--font-tech); font-weight: 600; font-size: 14px; color: var(--text); }
+.week-nav-title .range { color: var(--text-soft); font-weight: 400; margin-left: 6px; }
+.week-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 16px 16px 12px; background: white; border-bottom: 1px solid var(--border); }
+.day-pill { background: none; border: none; cursor: pointer; padding: 8px 4px 10px; border-radius: 12px; text-align: center; }
+.day-pill .day-name { font-size: 10px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; font-weight: 500; }
+.day-pill .day-num { font-family: var(--font-tech); font-weight: 600; font-size: 18px; color: var(--text); line-height: 1; }
+.day-pill .day-dots { display: flex; justify-content: center; gap: 2px; margin-top: 4px; height: 4px; }
+.day-pill .day-dots span { width: 4px; height: 4px; border-radius: 50%; }
+.day-pill.active { background: var(--primary-dark); }
+.day-pill.active .day-name { color: rgba(255,255,255,0.7); }
+.day-pill.active .day-num { color: white; }
+.day-pill.today:not(.active) .day-num { color: var(--primary-dark); }
+.day-pill.today:not(.active) { background: var(--primary-faint); }
+
+.completed-toggle { margin: 14px 16px 10px; padding: 12px 16px; background: white; border: 1px solid var(--border); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text-soft); }
+.completed-toggle .count { font-family: var(--font-tech); font-weight: 600; color: var(--state-completed-text); background: var(--state-completed-bg); padding: 2px 9px; border-radius: 10px; font-size: 12px; margin-left: 8px; }
+
+/* DETALLE TAREA */
+.detail-hero { background: white; margin: 16px; border-radius: 18px; padding: 22px 20px 20px; text-align: center; border: 1px solid var(--border); position: relative; overflow: hidden; }
+.detail-hero::before { content: ''; position: absolute; inset: 0; background: var(--space-bg); opacity: 0.35; z-index: 0; }
+.detail-hero > * { position: relative; z-index: 1; }
+.detail-hero .big-icon { width: 72px; height: 72px; border-radius: 18px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 14px; }
+.detail-hero .name { font-family: var(--font-display); font-size: 26px; font-weight: 500; color: var(--text); margin-bottom: 6px; line-height: 1.2; }
+.detail-hero .description { font-size: 13.5px; color: var(--text-soft); line-height: 1.45; padding: 0 8px; }
+.info-list { margin: 0 16px 14px; background: white; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+.info-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #F0EBE0; font-size: 13.5px; }
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: var(--text-soft); display: flex; align-items: center; gap: 8px; }
+.info-row .label .ic { font-size: 16px; width: 22px; text-align: center; }
+.info-row .value { color: var(--text); font-weight: 500; }
+.info-row .value.space-tag { color: var(--space-color); display: inline-flex; align-items: center; gap: 4px; }
+.info-row .value.space-tag::before { content: '●'; color: var(--space-color); }
+.subtasks-block { margin: 0 16px 14px; background: white; border-radius: 14px; border: 1px solid var(--border); padding: 16px; }
+.subtasks-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.subtasks-head .title { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; }
+.subtasks-head .progress { font-family: var(--font-tech); font-size: 12px; color: var(--primary-dark); font-weight: 600; }
+.progress-bar { height: 4px; background: #F0EBE0; border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.3s; }
+.subtask { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #F0EBE0; cursor: pointer; }
+.subtask:first-of-type { border-top: none; }
+.subtask .sub-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.subtask.done .sub-check { background: var(--primary); border-color: var(--primary); color: white; font-size: 12px; }
+.subtask.done .sub-check::after { content: '✓'; font-weight: 700; }
+.subtask .sub-text { font-size: 14px; color: var(--text); line-height: 1.3; }
+.subtask.done { opacity: 0.5; }
+.subtask.done .sub-text { text-decoration: line-through; font-style: italic; color: var(--text-soft); }
+.observations-block { margin: 0 16px 14px; background: white; border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; }
+.obs-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.obs-head .title { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; }
+.obs-textarea { width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-family: var(--font-body); font-size: 13.5px; color: var(--text); background: #FAFAF7; resize: vertical; min-height: 70px; outline: none; }
+.obs-hint { font-family: var(--font-display); font-style: italic; font-size: 12px; color: var(--text-soft); margin-top: 8px; text-align: center; }
+.btn-primary { display: block; margin: 18px 16px 16px; width: calc(100% - 32px); background: var(--primary-dark); color: white; border: none; padding: 16px; border-radius: 14px; font-size: 15px; font-weight: 600; letter-spacing: 0.3px; cursor: pointer; box-shadow: 0 4px 12px rgba(21,101,192,0.25); transition: all 0.2s; font-family: var(--font-body); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { background: #CCC9C1; box-shadow: none; cursor: not-allowed; color: #FAFAF7; }
+
+/* PERFIL */
+.profile-hero { background: linear-gradient(180deg, var(--primary-dark), #1976D2); color: white; padding: calc(20px + var(--safe-top)) 22px 30px; border-radius: 0 0 28px 28px; text-align: center; position: relative; }
+.profile-avatar { width: 90px; height: 90px; border-radius: 50%; background: white; margin: 8px auto 12px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 500; font-size: 42px; color: var(--primary-dark); border: 3px solid rgba(255,255,255,0.4); position: relative; }
+.profile-avatar .badge-admin { position: absolute; bottom: -2px; right: -4px; background: var(--gold); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; border: 2px solid var(--primary-dark); }
+.profile-name { font-family: var(--font-tech); font-weight: 600; font-size: 22px; color: white; line-height: 1.1; }
+.profile-email { font-size: 12.5px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+.household-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 6px 14px; border-radius: 100px; font-size: 12px; color: white; font-weight: 500; margin-top: 12px; cursor: pointer; }
+.pr-section { margin: 18px 16px 0; }
+.pr-section-title { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; padding: 0 4px 8px; display: flex; align-items: center; gap: 6px; }
+.pr-section-title.admin::after { content: 'ADMIN'; background: var(--gold); color: white; font-size: 8px; padding: 2px 6px; border-radius: 6px; letter-spacing: 0.5px; }
+.pr-list { background: white; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+.pr-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid #F0EBE0; font-size: 14px; cursor: pointer; }
+.pr-row:last-child { border-bottom: none; }
+.pr-row .pr-ic { width: 28px; height: 28px; border-radius: 8px; background: var(--primary-faint); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-right: 12px; }
+.pr-row.danger .pr-ic { background: #FFEBEE; color: var(--danger); }
+.pr-row .pr-body { flex: 1; min-width: 0; }
+.pr-row .pr-label { color: var(--text); font-weight: 500; line-height: 1.25; }
+.pr-row .pr-hint { font-size: 11.5px; color: var(--text-soft); margin-top: 2px; }
+.pr-row .pr-right { font-size: 13px; color: var(--text-soft); flex-shrink: 0; margin-left: 8px; display: flex; align-items: center; gap: 6px; }
+.pr-row .pr-chev { color: #C4C0B5; font-size: 18px; margin-left: 6px; line-height: 1; }
+.pr-row.danger .pr-label { color: var(--danger); }
+.toggle { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #DDD8CF; transition: 0.25s; border-radius: 24px; }
+.toggle-slider::before { position: absolute; content: ''; height: 18px; width: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+.toggle input:checked + .toggle-slider { background: var(--primary); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+.app-info { text-align: center; padding: 24px 16px 8px; font-size: 11.5px; color: var(--text-soft); line-height: 1.6; }
+.app-info .version { font-family: var(--font-tech); font-weight: 600; color: var(--text); }
+
+/* BIBLIOTECA */
+.featured-card { margin: -16px 16px 0; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(26,43,60,0.10); border: 1px solid var(--border); position: relative; z-index: 2; cursor: pointer; }
+.featured-card .photo { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+.featured-card .body { padding: 14px 18px 16px; }
+.featured-card .tag { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
+.featured-card h3 { font-family: var(--font-display); font-weight: 500; font-size: 22px; line-height: 1.2; margin-bottom: 6px; color: var(--text); }
+.featured-card .meta { font-size: 11.5px; color: var(--text-soft); }
+.carousel-block { margin-bottom: 4px; }
+.carousel-head { padding: 14px 18px 8px; display: flex; justify-content: space-between; align-items: baseline; }
+.carousel-head .title { font-family: var(--font-display); font-weight: 500; font-size: 19px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.carousel-head .more { font-size: 12px; color: var(--primary-dark); font-weight: 500; cursor: pointer; background: none; border: none; }
+.carousel-track { display: flex; gap: 10px; padding: 4px 16px 10px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.carousel-track::-webkit-scrollbar { display: none; }
+.ccard { flex-shrink: 0; width: 160px; background: white; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; scroll-snap-align: start; }
+.ccard .ph { height: 95px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.ccard .body { padding: 10px 12px 12px; }
+.ccard h5 { font-family: var(--font-display); font-weight: 500; font-size: 14px; line-height: 1.2; margin-bottom: 4px; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ccard .meta { font-size: 10.5px; color: var(--text-soft); }
+.ccard-more { flex-shrink: 0; width: 110px; background: var(--primary-faint); border: 1px dashed var(--primary-light); border-radius: 12px; cursor: pointer; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--primary-dark); font-size: 12px; font-weight: 600; gap: 6px; padding: 16px 8px; }
+.ccard-more .arrow { font-size: 22px; line-height: 1; }
+
+/* ARTÍCULO */
+.article-hero { margin: -16px 16px 0; background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 16px rgba(26,43,60,0.08); border: 1px solid var(--border); position: relative; z-index: 2; }
+.hero-image { height: 150px; display: flex; align-items: center; justify-content: center; font-size: 70px; }
+.hero-body { padding: 16px 20px 14px; }
+.hero-body h1 { font-family: var(--font-display); font-weight: 500; font-size: 26px; line-height: 1.15; color: var(--text); margin-bottom: 8px; }
+.hero-body .meta { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-soft); flex-wrap: wrap; }
+.hero-body .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-soft); opacity: 0.5; }
+.divider { text-align: center; margin: 24px 0 14px; position: relative; }
+.divider::before { content: ''; position: absolute; left: 20px; right: 20px; top: 50%; height: 1px; background: var(--border); }
+.divider span { background: var(--bg); position: relative; padding: 0 14px; font-size: 10px; font-weight: 700; color: var(--text-soft); letter-spacing: 1.5px; text-transform: uppercase; }
+.divider span::before { content: '✦ '; color: var(--gold); }
+.divider span::after { content: ' ✦'; color: var(--gold); }
+.article-intro { padding: 0 22px; font-size: 14.5px; line-height: 1.65; color: var(--text); }
+.article-intro p { margin-bottom: 12px; }
+.article-intro .pull-quote { font-family: var(--font-display); font-style: italic; font-size: 18px; color: var(--primary-dark); line-height: 1.35; padding: 12px 16px; border-left: 3px solid var(--gold); margin: 16px 0; background: rgba(201,169,110,0.06); }
+.steps-wrapper { padding: 0 16px; }
+.step { background: white; border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 14px; cursor: pointer; }
+.step .step-check { width: 24px; height: 24px; min-width: 24px; border-radius: 50%; border: 2px solid var(--border); background: white; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+.step.done .step-check { background: var(--primary-dark); border-color: var(--primary-dark); color: white; font-size: 13px; font-weight: 700; }
+.step.done .step-check::after { content: '✓'; }
+.step-body { flex: 1; min-width: 0; }
+.step-number { font-family: var(--font-tech); font-size: 11px; font-weight: 600; color: var(--primary-dark); margin-bottom: 3px; letter-spacing: 0.3px; }
+.step-title { font-family: var(--font-display); font-weight: 500; font-size: 17px; line-height: 1.25; color: var(--text); margin-bottom: 4px; }
+.step-desc { font-size: 12.5px; line-height: 1.45; color: var(--text-soft); }
+.step.done .step-title { color: var(--text-soft); text-decoration: line-through; font-style: italic; }
+.step.done .step-desc { opacity: 0.6; }
+.closing { padding: 0 22px; font-family: var(--font-display); font-style: italic; font-size: 16px; line-height: 1.4; color: var(--text-soft); text-align: center; margin-bottom: 18px; }
+.article-cta { margin: 0 16px 28px; padding: 16px 18px; background: white; border-radius: 14px; border: 1px solid var(--border); text-align: center; }
+.article-cta .question { font-family: var(--font-display); font-size: 15px; font-style: italic; color: var(--text); margin-bottom: 12px; line-height: 1.4; }
+.article-cta .btn-cta { background: var(--primary-dark); color: white; border: none; padding: 12px 22px; border-radius: 100px; font-weight: 600; font-size: 13px; cursor: pointer; box-shadow: 0 3px 10px rgba(21,101,192,0.2); font-family: var(--font-body); }
+.article-cta .btn-cta .star { color: #FFD54F; margin-right: 4px; }
+
+/* ===== COMPRAS (nuevo modelo) ===== */
+
+/* Store card en tab Tiendas */
+.store-card { background: white; border-radius: 14px; margin: 0 16px 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.1s; }
+.store-card:active { transform: scale(0.98); }
+.store-card.has-items { border-left: 4px solid var(--primary-dark); }
+.store-logo { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: var(--font-tech); font-weight: 700; font-size: 18px; flex-shrink: 0; }
+.store-logo.coles { background: #FFEBEE; color: #C62828; }
+.store-logo.woolworths { background: #E8F5E9; color: #2E7D32; }
+.store-logo.aldi { background: #FFF9C4; color: #F57F17; }
+.store-logo.bunnings { background: #E3F2FD; color: #1565C0; }
+.store-logo.iga { background: #FCE4EC; color: #C2185B; }
+.store-body { flex: 1; min-width: 0; }
+.store-name { font-size: 14.5px; font-weight: 600; color: var(--text); line-height: 1.2; margin-bottom: 2px; }
+.store-meta { font-size: 11.5px; color: var(--text-soft); }
+.store-meta strong { color: var(--primary-dark); font-family: var(--font-tech); font-weight: 600; }
+.store-meta.empty-meta { font-style: italic; }
+.store-chev { color: #C4C0B5; font-size: 22px; flex-shrink: 0; }
+
+.add-card { background: rgba(255,255,255,0.5); border: 1.5px dashed #C4C0B5; border-radius: 14px; margin: 4px 16px 8px; padding: 14px; text-align: center; color: var(--text-soft); font-style: italic; font-family: var(--font-display); font-size: 14px; cursor: pointer; }
+
+/* Lista de productos de la tienda */
+.list-banner { background: var(--primary-faint); border-bottom: 1px solid #BBDEFB; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; }
+.list-banner .left { color: var(--primary-dark); font-weight: 500; }
+.list-banner .right { color: var(--primary-dark); font-family: var(--font-tech); font-weight: 600; font-size: 14px; }
+
+.product-row { background: white; margin: 0 16px 4px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s; }
+.product-row:active { transform: scale(0.99); }
+.product-row.removing { animation: slideOut 0.25s ease forwards; }
+@keyframes slideOut { to { opacity: 0; transform: translateX(80px); height: 0; padding: 0 14px; margin-bottom: 0; border-width: 0; } }
+.product-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); background: white; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.product-row:active .product-check { background: var(--state-completed-bg); border-color: var(--state-completed-text); }
+.product-name { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 500; color: var(--text); }
+.product-price-btn { font-family: var(--font-tech); font-size: 13px; color: var(--text-soft); font-weight: 500; flex-shrink: 0; background: #FAFAF7; padding: 4px 10px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; transition: all 0.15s; }
+.product-price-btn:active { background: var(--primary-faint); border-color: var(--primary-light); }
+.product-delete { width: 28px; height: 28px; border: none; background: transparent; color: #C4C0B5; font-size: 18px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+.product-delete:active { background: #FFEBEE; color: var(--danger); }
+
+/* Historial */
+.history-card { background: white; border-radius: 14px; margin: 0 16px 8px; padding: 14px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); cursor: pointer; }
+.history-card .h-body { flex: 1; }
+.history-card .h-title { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.history-card .h-meta { font-size: 11.5px; color: var(--text-soft); }
+.history-card .h-total { font-family: var(--font-tech); font-size: 15px; font-weight: 600; color: var(--state-completed-text); }
+
+/* PANTRY */
+.pantry-section { margin-top: 4px; }
+.pantry-section-head { padding: 14px 22px 8px; display: flex; justify-content: space-between; align-items: baseline; }
+.pantry-section-head .title { font-family: var(--font-display); font-weight: 500; font-size: 17px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.pantry-section-head .count { font-size: 11px; color: var(--text-soft); font-weight: 500; }
+.pantry-row { background: white; margin: 0 16px 4px; padding: 10px 14px 10px 8px; border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: center; gap: 4px; font-size: 13.5px; cursor: pointer; transition: transform 0.1s; }
+.pantry-row:active { transform: scale(0.99); }
+.pantry-indicator-btn { width: 36px; height: 36px; border-radius: 50%; border: none; background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: background 0.15s; }
+.pantry-indicator-btn:active { background: rgba(0,0,0,0.04); }
+.pantry-indicator-btn .dot { width: 14px; height: 14px; border-radius: 50%; transition: transform 0.2s, background 0.2s; }
+.pantry-indicator-btn:active .dot { transform: scale(1.3); }
+.pantry-row.have .pantry-indicator-btn .dot { background: var(--state-completed-text); box-shadow: 0 0 0 3px rgba(46,125,50,0.15); }
+.pantry-row.low .pantry-indicator-btn .dot { background: var(--state-pending-text); box-shadow: 0 0 0 3px rgba(249,168,37,0.18); }
+.pantry-row.out .pantry-indicator-btn .dot { background: var(--state-overdue-text); box-shadow: 0 0 0 3px rgba(230,81,0,0.18); }
+.pantry-row .pantry-name { flex: 1; min-width: 0; color: var(--text); line-height: 1.25; }
+.pantry-row.out .pantry-name { color: var(--state-overdue-text); font-weight: 600; }
+.pantry-row .pantry-meta { font-size: 11px; color: var(--text-soft); text-align: right; flex-shrink: 0; margin-left: 8px; }
+
+/* SCANNER FAB */
+.scanner-fab { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); right: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-dark); color: white; border: none; box-shadow: 0 6px 20px rgba(21,101,192,0.4); cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.15s; }
+.scanner-fab:active { transform: scale(0.92); }
+
+/* MODAL */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(15,25,40,0.6); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal-sheet { background: var(--bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 16px 0 calc(20px + var(--safe-bottom)); animation: slideUp 0.25s; max-height: 88vh; overflow-y: auto; position: relative; }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-handle { width: 40px; height: 4px; background: #C4C0B5; border-radius: 2px; margin: 0 auto 16px; }
+.modal-head { padding: 0 22px 14px; text-align: center; }
+.modal-head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.modal-head .sub { font-size: 12px; color: var(--text-soft); }
+.modal-close { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.05); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; color: var(--text-soft); }
+
+/* Modal de "agregar producto" / "editar precio" */
+.input-block { margin: 0 16px 12px; }
+.input-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; margin-bottom: 6px; padding-left: 4px; }
+.text-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px; font-family: var(--font-body); font-size: 16px; color: var(--text); background: white; outline: none; transition: border-color 0.15s; }
+.text-input:focus { border-color: var(--primary); }
+.input-with-prefix { position: relative; }
+.input-with-prefix .prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-soft); font-family: var(--font-tech); font-weight: 500; font-size: 16px; }
+.input-with-prefix .text-input { padding-left: 32px; font-family: var(--font-tech); font-weight: 500; }
+
+.modal-actions { padding: 8px 16px 0; display: flex; gap: 8px; }
+.modal-actions .btn-secondary { flex: 1; background: white; border: 1px solid var(--border); padding: 14px; border-radius: 12px; font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; }
+.modal-actions .btn-primary-modal { flex: 2; background: var(--primary-dark); color: white; border: none; padding: 14px; border-radius: 12px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; }
+.modal-actions .btn-primary-modal:disabled { background: #CCC9C1; cursor: not-allowed; }
+
+/* Store selector (al escanear) */
+.store-selector { padding: 0 16px; display: flex; flex-direction: column; gap: 6px; }
+.store-selector .ss-row { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.store-selector .ss-row:active { background: #FAFAF7; }
+.store-selector .ss-row.new-store { background: var(--primary-faint); border-color: var(--primary-light); color: var(--primary-dark); justify-content: center; font-weight: 600; }
+
+/* Scanner result */
+.scan-result { margin: 0 16px 14px; background: white; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+.scan-result-header { padding: 14px 16px; text-align: center; }
+.scan-result-header.found { background: var(--state-completed-bg); color: var(--state-completed-text); }
+.scan-result-header.new { background: var(--state-pending-bg); color: var(--state-pending-text); }
+.scan-result-header .icon { font-size: 28px; margin-bottom: 4px; display: block; }
+.scan-result-header h3 { font-family: var(--font-tech); font-size: 14px; font-weight: 600; letter-spacing: 0.3px; }
+.scan-result-body { padding: 14px 18px; }
+.scan-product-name { font-family: var(--font-display); font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.scan-product-info { font-size: 12px; color: var(--text-soft); margin-bottom: 4px; }
+.scan-product-info .label { font-weight: 600; color: var(--text); margin-right: 4px; }
+
+.scan-options { padding: 0 16px; }
+.scan-options-title { padding: 8px 6px; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; }
+.scan-btn { background: white; border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; font-family: var(--font-body); font-size: 14px; color: var(--text); font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 10px; text-align: left; width: 100%; margin-bottom: 8px; }
+.scan-btn:active { background: #FAFAF7; }
+.scan-btn .ic { width: 28px; height: 28px; border-radius: 8px; background: var(--primary-faint); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+
+/* Modal de detalle pantry */
+.product-modal-hero { margin: 0 16px 14px; background: white; border-radius: 14px; padding: 16px 16px 14px; border: 1px solid var(--border); text-align: center; }
+.product-modal-hero .pname { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 6px; line-height: 1.2; }
+.product-modal-hero .pmeta { font-size: 12px; color: var(--text-soft); }
+.state-selector { margin: 0 16px 14px; background: white; border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; }
+.state-selector .label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; margin-bottom: 10px; }
+.state-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.state-opt { background: #FAFAF7; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 6px; cursor: pointer; text-align: center; transition: all 0.15s; }
+.state-opt .so-dot { width: 16px; height: 16px; border-radius: 50%; margin: 0 auto 6px; }
+.state-opt .so-label { font-size: 12px; color: var(--text-soft); font-weight: 500; }
+.state-opt.have .so-dot { background: var(--state-completed-text); }
+.state-opt.low .so-dot { background: var(--state-pending-text); }
+.state-opt.out .so-dot { background: var(--state-overdue-text); }
+.state-opt.selected { background: white; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(33,150,243,0.12); }
+.state-opt.selected .so-label { color: var(--text); font-weight: 600; }
+
+/* CIERRE DE COMPRA */
+.close-hero { background: linear-gradient(180deg, var(--state-completed-bg), #F1F8E9); border: 1px solid var(--state-completed-border); margin: 16px; border-radius: 18px; padding: 22px 16px 20px; text-align: center; }
+.close-hero .quote-it { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--state-completed-text); margin-bottom: 4px; }
+.close-hero .total-amount { font-family: var(--font-tech); font-size: 40px; font-weight: 600; color: var(--state-completed-text); line-height: 1.05; margin: 6px 0 4px; }
+.close-hero .small { font-size: 11.5px; color: var(--state-completed-text); font-weight: 500; }
+.ticket-card { margin: 0 16px 14px; border: 1.5px dashed #FFD54F; background: #FFF8E1; border-radius: 14px; padding: 24px 16px; text-align: center; cursor: pointer; }
+.ticket-card .emoji { font-size: 38px; opacity: 0.5; display: block; margin-bottom: 6px; }
+.ticket-card .title { color: #F57F17; font-weight: 600; font-size: 13.5px; margin-bottom: 4px; }
+.ticket-card .hint { font-family: var(--font-display); font-style: italic; font-size: 11.5px; color: #F9A825; }
+
+/* ===== BALANCE ===== */
+.period-selector { background: white; border-bottom: 1px solid var(--border); padding: 0; display: flex; }
+.period-tab { flex: 1; padding: 14px 12px 13px; background: none; border: none; font-size: 13.5px; font-weight: 500; color: var(--text-soft); cursor: pointer; position: relative; text-align: center; }
+.period-tab.active { color: var(--primary-dark); font-weight: 600; }
+.period-tab.active::after { content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 2.5px; background: var(--primary-dark); border-radius: 2px 2px 0 0; }
+
+.metric-chips { display: flex; gap: 6px; padding: 14px 16px 8px; overflow-x: auto; scrollbar-width: none; }
+.metric-chips::-webkit-scrollbar { display: none; }
+.metric-chip { background: white; border: 1px solid var(--border); border-radius: 100px; padding: 7px 14px; font-size: 12px; color: var(--text-soft); font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s; font-family: var(--font-body); display: flex; align-items: center; gap: 5px; }
+.metric-chip.active { background: var(--primary-faint); border-color: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
+
+/* Donut chart */
+.donut-card { background: white; border-radius: 18px; margin: 8px 16px 16px; padding: 22px 18px 20px; border: 1px solid var(--border); }
+.donut-wrap { display: flex; align-items: center; gap: 18px; }
+.donut-svg-wrap { width: 140px; height: 140px; flex-shrink: 0; position: relative; }
+.donut-svg-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.donut-svg-wrap .donut-segment { transition: stroke-width 0.2s; }
+.donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.donut-center .big-num { font-family: var(--font-tech); font-weight: 600; font-size: 28px; line-height: 1; color: var(--text); }
+.donut-center .big-label { font-size: 10px; color: var(--text-soft); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 500; }
+
+.legend { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.legend-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.legend-row .swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-row .name { flex: 1; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend-row .pct { font-family: var(--font-tech); font-weight: 600; color: var(--text); font-size: 13px; }
+
+/* Comparativa */
+.compare-row { display: flex; align-items: center; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #F0EBE0; font-size: 12px; }
+.compare-arrow { font-size: 14px; font-family: var(--font-tech); font-weight: 700; }
+.compare-arrow.up { color: var(--state-completed-text); }
+.compare-arrow.down { color: var(--state-overdue-text); }
+.compare-arrow.flat { color: var(--text-soft); }
+.compare-text { color: var(--text-soft); flex: 1; }
+
+/* Member detail card */
+.member-card { background: white; border-radius: 14px; margin: 0 16px 8px; padding: 14px 16px; border: 1px solid var(--border); }
+.member-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.member-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 500; font-size: 16px; flex-shrink: 0; color: white; }
+.member-name { flex: 1; font-weight: 600; font-size: 14px; color: var(--text); }
+.member-pct { font-family: var(--font-tech); font-weight: 600; font-size: 16px; color: var(--primary-dark); }
+.member-bar { height: 5px; background: #F0EBE0; border-radius: 5px; overflow: hidden; margin-bottom: 12px; }
+.member-bar-fill { height: 100%; border-radius: 5px; transition: width 0.4s; }
+.member-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+.mstat { background: #FAFAF7; border-radius: 8px; padding: 8px 6px; text-align: center; }
+.mstat-num { font-family: var(--font-tech); font-weight: 600; font-size: 16px; color: var(--text); line-height: 1.1; }
+.mstat-label { font-size: 9.5px; color: var(--text-soft); margin-top: 3px; letter-spacing: 0.2px; text-transform: uppercase; font-weight: 500; }
+.member-tasks { display: flex; flex-direction: column; gap: 4px; }
+.member-task-pill { font-size: 11.5px; color: var(--text-soft); padding: 5px 0; display: flex; align-items: center; gap: 6px; }
+.member-task-pill .pill-ic { width: 18px; text-align: center; }
+
+/* Insight card */
+.insight-card { margin: 0 16px 14px; background: var(--primary-faint); border: 1px solid var(--primary-light); border-radius: 14px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 10px; }
+.insight-card .insight-ic { width: 32px; height: 32px; border-radius: 8px; background: var(--white); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.insight-card .insight-body { flex: 1; font-size: 12.5px; color: var(--primary-dark); line-height: 1.45; }
+.insight-card .insight-body strong { font-weight: 600; }
+
+/* NAV */
+.nav { flex-shrink: 0; position: fixed; bottom: 0; left: 0; right: 0; height: calc(var(--nav-height) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: white; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(6, 1fr); box-shadow: 0 -2px 12px rgba(26,43,60,0.05); z-index: 50; }
+.nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; cursor: pointer; padding: 8px 4px; color: var(--text-soft); position: relative; }
+.nav-item .icon { font-size: 22px; line-height: 1; filter: grayscale(0.4); opacity: 0.7; }
+.nav-item .label { font-size: 10px; font-weight: 500; letter-spacing: 0.2px; }
+.nav-item.active { color: var(--primary-dark); }
+.nav-item.active .icon { filter: grayscale(0); opacity: 1; transform: scale(1.05); }
+.nav-item.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 3px; background: var(--primary); border-radius: 0 0 4px 4px; }
+
+.tagline { font-family: var(--font-display); font-style: italic; font-size: 12.5px; color: var(--text-soft); text-align: center; margin: 18px 0 4px; letter-spacing: 0.5px; }
+.tagline::before, .tagline::after { content: '✦'; color: var(--gold); margin: 0 8px; font-size: 9px; }
+
+.ph-card { background: white; border-radius: 16px; border: 1px solid var(--border); padding: 22px; margin: 18px 16px; text-align: center; }
+.ph-card .emoji { font-size: 38px; margin-bottom: 10px; display: block; }
+.ph-card .title { font-family: var(--font-display); font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+.ph-card .body { color: var(--text-soft); font-size: 13.5px; line-height: 1.55; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useMemo } = React;
+
+const USER = { name: 'Royman Avila', shortName: 'Roy', email: 'roymanavila@gmail.com', city: 'Adelaide', household: 'Casa Avila-Pares', role: 'admin', loginMethod: 'Google', membersCount: 3 };
+
+const SPACES = {
+  bedroom: { es: 'Habitación', icon: '🛏️', bgVar: 'var(--sp-bedroom-bg)', color: 'var(--sp-bedroom)' },
+  bathroom: { es: 'Baño', icon: '🚽', bgVar: 'var(--sp-bathroom-bg)', color: 'var(--sp-bathroom)' },
+  kitchen: { es: 'Cocina', icon: '🍳', bgVar: 'var(--sp-kitchen-bg)', color: 'var(--sp-kitchen)' },
+  living_room: { es: 'Sala', icon: '🛋️', bgVar: 'var(--sp-living-bg)', color: 'var(--sp-living)' },
+  garden: { es: 'Jardín', icon: '🌿', bgVar: 'var(--sp-garden-bg)', color: 'var(--sp-garden)' },
+  laundry: { es: 'Laundry', icon: '🧺', bgVar: 'var(--sp-laundry-bg)', color: 'var(--sp-laundry)' },
+  pets: { es: 'Mascotas', icon: '🐾', bgVar: 'var(--sp-pets-bg)', color: 'var(--sp-pets)' },
+  whole_home: { es: 'Hogar', icon: '🏡', bgVar: 'var(--sp-home-bg)', color: 'var(--sp-home)' },
+};
+
+const CATEGORIES = {
+  habitos: { es: 'Hábitos', icon: '🧠' },
+  productividad: { es: 'Productividad', icon: '⚡' },
+  organizacion: { es: 'Organización', icon: '🏠' },
+  estacional: { es: 'Estacionales', icon: '🌿' },
+  planes: { es: 'Planes prediseñados', icon: '📋' },
+};
+
+const ARTICLES = [
+  { id: 'h1', category: 'habitos', emoji: '🛏️', title: 'El efecto dominó del orden', minutes: 5, bg: 'linear-gradient(135deg,#E3F2FD,#BBDEFB)', subtitle: 'Por qué tender la cama cambia el día' },
+  { id: 'h2', category: 'habitos', emoji: '☀️', title: 'El minuto de oro al despertar', minutes: 3, bg: 'linear-gradient(135deg,#FFF8E1,#FFE082)', subtitle: 'Los primeros 60 segundos' },
+  { id: 'p1', category: 'productividad', emoji: '⚡', title: 'El especialista no limpia, termina', minutes: 4, bg: 'linear-gradient(135deg,#FFE0B2,#FFAB91)', subtitle: 'Un cambio mental' },
+  { id: 'p2', category: 'productividad', emoji: '⏱️', title: 'Time-boxing para el hogar', minutes: 5, bg: 'linear-gradient(135deg,#C8E6C9,#A5D6A7)', subtitle: 'Bloques de tiempo' },
+  { id: 'o1', category: 'organizacion', emoji: '🍳', title: 'Cómo organizar una cocina', minutes: 6, bg: 'linear-gradient(135deg,#C8E6C9,#66BB6A)', subtitle: 'Por zonas' },
+  { id: 'o2', category: 'organizacion', emoji: '📦', title: 'El método de las 3 cajas', minutes: 4, bg: 'linear-gradient(135deg,#D1C4E9,#9575CD)', subtitle: 'Quedo · Dono · Tiro' },
+  { id: 'e1', category: 'estacional', emoji: '🍂', title: 'Qué hacer en otoño antes del frío', minutes: 5, bg: 'linear-gradient(135deg,#FFE0B2,#FFAB91)', subtitle: '7 tareas clave', seasonal: true,
+    intro: 'El otoño en Adelaide es engañoso. Los días siguen tibios pero las noches se enfrían rápido.',
+    pullQuote: 'La diferencia entre una casa preparada y una sorprendida son dos tardes de mayo.',
+    steps: [
+      { title: 'Limpiar la chimenea', desc: 'Antes del primer uso.' },
+      { title: 'Revisar sellos de ventanas', desc: 'Los burletes se gastan.' },
+      { title: 'Cambiar a edredones de invierno', desc: 'Lava y guarda los de verano.' },
+      { title: 'Limpiar canaletas', desc: 'Las hojas tapan todo.' },
+      { title: 'Service de calefacción', desc: 'Filtros y termostato.' },
+      { title: 'Guardar muebles de exterior', desc: 'Bajo techo o cubiertos.' },
+      { title: 'Preparar el jardín', desc: 'Última poda, mantillo.' },
+    ],
+    closing: 'Repártela en dos fines de semana de mayo.',
+  },
+  { id: 'pl1', category: 'planes', emoji: '🚀', title: 'Plan Arranque', minutes: 4, bg: 'linear-gradient(135deg,#BBDEFB,#64B5F6)', subtitle: '8-12 tareas mínimas', isPlan: true },
+];
+
+const FEATURED_ARTICLE_ID = 'e1';
+
+const QUOTES = [
+  'Un hogar ordenado es una mente en paz.', 'Lo que cuidas, te cuida.',
+  'Pequeños pasos, grandes resultados.', 'El orden es una forma silenciosa de cariño.',
+  'Diez minutos hoy valen más que tres horas el sábado.', 'El especialista no limpia, termina.',
+];
+
+// ─── COMPRAS — NUEVO MODELO ───
+const INITIAL_STORES = [
+  { id: 'coles', name: 'Coles · Mt Barker', initial: 'C', logoClass: 'coles' },
+  { id: 'woolworths', name: 'Woolworths', initial: 'W', logoClass: 'woolworths' },
+  { id: 'aldi', name: 'Aldi', initial: 'A', logoClass: 'aldi' },
+  { id: 'iga', name: 'IGA Local', initial: 'I', logoClass: 'iga' },
+  { id: 'bunnings', name: 'Bunnings Warehouse', initial: 'B', logoClass: 'bunnings' },
+];
+
+// Cada tienda tiene UNA lista permanente de productos pendientes
+const INITIAL_STORE_LISTS = {
+  coles: [
+    { id: 'c1', name: 'Aceite de oliva 500ml', price: 12.50 },
+    { id: 'c2', name: 'Café molido Lavazza', price: 8.90 },
+    { id: 'c3', name: 'Detergente líquido 2L', price: 6.20 },
+    { id: 'c4', name: 'Huevos x 12', price: 5.80 },
+    { id: 'c5', name: 'Leche entera 2L', price: 3.50 },
+    { id: 'c6', name: 'Pan integral', price: 4.20 },
+    { id: 'c7', name: 'Plátanos 1kg', price: 4.00 },
+    { id: 'c8', name: 'Yogurt griego', price: 5.90 },
+  ],
+  woolworths: [
+    { id: 'w1', name: 'Cereal de avena', price: 7.50 },
+    { id: 'w2', name: 'Queso parmesano', price: 8.90 },
+  ],
+  aldi: [],
+  iga: [],
+  bunnings: [
+    { id: 'b1', name: 'Bombillas LED x 4', price: 18.00 },
+  ],
+};
+
+// Historial de compras archivadas (mock con 2 previas)
+const INITIAL_HISTORY = [
+  { id: 'arc1', storeId: 'coles', date: 'sábado 10 mayo', items: 14, total: 78.50, hasTicket: true },
+  { id: 'arc2', storeId: 'aldi', date: 'martes 6 mayo', items: 5, total: 22.40, hasTicket: false },
+  { id: 'arc3', storeId: 'woolworths', date: 'sábado 3 mayo', items: 9, total: 51.20, hasTicket: true },
+];
+
+const PANTRY_ITEMS = [
+  { id: 'pa1', name: 'Aceite de oliva 500ml', state: 'low', meta: '½ botella' },
+  { id: 'pa2', name: 'Arroz basmati', state: 'have', meta: '1 kg' },
+  { id: 'pa3', name: 'Café molido', state: 'have', meta: 'recién comprado' },
+  { id: 'pa4', name: 'Cereal de avena', state: 'low', meta: 'queda poco' },
+  { id: 'pa5', name: 'Detergente líquido', state: 'have', meta: 'lleno' },
+  { id: 'pa6', name: 'Huevos', state: 'have', meta: '10 unidades' },
+  { id: 'pa7', name: 'Leche', state: 'low', meta: '1 litro' },
+  { id: 'pa8', name: 'Pasta de dientes', state: 'out', meta: 'se acabó hoy' },
+  { id: 'pa9', name: 'Papel higiénico', state: 'have', meta: '8 rollos' },
+  { id: 'pa10', name: 'Yogurt griego', state: 'have', meta: '2 envases' },
+];
+
+const SCANNER_DATABASE = [
+  { barcode: '9300658000016', name: 'Aceite de oliva 500ml', brand: 'Bertolli', price: 12.50, inPantry: true, lastUpdate: 'hace 12 días', stock: '½ botella' },
+  { barcode: '9300658000023', name: 'Detergente Earth Choice 2L', brand: 'Earth Choice', price: 7.90, inPantry: false },
+];
+
+const TASK_DETAILS = {
+  9: { description: 'Encimera, fregadero y barrido de la cocina.', subtasks: ['Limpiar la encimera', 'Lavar el fregadero', 'Barrer el piso'] },
+  8: { description: 'Limpieza completa del inodoro.', subtasks: ['Tapa y asiento', 'Interior con cepillo', 'Desinfectar la base'] },
+  11: { description: 'Aspirar la sala.', subtasks: ['Sofá', 'Alfombra', 'Rincones'] },
+};
+const WEEK_TASKS = [
+  { id: 1, name: 'Tender la cama', space: 'bedroom', state: 'completed', day: 11, freq: 'Diaria', by: 'Ruth · 7:30' },
+  { id: 7, name: 'Marcos de ventanas', space: 'bedroom', state: 'overdue', day: 13, freq: 'Mensual' },
+  { id: 8, name: 'Limpiar inodoro', space: 'bathroom', state: 'assigned', day: 13, freq: 'Semanal', assigned: 'Ruth' },
+  { id: 9, name: 'Limpiar cocina', space: 'kitchen', state: 'pending', day: 13, freq: 'Diaria' },
+  { id: 10, name: 'Regar el jardín', space: 'garden', state: 'pending', day: 13, freq: 'Cada 2 días' },
+  { id: 11, name: 'Aspirar la sala', space: 'living_room', state: 'progress', day: 13, freq: 'Semanal' },
+  { id: 12, name: 'Tender la cama', space: 'bedroom', state: 'completed', day: 13, freq: 'Diaria', by: 'Ruth · 7:30' },
+  { id: 13, name: 'Lavar platos', space: 'kitchen', state: 'pending', day: 14, freq: 'Diaria' },
+];
+
+function getGreeting(d = new Date()) { const h = d.getHours(); if (h >= 5 && h < 12) return 'Buenos días'; if (h >= 12 && h < 19) return 'Buenas tardes'; return 'Buenas noches'; }
+const DAY_NAMES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const DAY_SHORT = ['D','L','M','X','J','V','S'];
+const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function formatToday(d = new Date()) { return `${DAY_NAMES[d.getDay()]}, ${d.getDate()} de ${MONTHS[d.getMonth()]}`; }
+
+function TaskCard({ task, onOpen }) {
+  const space = SPACES[task.space] || SPACES.whole_home;
+  const isCompleted = task.state === 'completed';
+  let badge = null;
+  if (task.state === 'overdue') badge = <span className="badge badge-overdue">Atrasada</span>;
+  else if (task.state === 'assigned' && task.assigned) badge = <span className="badge badge-assigned">{task.assigned}</span>;
+  else if (task.state === 'progress') badge = <span className="badge badge-progress">En curso</span>;
+  return (
+    <div className={`task s-${task.state}`} style={{ '--space-bg': space.bgVar }} onClick={() => onOpen && onOpen(task)}>
+      <div className="task-icon">{space.icon}</div>
+      <div className="task-body">
+        <div className="task-name">{task.name}</div>
+        <div className="task-meta">{task.by ? task.by : `${space.es} · ${task.freq}`}</div>
+      </div>
+      <div className="task-right">
+        {badge}
+        <div className={'check' + (isCompleted ? ' done' : '')} onClick={e => e.stopPropagation()}></div>
+      </div>
+    </div>
+  );
+}
+
+function HomeScreen({ onOpenTask }) {
+  const today = useMemo(() => new Date(), []);
+  const greeting = getGreeting(today);
+  const dateLine = `${formatToday(today)} · ${USER.city}`;
+  const quote = useMemo(() => QUOTES[Math.floor(Math.random() * QUOTES.length)], []);
+  const todayTasks = WEEK_TASKS.filter(t => t.day === 13);
+  const counts = {
+    pending: todayTasks.filter(t => t.state === 'pending' || t.state === 'overdue').length,
+    progress: todayTasks.filter(t => t.state === 'progress').length,
+    assigned: todayTasks.filter(t => t.state === 'assigned').length,
+    completed: todayTasks.filter(t => t.state === 'completed').length,
+  };
+  const active = todayTasks.filter(t => t.state !== 'completed');
+  const completed = todayTasks.filter(t => t.state === 'completed');
+  return (
+    <>
+      <div className="blue-header">
+        <button className="bell">🔔</button>
+        <div className="eyebrow">{greeting.toUpperCase()}</div>
+        <div className="greeting-name">{USER.shortName}<span className="wave">👋</span></div>
+        <div className="sub">{dateLine}</div>
+      </div>
+      <div className="stats-container">
+        <div className="stat stat-pending"><div className="stat-icon">📋</div><div className="stat-num">{counts.pending}</div><div className="stat-label">Pendientes</div></div>
+        <div className="stat stat-progress"><div className="stat-icon">⏳</div><div className="stat-num">{counts.progress}</div><div className="stat-label">En curso</div></div>
+        <div className="stat stat-assigned"><div className="stat-icon">📌</div><div className="stat-num">{counts.assigned}</div><div className="stat-label">Asignadas</div></div>
+        <div className="stat stat-completed"><div className="stat-icon">✅</div><div className="stat-num">{counts.completed}</div><div className="stat-label">Completas</div></div>
+      </div>
+      <div className="quote">{quote}</div>
+      <div className="section-head"><span className="title">Tareas de hoy</span><span className="link">Ver todas →</span></div>
+      {active.length === 0 ? <div className="empty">No hay tareas pendientes.</div> : active.map(t => <TaskCard key={t.id} task={t} onOpen={onOpenTask} />)}
+      {completed.length > 0 && (
+        <>
+          <div className="section-head"><span className="title">Completadas</span><span className="link muted">{completed.length}</span></div>
+          {completed.map(t => <TaskCard key={t.id} task={t} onOpen={onOpenTask} />)}
+        </>
+      )}
+      <div className="tagline">El orden es elegante</div>
+    </>
+  );
+}
+
+function TasksScreen({ onOpenTask }) {
+  const [selectedDay, setSelectedDay] = useState(13);
+  const days = [11,12,13,14,15,16,17];
+  const todayDay = 13;
+  const dayTasks = WEEK_TASKS.filter(t => t.day === selectedDay);
+  const active = dayTasks.filter(t => t.state !== 'completed');
+  return (
+    <>
+      <div className="blue-header"><div className="eyebrow">SECCIÓN</div><h1 className="large">Tareas</h1><div className="sub">Tu calendario completo</div></div>
+      <div className="view-tabs">
+        <button className="view-tab">Lista</button>
+        <button className="view-tab active">Semana</button>
+        <button className="view-tab">Mes</button>
+        <button className="view-tab">Matriz</button>
+      </div>
+      <div className="week-nav"><button className="week-nav-arrow">‹</button><div className="week-nav-title">Semana 19<span className="range">· 11 – 17 mayo</span></div><button className="week-nav-arrow">›</button></div>
+      <div className="week-strip">
+        {days.map((day, i) => {
+          const dayIdx = (i + 1) % 7;
+          return (
+            <button key={day} className={'day-pill' + (selectedDay === day ? ' active' : '') + (day === todayDay ? ' today' : '')} onClick={() => setSelectedDay(day)}>
+              <div className="day-name">{DAY_SHORT[dayIdx === 0 ? 0 : dayIdx]}</div>
+              <div className="day-num">{day}</div>
+            </button>
+          );
+        })}
+      </div>
+      <div className="section-head"><span className="title">{selectedDay === todayDay ? 'Hoy' : `Día ${selectedDay}`}</span><span className="link muted">{active.length} pendientes</span></div>
+      {active.length === 0 ? <div className="empty">Sin tareas este día.</div> : active.map(t => <TaskCard key={t.id} task={t} onOpen={onOpenTask} />)}
+    </>
+  );
+}
+
+function TaskDetailScreen({ task, onBack }) {
+  const space = SPACES[task.space] || SPACES.whole_home;
+  const details = TASK_DETAILS[task.id] || { description: `${task.name} — ${space.es}.`, subtasks: [] };
+  const initialDone = details.subtasks.length >= 3 ? [true, false, false] : details.subtasks.map(() => false);
+  const [doneList, setDoneList] = useState(initialDone);
+  const [observation, setObservation] = useState('');
+  const toggleSubtask = idx => setDoneList(prev => prev.map((v, i) => i === idx ? !v : v));
+  const totalSubs = details.subtasks.length;
+  const doneCount = doneList.filter(Boolean).length;
+  const allSubsDone = totalSubs === 0 || doneCount === totalSubs;
+  const progressPct = totalSubs > 0 ? (doneCount / totalSubs) * 100 : 0;
+  const stateLabel = { pending: 'Pendiente', progress: 'En curso', overdue: 'Atrasada', assigned: 'Asignada', completed: 'Completada' }[task.state];
+
+  return (
+    <>
+      <div className="blue-header">
+        <button className="back" onClick={onBack}><span className="arrow">←</span> Tareas</button>
+        <h1>{task.name}</h1>
+        <div className="sub">{space.es} · {stateLabel}</div>
+      </div>
+      <div className="detail-hero" style={{ '--space-bg': space.bgVar }}>
+        <div className="big-icon">{space.icon}</div>
+        <div className="name">{task.name}</div>
+        <div className="description">{details.description}</div>
+      </div>
+      <div className="info-list">
+        <div className="info-row"><span className="label"><span className="ic">🗓️</span>Frecuencia</span><span className="value">{task.freq}</span></div>
+        <div className="info-row"><span className="label"><span className="ic">👤</span>Asignada a</span><span className="value">{task.assigned || 'Libre'}</span></div>
+        <div className="info-row"><span className="label"><span className="ic">📍</span>Espacio</span><span className="value space-tag" style={{ '--space-color': space.color }}>{space.es}</span></div>
+      </div>
+      {totalSubs > 0 && (
+        <div className="subtasks-block">
+          <div className="subtasks-head"><span className="title">Subtareas</span><span className="progress">{doneCount} / {totalSubs}</span></div>
+          <div className="progress-bar"><div className="progress-fill" style={{ width: `${progressPct}%` }}></div></div>
+          {details.subtasks.map((text, idx) => (
+            <div key={idx} className={'subtask' + (doneList[idx] ? ' done' : '')} onClick={() => toggleSubtask(idx)}>
+              <div className="sub-check"></div>
+              <div className="sub-text">{text}</div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="observations-block">
+        <div className="obs-head"><span className="title">Observaciones</span></div>
+        <textarea className="obs-textarea" placeholder="Deja una nota..." value={observation} onChange={e => setObservation(e.target.value)}></textarea>
+      </div>
+      <button className="btn-primary" disabled={!allSubsDone || task.state === 'completed'}>
+        {task.state === 'completed' ? '✓ Ya completada' : allSubsDone ? '✓ Marcar como completada' : `Completa las subtareas (${doneCount}/${totalSubs})`}
+      </button>
+    </>
+  );
+}
+
+// ─── COMPRAS ───
+function ShoppingScreen({ stores, storeLists, history, onOpenStore, onOpenHistory, onOpenScanner }) {
+  const [tab, setTab] = useState('stores');
+  const totalPending = Object.values(storeLists).reduce((s, list) => s + list.length, 0);
+
+  return (
+    <>
+      <div className="blue-header">
+        <button className="bell">🔔</button>
+        <div className="eyebrow">SECCIÓN</div>
+        <h1 className="large">Compras</h1>
+        <div className="sub">Listas, productos y despensa</div>
+      </div>
+      <div className="shop-tabs">
+        <button className={'shop-tab' + (tab === 'stores' ? ' active' : '')} onClick={() => setTab('stores')}>
+          🏪 Tiendas {totalPending > 0 && <span className="badge-count">{totalPending}</span>}
+        </button>
+        <button className={'shop-tab' + (tab === 'history' ? ' active' : '')} onClick={() => setTab('history')}>
+          🗂️ Historial
+        </button>
+        <button className={'shop-tab' + (tab === 'pantry' ? ' active' : '')} onClick={() => setTab('pantry')}>
+          📦 Pantry
+        </button>
+      </div>
+      {tab === 'stores' && <StoresTab stores={stores} storeLists={storeLists} onOpenStore={onOpenStore} />}
+      {tab === 'history' && <HistoryTab history={history} stores={stores} onOpenHistory={onOpenHistory} />}
+      {tab === 'pantry' && <PantryTab />}
+      <button className="scanner-fab" onClick={onOpenScanner}>📷</button>
+    </>
+  );
+}
+
+function StoresTab({ stores, storeLists, onOpenStore }) {
+  return (
+    <>
+      <div className="section-head"><span className="title">Tus tiendas</span><span className="link muted">{stores.length}</span></div>
+      {stores.map(store => {
+        const list = storeLists[store.id] || [];
+        const total = list.reduce((s, p) => s + p.price, 0);
+        const hasItems = list.length > 0;
+        return (
+          <div key={store.id} className={'store-card' + (hasItems ? ' has-items' : '')} onClick={() => onOpenStore(store)}>
+            <div className={'store-logo ' + store.logoClass}>{store.initial}</div>
+            <div className="store-body">
+              <div className="store-name">{store.name}</div>
+              <div className={'store-meta' + (hasItems ? '' : ' empty-meta')}>
+                {hasItems ? <><strong>{list.length}</strong> {list.length === 1 ? 'producto pendiente' : 'productos pendientes'} · ≈ ${total.toFixed(2)}</> : 'Sin productos pendientes'}
+              </div>
+            </div>
+            <span className="store-chev">›</span>
+          </div>
+        );
+      })}
+      <div className="add-card">+ Agregar tienda</div>
+      <div className="tagline">El orden es elegante</div>
+    </>
+  );
+}
+
+function HistoryTab({ history, stores, onOpenHistory }) {
+  if (history.length === 0) {
+    return <div className="empty" style={{padding:'40px 22px'}}>Aún no hay compras archivadas.<br/>Tu historial aparecerá aquí.</div>;
+  }
+  return (
+    <>
+      <div className="section-head"><span className="title">Compras archivadas</span><span className="link muted">{history.length}</span></div>
+      {history.map(rec => {
+        const store = stores.find(s => s.id === rec.storeId);
+        if (!store) return null;
+        return (
+          <div key={rec.id} className="history-card" onClick={() => onOpenHistory && onOpenHistory(rec)}>
+            <div className={'store-logo ' + store.logoClass}>{store.initial}</div>
+            <div className="h-body">
+              <div className="h-title">{store.name}</div>
+              <div className="h-meta">{rec.date} · {rec.items} productos {rec.hasTicket && ' · 🧾'}</div>
+            </div>
+            <div className="h-total">${rec.total.toFixed(2)}</div>
+          </div>
+        );
+      })}
+      <div className="tagline">El orden es elegante</div>
+    </>
+  );
+}
+
+// ─── Lista de productos de una tienda ───
+function StoreListScreen({ store, list, onBack, onTickProduct, onEditPrice, onDeleteProduct, onAddManual, onCloseCompra }) {
+  const sortedList = [...list].sort((a, b) => a.name.localeCompare(b.name));
+  const total = list.reduce((s, p) => s + p.price, 0);
+  const [removingIds, setRemovingIds] = useState([]);
+
+  const handleTick = (productId) => {
+    // Animación: marca como removing, luego borra del estado real tras 250ms
+    setRemovingIds(prev => [...prev, productId]);
+    setTimeout(() => {
+      onTickProduct(productId);
+      setRemovingIds(prev => prev.filter(id => id !== productId));
+    }, 250);
+  };
+
+  return (
+    <>
+      <div className="blue-header">
+        <button className="back" onClick={onBack}><span className="arrow">←</span> Compras</button>
+        <h1>{store.name}</h1>
+        <div className="sub">{list.length === 0 ? 'Lista vacía' : `${list.length} ${list.length === 1 ? 'producto pendiente' : 'productos pendientes'}`}</div>
+      </div>
+
+      {list.length > 0 && (
+        <div className="list-banner">
+          <span className="left">Toca el producto cuando lo eches al carro</span>
+          <span className="right">≈ ${total.toFixed(2)}</span>
+        </div>
+      )}
+
+      {list.length === 0 ? (
+        <div className="empty" style={{padding: '40px 22px'}}>
+          Lista vacía.<br/>Agrega productos manualmente o con el escáner 📷
+        </div>
+      ) : (
+        <div style={{paddingTop: 14, paddingBottom: 8}}>
+          {sortedList.map(p => (
+            <div
+              key={p.id}
+              className={'product-row' + (removingIds.includes(p.id) ? ' removing' : '')}
+              onClick={() => handleTick(p.id)}
+            >
+              <div className="product-check"></div>
+              <div className="product-name">{p.name}</div>
+              <button
+                className="product-price-btn"
+                onClick={e => { e.stopPropagation(); onEditPrice(p); }}
+              >
+                ${p.price.toFixed(2)}
+              </button>
+              <button
+                className="product-delete"
+                onClick={e => { e.stopPropagation(); onDeleteProduct(p.id); }}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="add-card" onClick={onAddManual}>+ Agregar producto manualmente</div>
+
+      {list.length > 0 && (
+        <button className="btn-primary" onClick={onCloseCompra}>
+          🧾 Cerrar compra y archivar
+        </button>
+      )}
+    </>
+  );
+}
+
+// ─── Cierre de compra ───
+function CloseCompraScreen({ store, list, onBack, onArchive }) {
+  const total = list.reduce((s, p) => s + p.price, 0);
+  return (
+    <>
+      <div className="blue-header">
+        <button className="back" onClick={onBack}><span className="arrow">←</span> Lista</button>
+        <h1>Cerrar compra</h1>
+        <div className="sub">{store.name} · hoy</div>
+      </div>
+      <div className="close-hero">
+        <div className="quote-it">Compra completada</div>
+        <div className="total-amount">${total.toFixed(2)}</div>
+        <div className="small">{list.length} productos</div>
+      </div>
+      <div className="ticket-card">
+        <span className="emoji">🧾</span>
+        <div className="title">Fotografía el ticket</div>
+        <div className="hint">opcional pero recomendado</div>
+      </div>
+      <button className="btn-primary" onClick={onArchive}>🗂️ Archivar compra</button>
+    </>
+  );
+}
+
+// ─── Modal: agregar producto manual ───
+function AddProductModal({ onClose, onAdd }) {
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+
+  const handleAdd = () => {
+    if (!name.trim()) return;
+    onAdd({ name: name.trim(), price: parseFloat(price) || 0 });
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>Agregar producto</h2>
+          <div className="sub">A esta lista de la tienda</div>
+        </div>
+        <div className="input-block">
+          <div className="input-label">Nombre</div>
+          <input type="text" className="text-input" placeholder="ej. Aceite de oliva 500ml" value={name} onChange={e => setName(e.target.value)} autoFocus />
+        </div>
+        <div className="input-block">
+          <div className="input-label">Precio estimado (opcional)</div>
+          <div className="input-with-prefix">
+            <span className="prefix">$</span>
+            <input type="number" inputMode="decimal" className="text-input" placeholder="0.00" value={price} onChange={e => setPrice(e.target.value)} />
+          </div>
+        </div>
+        <div className="modal-actions">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary-modal" onClick={handleAdd} disabled={!name.trim()}>Agregar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal: editar precio ───
+function EditPriceModal({ product, onClose, onSave }) {
+  const [price, setPrice] = useState(String(product.price));
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>Editar precio</h2>
+          <div className="sub">{product.name}</div>
+        </div>
+        <div className="input-block">
+          <div className="input-label">Precio</div>
+          <div className="input-with-prefix">
+            <span className="prefix">$</span>
+            <input type="number" inputMode="decimal" className="text-input" value={price} onChange={e => setPrice(e.target.value)} autoFocus />
+          </div>
+        </div>
+        <div className="modal-actions">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary-modal" onClick={() => onSave(parseFloat(price) || 0)}>Guardar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal: elegir tienda para escaneo ───
+function StoreSelectorModal({ stores, scannedProduct, onClose, onChoose, onCreateNew }) {
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>¿A cuál lista lo agrego?</h2>
+          <div className="sub">{scannedProduct.name} · ${scannedProduct.price.toFixed(2)}</div>
+        </div>
+        <div className="store-selector">
+          {stores.map(s => (
+            <div key={s.id} className="ss-row" onClick={() => onChoose(s.id)}>
+              <div className={'store-logo ' + s.logoClass}>{s.initial}</div>
+              <div style={{flex: 1, fontWeight: 600, fontSize: 14}}>{s.name}</div>
+              <span style={{color: '#C4C0B5', fontSize: 20}}>›</span>
+            </div>
+          ))}
+          <div className="ss-row new-store" onClick={onCreateNew}>+ Crear nueva tienda</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal del escáner ───
+function ScannerModal({ stores, onClose, onProductScanned }) {
+  const [scanned, setScanned] = useState(null);
+
+  const simulateScan = (product) => setScanned(product);
+  const reset = () => setScanned(null);
+
+  if (scanned) {
+    return (
+      <StoreSelectorModal
+        stores={stores}
+        scannedProduct={scanned}
+        onClose={onClose}
+        onChoose={(storeId) => { onProductScanned(scanned, storeId); }}
+        onCreateNew={() => alert('Crear tienda: pendiente')}
+      />
+    );
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>📷 Escanear producto</h2>
+          <div className="sub">Apunta al código de barras o QR</div>
+        </div>
+        <div style={{margin: '0 16px 18px', background: '#1A2B3C', borderRadius: 16, padding: '40px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: 14}}>
+          <div style={{width: 200, height: 110, margin: '0 auto 14px', border: '2px solid #64B5F6', borderRadius: 8, position: 'relative', background: 'rgba(100,181,246,0.05)'}}>
+            <div style={{position: 'absolute', top: '50%', left: 8, right: 8, height: 2, background: '#FF5252', boxShadow: '0 0 10px #FF5252', animation: 'scan 2s ease-in-out infinite'}}></div>
+          </div>
+          <div style={{color: 'rgba(255,255,255,0.7)'}}>Cámara simulada</div>
+        </div>
+        <div className="scan-options">
+          <div className="scan-options-title">SIMULAR ESCANEO DE</div>
+          {SCANNER_DATABASE.map(p => (
+            <button key={p.barcode} className="scan-btn" onClick={() => simulateScan(p)}>
+              <span className="ic">{p.inPantry ? '✓' : '🆕'}</span>
+              <span>
+                <div style={{fontWeight: 600, fontSize: 13}}>{p.name}</div>
+                <div style={{fontSize: 11, color: 'var(--text-soft)'}}>{p.brand} · ${p.price.toFixed(2)}</div>
+              </span>
+            </button>
+          ))}
+        </div>
+        <style>{`@keyframes scan { 0%,100% { transform: translateY(-30px); } 50% { transform: translateY(30px); } }`}</style>
+      </div>
+    </div>
+  );
+}
+
+// ─── PANTRY ───
+function PantryTab() {
+  const [items, setItems] = useState(PANTRY_ITEMS);
+  const [openItem, setOpenItem] = useState(null);
+
+  const cycleState = (id, e) => {
+    e.stopPropagation();
+    const order = ['have', 'low', 'out'];
+    setItems(prev => prev.map(item => {
+      if (item.id !== id) return item;
+      const nextIdx = (order.indexOf(item.state) + 1) % order.length;
+      return { ...item, state: order[nextIdx] };
+    }));
+  };
+
+  const updateItemState = (id, newState) => {
+    setItems(prev => prev.map(item => item.id === id ? { ...item, state: newState } : item));
+    setOpenItem(prev => prev && prev.id === id ? { ...prev, state: newState } : prev);
+  };
+
+  const removeItem = (id) => {
+    setItems(prev => prev.filter(i => i.id !== id));
+    setOpenItem(null);
+  };
+
+  const lowItems = items.filter(p => p.state === 'low');
+  const outItems = items.filter(p => p.state === 'out');
+  const haveItems = items.filter(p => p.state === 'have');
+
+  const renderRow = (item) => (
+    <div key={item.id} className={`pantry-row ${item.state}`} onClick={() => setOpenItem(item)}>
+      <button className="pantry-indicator-btn" onClick={e => cycleState(item.id, e)}>
+        <span className="dot"></span>
+      </button>
+      <span className="pantry-name">{item.name}</span>
+      <span className="pantry-meta">{item.meta}</span>
+    </div>
+  );
+
+  return (
+    <>
+      {outItems.length > 0 && (
+        <div className="pantry-section">
+          <div className="pantry-section-head"><span className="title">🔴 Se acabó</span><span className="count">{outItems.length}</span></div>
+          {outItems.map(renderRow)}
+        </div>
+      )}
+      {lowItems.length > 0 && (
+        <div className="pantry-section">
+          <div className="pantry-section-head"><span className="title">🟡 Por acabarse</span><span className="count">{lowItems.length}</span></div>
+          {lowItems.map(renderRow)}
+        </div>
+      )}
+      {haveItems.length > 0 && (
+        <div className="pantry-section">
+          <div className="pantry-section-head"><span className="title">🟢 Tienes</span><span className="count">{haveItems.length}</span></div>
+          {haveItems.map(renderRow)}
+        </div>
+      )}
+      <div style={{padding: '14px 22px 8px', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 12, color: 'var(--text-soft)', textAlign: 'center'}}>
+        Toca el círculo para cambiar estado · toca el producto para más opciones
+      </div>
+      <div className="tagline">El orden es elegante</div>
+
+      {openItem && <PantryItemModal item={openItem} onClose={() => setOpenItem(null)} onChangeState={s => updateItemState(openItem.id, s)} onRemove={() => removeItem(openItem.id)} />}
+    </>
+  );
+}
+
+function PantryItemModal({ item, onClose, onChangeState, onRemove }) {
+  const STATES = [
+    { id: 'have', label: 'Tienes' },
+    { id: 'low', label: 'Por acabarse' },
+    { id: 'out', label: 'Se acabó' },
+  ];
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>Producto del pantry</h2>
+          <div className="sub">Cambia estado o gestiona</div>
+        </div>
+        <div className="product-modal-hero">
+          <div className="pname">{item.name}</div>
+          <div className="pmeta">{item.meta}</div>
+        </div>
+        <div className="state-selector">
+          <div className="label">Estado actual</div>
+          <div className="state-options">
+            {STATES.map(s => (
+              <div key={s.id} className={`state-opt ${s.id}` + (item.state === s.id ? ' selected' : '')} onClick={() => onChangeState(s.id)}>
+                <div className="so-dot"></div>
+                <div className="so-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{padding: '0 16px'}}>
+          <button className="scan-btn"><span className="ic">🔢</span><span>Ajustar cantidad</span></button>
+          <button className="scan-btn"><span className="ic">🛒</span><span>Agregar a lista de compras</span></button>
+          <button className="scan-btn"><span className="ic">📜</span><span>Ver historial</span></button>
+          <button className="scan-btn" onClick={onRemove} style={{color: 'var(--danger)'}}><span className="ic" style={{background: '#FFEBEE', color: 'var(--danger)'}}>🗑️</span><span style={{fontWeight: 600}}>Eliminar del pantry</span></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── BALANCE ───
+const HOUSEHOLD_MEMBERS = [
+  { id: 'roy', name: 'Roy', shortName: 'Roy', color: '#1565C0', avatarBg: '#1565C0' },
+  { id: 'ruth', name: 'Ruth', shortName: 'Ruth', color: '#C2185B', avatarBg: '#C2185B' },
+  { id: 'proxy', name: 'Casa', shortName: 'Casa', color: '#C9A96E', avatarBg: '#C9A96E' },
+];
+
+// Datos mock — participación por período y métrica
+// Estructura: { period: { metric: { memberId: { count, value, tasks: [{name, space, value}] } } } }
+const BALANCE_DATA = {
+  today: {
+    tasks: {
+      roy:   { count: 3, prev: 2, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 1 }, { name: 'Lavar los platos', space: 'kitchen', value: 1 }, { name: 'Sacar basura', space: 'whole_home', value: 1 }] },
+      ruth:  { count: 2, prev: 4, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 1 }, { name: 'Limpiar arenero', space: 'pets', value: 1 }] },
+      proxy: { count: 1, prev: 1, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 1 }] },
+    },
+    minutes: {
+      roy:   { count: 75, prev: 45, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 35 }, { name: 'Lavar los platos', space: 'kitchen', value: 25 }, { name: 'Sacar basura', space: 'whole_home', value: 15 }] },
+      ruth:  { count: 40, prev: 80, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 8 }, { name: 'Limpiar arenero', space: 'pets', value: 32 }] },
+      proxy: { count: 25, prev: 20, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 25 }] },
+    },
+    importance: {
+      roy:   { count: 8, prev: 6, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 3 }, { name: 'Lavar los platos', space: 'kitchen', value: 2 }, { name: 'Sacar basura', space: 'whole_home', value: 3 }] },
+      ruth:  { count: 5, prev: 9, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 1 }, { name: 'Limpiar arenero', space: 'pets', value: 4 }] },
+      proxy: { count: 3, prev: 3, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 3 }] },
+    },
+  },
+  week: {
+    tasks:      { roy: { count: 14, prev: 11 }, ruth: { count: 18, prev: 16 }, proxy: { count: 6, prev: 5 } },
+    minutes:    { roy: { count: 320, prev: 280 }, ruth: { count: 410, prev: 390 }, proxy: { count: 145, prev: 120 } },
+    importance: { roy: { count: 42, prev: 35 }, ruth: { count: 48, prev: 50 }, proxy: { count: 18, prev: 16 } },
+  },
+  month: {
+    tasks:      { roy: { count: 62, prev: 58 }, ruth: { count: 71, prev: 78 }, proxy: { count: 24, prev: 22 } },
+    minutes:    { roy: { count: 1420, prev: 1350 }, ruth: { count: 1680, prev: 1820 }, proxy: { count: 540, prev: 490 } },
+    importance: { roy: { count: 180, prev: 162 }, ruth: { count: 195, prev: 210 }, proxy: { count: 72, prev: 65 } },
+  },
+};
+
+const PERIODS = [
+  { id: 'today', label: 'Hoy' },
+  { id: 'week', label: 'Semana' },
+  { id: 'month', label: 'Mes' },
+];
+
+const METRICS = [
+  { id: 'tasks', label: 'Tareas', icon: '📋', unit: 'tarea', unitPlural: 'tareas' },
+  { id: 'minutes', label: 'Minutos', icon: '⏱', unit: 'min', unitPlural: 'min' },
+  { id: 'importance', label: 'Importancia', icon: '⭐', unit: 'pt', unitPlural: 'pts' },
+];
+
+// SVG Donut Chart
+function DonutChart({ segments, total }) {
+  const radius = 56;
+  const strokeWidth = 22;
+  const cx = 70, cy = 70;
+  const circumference = 2 * Math.PI * radius;
+
+  let cumulativePct = 0;
+  return (
+    <svg viewBox="0 0 140 140">
+      {/* Track */}
+      <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#F0EBE0" strokeWidth={strokeWidth} />
+      {/* Segments */}
+      {segments.map((seg, idx) => {
+        if (seg.value === 0) return null;
+        const pct = seg.value / total;
+        const dasharray = `${pct * circumference} ${circumference}`;
+        const dashoffset = -cumulativePct * circumference;
+        cumulativePct += pct;
+        return (
+          <circle
+            key={idx}
+            cx={cx} cy={cy} r={radius}
+            fill="none"
+            stroke={seg.color}
+            strokeWidth={strokeWidth}
+            strokeDasharray={dasharray}
+            strokeDashoffset={dashoffset}
+            strokeLinecap="butt"
+            className="donut-segment"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function BalanceScreen() {
+  const [period, setPeriod] = useState('today');
+  const [metric, setMetric] = useState('tasks');
+
+  const data = BALANCE_DATA[period][metric];
+  const metricInfo = METRICS.find(m => m.id === metric);
+
+  // Calcular totales y porcentajes
+  const total = HOUSEHOLD_MEMBERS.reduce((s, m) => s + (data[m.id]?.count || 0), 0);
+  const segments = HOUSEHOLD_MEMBERS.map(m => ({
+    member: m,
+    value: data[m.id]?.count || 0,
+    prev: data[m.id]?.prev || 0,
+    pct: total > 0 ? Math.round(((data[m.id]?.count || 0) / total) * 100) : 0,
+    color: m.color,
+    tasks: data[m.id]?.tasks || [],
+  }));
+
+  // Insight: ¿está balanceado?
+  const maxPct = Math.max(...segments.map(s => s.pct));
+  const minPct = Math.min(...segments.filter(s => s.value > 0).map(s => s.pct));
+  let insight;
+  if (total === 0) {
+    insight = { ic: '🌙', text: 'Aún no hay actividad registrada en este período.' };
+  } else if (maxPct - minPct < 15) {
+    insight = { ic: '⚖️', text: <>Distribución <strong>equilibrada</strong>. El hogar está funcionando como equipo.</> };
+  } else if (maxPct >= 60) {
+    const leader = segments.find(s => s.pct === maxPct);
+    insight = { ic: '👁️', text: <>El <strong>{leader.member.name}</strong> ha tenido la mayor carga este período ({leader.pct}%).</> };
+  } else {
+    insight = { ic: '📍', text: 'Distribución dispar — algunos miembros contribuyeron más que otros.' };
+  }
+
+  // Comparativa global
+  const totalPrev = HOUSEHOLD_MEMBERS.reduce((s, m) => s + (data[m.id]?.prev || 0), 0);
+  const diff = total - totalPrev;
+  const diffPct = totalPrev > 0 ? Math.round((diff / totalPrev) * 100) : 0;
+  const periodLabelMap = { today: 'ayer', week: 'la semana pasada', month: 'el mes pasado' };
+  const comparativeText = totalPrev === 0
+    ? 'Sin datos del período anterior para comparar'
+    : `${diffPct > 0 ? '+' : ''}${diffPct}% vs ${periodLabelMap[period]}`;
+  const compareClass = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+  const compareArrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
+
+  const formatValue = (n) => {
+    if (metric === 'minutes' && n >= 60) {
+      const h = Math.floor(n / 60);
+      const m = n % 60;
+      return m === 0 ? `${h}h` : `${h}h ${m}m`;
+    }
+    return `${n}${metric === 'minutes' ? ' min' : ''}`;
+  };
+
+  return (
+    <>
+      <div className="blue-header">
+        <button className="bell">🔔</button>
+        <div className="eyebrow">SECCIÓN</div>
+        <h1 className="large">Balance</h1>
+        <div className="sub">Distribución por miembro</div>
+      </div>
+
+      {/* Selector de período */}
+      <div className="period-selector">
+        {PERIODS.map(p => (
+          <button key={p.id} className={'period-tab' + (period === p.id ? ' active' : '')} onClick={() => setPeriod(p.id)}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Selector de métrica */}
+      <div className="metric-chips">
+        {METRICS.map(m => (
+          <button key={m.id} className={'metric-chip' + (metric === m.id ? ' active' : '')} onClick={() => setMetric(m.id)}>
+            <span>{m.icon}</span>
+            <span>{m.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Donut + leyenda */}
+      <div className="donut-card">
+        <div className="donut-wrap">
+          <div className="donut-svg-wrap">
+            <DonutChart segments={segments} total={total || 1} />
+            <div className="donut-center">
+              <div className="big-num">{total}</div>
+              <div className="big-label">{metric === 'minutes' ? 'min totales' : (total === 1 ? metricInfo.unit : metricInfo.unitPlural)}</div>
+            </div>
+          </div>
+          <div className="legend">
+            {segments.map(seg => (
+              <div key={seg.member.id} className="legend-row">
+                <span className="swatch" style={{ background: seg.color }}></span>
+                <span className="name">{seg.member.name}</span>
+                <span className="pct">{seg.pct}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="compare-row">
+          <span className={'compare-arrow ' + compareClass}>{compareArrow}</span>
+          <span className="compare-text">{comparativeText}</span>
+        </div>
+      </div>
+
+      {/* Insight */}
+      <div className="insight-card">
+        <div className="insight-ic">{insight.ic}</div>
+        <div className="insight-body">{insight.text}</div>
+      </div>
+
+      {/* Detalle por miembro — solo cuando es "today" (tiene tasks detalladas) */}
+      {period === 'today' && segments.some(s => s.tasks && s.tasks.length > 0) && (
+        <>
+          <div className="section-head"><span className="title">Detalle por miembro</span><span className="link muted">hoy</span></div>
+          {segments.map(seg => {
+            if (seg.value === 0) return null;
+            const memberData = data[seg.member.id];
+            return (
+              <div key={seg.member.id} className="member-card">
+                <div className="member-head">
+                  <div className="member-avatar" style={{ background: seg.member.avatarBg }}>
+                    {seg.member.shortName[0]}
+                  </div>
+                  <div className="member-name">{seg.member.name}</div>
+                  <div className="member-pct" style={{ color: seg.color }}>{seg.pct}%</div>
+                </div>
+                <div className="member-bar">
+                  <div className="member-bar-fill" style={{ width: `${seg.pct}%`, background: seg.color }}></div>
+                </div>
+                <div className="member-stats">
+                  <div className="mstat">
+                    <div className="mstat-num">{memberData.count}</div>
+                    <div className="mstat-label">{metricInfo.label}</div>
+                  </div>
+                  <div className="mstat">
+                    <div className="mstat-num">{seg.tasks.length}</div>
+                    <div className="mstat-label">Distintas</div>
+                  </div>
+                  <div className="mstat">
+                    <div className="mstat-num">{memberData.prev}</div>
+                    <div className="mstat-label">Ayer</div>
+                  </div>
+                </div>
+                <div className="member-tasks">
+                  {seg.tasks.map((t, idx) => {
+                    const space = SPACES[t.space] || SPACES.whole_home;
+                    return (
+                      <div key={idx} className="member-task-pill">
+                        <span className="pill-ic">{space.icon}</span>
+                        <span style={{flex: 1}}>{t.name}</span>
+                        <span style={{ color: 'var(--text-soft)', fontFamily: 'var(--font-tech)', fontSize: 11 }}>
+                          {metric === 'minutes' ? `${t.value} min` : metric === 'importance' ? `${t.value} pts` : ''}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
+
+      {/* Para week/month: cards simplificadas */}
+      {period !== 'today' && total > 0 && (
+        <>
+          <div className="section-head"><span className="title">Por miembro</span><span className="link muted">{period === 'week' ? 'esta semana' : 'este mes'}</span></div>
+          {segments.map(seg => {
+            if (seg.value === 0) return null;
+            const prevDiff = seg.value - seg.prev;
+            const prevDiffPct = seg.prev > 0 ? Math.round((prevDiff / seg.prev) * 100) : 0;
+            return (
+              <div key={seg.member.id} className="member-card">
+                <div className="member-head">
+                  <div className="member-avatar" style={{ background: seg.member.avatarBg }}>{seg.member.shortName[0]}</div>
+                  <div className="member-name">{seg.member.name}</div>
+                  <div className="member-pct" style={{ color: seg.color }}>{seg.pct}%</div>
+                </div>
+                <div className="member-bar">
+                  <div className="member-bar-fill" style={{ width: `${seg.pct}%`, background: seg.color }}></div>
+                </div>
+                <div className="member-stats">
+                  <div className="mstat">
+                    <div className="mstat-num">{seg.value}</div>
+                    <div className="mstat-label">{metricInfo.label}</div>
+                  </div>
+                  <div className="mstat">
+                    <div className="mstat-num">{seg.prev}</div>
+                    <div className="mstat-label">Anterior</div>
+                  </div>
+                  <div className="mstat">
+                    <div className="mstat-num" style={{ color: prevDiff > 0 ? 'var(--state-completed-text)' : prevDiff < 0 ? 'var(--state-overdue-text)' : 'var(--text-soft)' }}>
+                      {prevDiff > 0 ? '+' : ''}{prevDiffPct}%
+                    </div>
+                    <div className="mstat-label">Cambio</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
+
+      <div className="tagline">El orden es elegante</div>
+    </>
+  );
+}
+
+function LibraryScreen({ onOpenArticle }) {
+  const featured = ARTICLES.find(a => a.id === FEATURED_ARTICLE_ID);
+  const renderCarousel = (catId) => {
+    const arts = ARTICLES.filter(a => a.category === catId);
+    if (arts.length === 0) return null;
+    const cat = CATEGORIES[catId];
+    return (
+      <div className="carousel-block" key={catId}>
+        <div className="carousel-head">
+          <span className="title">{cat.icon} {cat.es}</span>
+          <button className="more">Ver todos →</button>
+        </div>
+        <div className="carousel-track">
+          {arts.map(a => (
+            <div className="ccard" key={a.id} onClick={() => onOpenArticle(a)}>
+              <div className="ph" style={{ background: a.bg }}>{a.emoji}</div>
+              <div className="body"><h5>{a.title}</h5><div className="meta">{a.minutes} min · {cat.es}</div></div>
+            </div>
+          ))}
+          <button className="ccard-more"><span className="arrow">→</span><span>Ver todos<br/>{cat.es}</span></button>
+        </div>
+      </div>
+    );
+  };
+  return (
+    <>
+      <div className="blue-header">
+        <button className="bell">🔔</button>
+        <div className="eyebrow">SECCIÓN</div>
+        <h1 className="large">Biblioteca</h1>
+        <div className="sub">Hábitos, productividad y guías</div>
+      </div>
+      {featured && (
+        <div className="featured-card" onClick={() => onOpenArticle(featured)}>
+          <div className="photo" style={{ background: featured.bg }}>{featured.emoji}</div>
+          <div className="body">
+            <div className="tag">☀️ Destacado</div>
+            <h3>{featured.title}</h3>
+            <div className="meta">{featured.minutes} min de lectura{featured.steps ? ` · ${featured.steps.length} pasos` : ''}</div>
+          </div>
+        </div>
+      )}
+      <div style={{ height: 12 }}></div>
+      {renderCarousel('habitos')}
+      {renderCarousel('productividad')}
+      {renderCarousel('organizacion')}
+      {renderCarousel('estacional')}
+      {renderCarousel('planes')}
+      <div className="tagline">El orden es elegante</div>
+    </>
+  );
+}
+
+function ArticleScreen({ article, onBack }) {
+  const cat = CATEGORIES[article.category];
+  const initSteps = article.steps ? article.steps.map((_, i) => i < 2) : [];
+  const [doneSteps, setDoneSteps] = useState(initSteps);
+  const toggleStep = idx => setDoneSteps(prev => prev.map((v, i) => i === idx ? !v : v));
+  const showCTA = article.seasonal || article.isPlan;
+  return (
+    <>
+      <div className="blue-header">
+        <button className="back" onClick={onBack}><span className="arrow">←</span> Biblioteca</button>
+        <div className="category-badge">{cat.icon} {cat.es}</div>
+      </div>
+      <div className="article-hero">
+        <div className="hero-image" style={{ background: article.bg }}>{article.emoji}</div>
+        <div className="hero-body">
+          <h1>{article.title}</h1>
+          <div className="meta">
+            {article.steps && <><span>{article.steps.length} pasos</span><span className="dot"></span></>}
+            <span>⏱ {article.minutes} min</span>
+            {article.seasonal && <><span className="dot"></span><span>🇦🇺 hemisferio sur</span></>}
+          </div>
+        </div>
+      </div>
+      {article.intro && (
+        <>
+          <div className="divider"><span>Por qué importa</span></div>
+          <div className="article-intro">
+            <p>{article.intro}</p>
+            {article.pullQuote && <div className="pull-quote">{article.pullQuote}</div>}
+          </div>
+        </>
+      )}
+      {article.steps && (
+        <>
+          <div className="divider"><span>Los {article.steps.length} pasos</span></div>
+          <div className="steps-wrapper">
+            {article.steps.map((s, idx) => (
+              <div key={idx} className={'step' + (doneSteps[idx] ? ' done' : '')} onClick={() => toggleStep(idx)}>
+                <div className="step-check"></div>
+                <div className="step-body">
+                  <div className="step-number">PASO {idx + 1}</div>
+                  <div className="step-title">{s.title}</div>
+                  <div className="step-desc">{s.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {!article.intro && !article.steps && (
+        <div className="article-intro" style={{ paddingTop: 20 }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', color: 'var(--text-soft)', textAlign: 'center', fontSize: 16 }}>{article.subtitle}</p>
+          <p style={{ textAlign: 'center', color: 'var(--text-soft)', fontSize: 13, marginTop: 16 }}>El contenido se está preparando.</p>
+        </div>
+      )}
+      {article.closing && (
+        <>
+          <div className="divider"><span>Y para terminar</span></div>
+          <div className="closing">{article.closing}</div>
+        </>
+      )}
+      {showCTA && (
+        <div className="article-cta">
+          <div className="question">{article.isPlan ? `¿Activar ${article.title}?` : '¿Hacer recurrente cada año?'}</div>
+          <button className="btn-cta"><span className="star">✦</span>{article.isPlan ? 'Activar este plan' : 'Activar como plan recurrente'}</button>
+        </div>
+      )}
+      <div className="tagline">El orden es elegante</div>
+    </>
+  );
+}
+
+function Toggle({ checked, onChange }) {
+  return <label className="toggle"><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} /><span className="toggle-slider"></span></label>;
+}
+
+function ProfileScreen() {
+  const [notif, setNotif] = useState(true);
+  const initials = USER.name.split(' ').map(p => p[0]).slice(0, 2).join('');
+  return (
+    <>
+      <div className="profile-hero">
+        <button className="bell">🔔</button>
+        <div className="profile-avatar">{initials}<span className="badge-admin">Admin</span></div>
+        <div className="profile-name">{USER.name}</div>
+        <div className="profile-email">{USER.email}</div>
+        <div className="household-pill">🏡 {USER.household} · {USER.membersCount} miembros</div>
+      </div>
+      <div className="pr-section">
+        <div className="pr-section-title">Datos personales</div>
+        <div className="pr-list">
+          <div className="pr-row"><div className="pr-ic">👤</div><div className="pr-body"><div className="pr-label">Nombre visible</div></div><div className="pr-right">{USER.shortName}<span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">📧</div><div className="pr-body"><div className="pr-label">Correo y login</div><div className="pr-hint">{USER.loginMethod}</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
+        </div>
+      </div>
+      <div className="pr-section">
+        <div className="pr-section-title">Notificaciones</div>
+        <div className="pr-list">
+          <div className="pr-row" style={{cursor:'default'}}><div className="pr-ic">🔔</div><div className="pr-body"><div className="pr-label">Activar</div></div><div className="pr-right"><Toggle checked={notif} onChange={setNotif} /></div></div>
+        </div>
+      </div>
+      <div className="pr-section">
+        <div className="pr-section-title admin">Gestión del hogar</div>
+        <div className="pr-list">
+          <div className="pr-row"><div className="pr-ic">🏡</div><div className="pr-body"><div className="pr-label">Espacios del hogar</div></div><div className="pr-right">9<span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">👥</div><div className="pr-body"><div className="pr-label">Miembros</div></div><div className="pr-right">{USER.membersCount}<span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">🏪</div><div className="pr-body"><div className="pr-label">Tiendas</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
+        </div>
+      </div>
+      <div className="pr-section">
+        <div className="pr-section-title">Sesión</div>
+        <div className="pr-list">
+          <div className="pr-row"><div className="pr-ic">📅</div><div className="pr-body"><div className="pr-label">Google Calendar</div></div><div className="pr-right" style={{color:'var(--state-completed-text)',fontWeight:600}}>Vinculado<span className="pr-chev">›</span></div></div>
+          <div className="pr-row danger"><div className="pr-ic">↪</div><div className="pr-body"><div className="pr-label">Cerrar sesión</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
+        </div>
+      </div>
+      <div className="app-info">
+        <div className="version">CLP v1.0</div>
+        <div style={{marginTop:4}}>Calendario de Limpieza Programada</div>
+        <div style={{marginTop:8,fontStyle:'italic',fontFamily:'var(--font-display)',color:'var(--gold)'}}>El orden es elegante</div>
+      </div>
+    </>
+  );
+}
+
+const SECTIONS = [
+  { id: 'home', icon: '🏠', label: 'Inicio' },
+  { id: 'tasks', icon: '📋', label: 'Tareas' },
+  { id: 'shopping', icon: '🛒', label: 'Compras' },
+  { id: 'balance', icon: '📊', label: 'Balance' },
+  { id: 'library', icon: '📚', label: 'Biblioteca' },
+  { id: 'profile', icon: '👤', label: 'Perfil' },
+];
+
+function App() {
+  const [section, setSection] = useState('home');
+  const [openTask, setOpenTask] = useState(null);
+  const [openArticle, setOpenArticle] = useState(null);
+  const [openStore, setOpenStore] = useState(null);
+  const [openCloseCompra, setOpenCloseCompra] = useState(null);
+
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [addProductOpen, setAddProductOpen] = useState(false);
+  const [editPriceProduct, setEditPriceProduct] = useState(null);
+
+  // Estado global de listas y tiendas
+  const [stores] = useState(INITIAL_STORES);
+  const [storeLists, setStoreLists] = useState(INITIAL_STORE_LISTS);
+  const [history, setHistory] = useState(INITIAL_HISTORY);
+
+  const closeAll = () => {
+    setOpenTask(null); setOpenArticle(null); setOpenStore(null); setOpenCloseCompra(null);
+  };
+
+  // Acciones sobre listas
+  const tickProduct = (storeId, productId) => {
+    setStoreLists(prev => ({
+      ...prev,
+      [storeId]: prev[storeId].filter(p => p.id !== productId)
+    }));
+  };
+
+  const editPrice = (storeId, productId, newPrice) => {
+    setStoreLists(prev => ({
+      ...prev,
+      [storeId]: prev[storeId].map(p => p.id === productId ? { ...p, price: newPrice } : p)
+    }));
+    setEditPriceProduct(null);
+  };
+
+  const deleteProduct = (storeId, productId) => {
+    setStoreLists(prev => ({
+      ...prev,
+      [storeId]: prev[storeId].filter(p => p.id !== productId)
+    }));
+  };
+
+  const addManualProduct = (storeId, product) => {
+    const newId = `manual-${Date.now()}`;
+    setStoreLists(prev => ({
+      ...prev,
+      [storeId]: [...prev[storeId], { id: newId, name: product.name, price: product.price }]
+    }));
+    setAddProductOpen(false);
+  };
+
+  const handleProductScanned = (product, storeId) => {
+    const newId = `scan-${Date.now()}`;
+    setStoreLists(prev => ({
+      ...prev,
+      [storeId]: [...(prev[storeId] || []), { id: newId, name: product.name, price: product.price }]
+    }));
+    setScannerOpen(false);
+  };
+
+  const archiveCompra = () => {
+    if (!openCloseCompra) return;
+    const list = storeLists[openCloseCompra.id] || [];
+    const total = list.reduce((s, p) => s + p.price, 0);
+    const newArchive = {
+      id: `arc-${Date.now()}`,
+      storeId: openCloseCompra.id,
+      date: 'hoy',
+      items: list.length,
+      total,
+      hasTicket: false,
+    };
+    setHistory(prev => [newArchive, ...prev]);
+    setStoreLists(prev => ({ ...prev, [openCloseCompra.id]: [] }));
+    setOpenCloseCompra(null);
+  };
+
+  const renderScreen = () => {
+    if (openTask) return <TaskDetailScreen task={openTask} onBack={closeAll} />;
+    if (openArticle) return <ArticleScreen article={openArticle} onBack={closeAll} />;
+    if (openCloseCompra) {
+      return <CloseCompraScreen
+        store={openCloseCompra}
+        list={storeLists[openCloseCompra.id] || []}
+        onBack={() => { setOpenCloseCompra(null); setOpenStore(openCloseCompra); }}
+        onArchive={archiveCompra}
+      />;
+    }
+    if (openStore) {
+      const list = storeLists[openStore.id] || [];
+      return <StoreListScreen
+        store={openStore}
+        list={list}
+        onBack={closeAll}
+        onTickProduct={(pid) => tickProduct(openStore.id, pid)}
+        onEditPrice={(p) => setEditPriceProduct({ storeId: openStore.id, product: p })}
+        onDeleteProduct={(pid) => deleteProduct(openStore.id, pid)}
+        onAddManual={() => setAddProductOpen(true)}
+        onCloseCompra={() => { setOpenCloseCompra(openStore); setOpenStore(null); }}
+      />;
+    }
+
+    switch (section) {
+      case 'home': return <HomeScreen onOpenTask={t => { closeAll(); setOpenTask(t); }} />;
+      case 'tasks': return <TasksScreen onOpenTask={t => { closeAll(); setOpenTask(t); }} />;
+      case 'shopping': return <ShoppingScreen
+        stores={stores}
+        storeLists={storeLists}
+        history={history}
+        onOpenStore={s => { closeAll(); setOpenStore(s); }}
+        onOpenHistory={() => {}}
+        onOpenScanner={() => setScannerOpen(true)}
+      />;
+      case 'balance': return <BalanceScreen />;
+      case 'library': return <LibraryScreen onOpenArticle={a => { closeAll(); setOpenArticle(a); }} />;
+      case 'profile': return <ProfileScreen />;
+      default: return <HomeScreen />;
+    }
+  };
+
+  const screenKey = openTask ? `t-${openTask.id}` : openArticle ? `a-${openArticle.id}` : openCloseCompra ? `cc-${openCloseCompra.id}` : openStore ? `s-${openStore.id}` : section;
+
+  return (
+    <>
+      <main className="main" key={screenKey}>{renderScreen()}</main>
+      <nav className="nav">
+        {SECTIONS.map(s => (
+          <button key={s.id} className={'nav-item' + (section === s.id && !openTask && !openArticle && !openStore && !openCloseCompra ? ' active' : '')} onClick={() => { setSection(s.id); closeAll(); }}>
+            <span className="icon">{s.icon}</span>
+            <span className="label">{s.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      {scannerOpen && <ScannerModal stores={stores} onClose={() => setScannerOpen(false)} onProductScanned={handleProductScanned} />}
+      {addProductOpen && openStore && <AddProductModal onClose={() => setAddProductOpen(false)} onAdd={(p) => addManualProduct(openStore.id, p)} />}
+      {editPriceProduct && <EditPriceModal product={editPriceProduct.product} onClose={() => setEditPriceProduct(null)} onSave={(price) => editPrice(editPriceProduct.storeId, editPriceProduct.product.id, price)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
