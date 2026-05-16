@@ -511,24 +511,32 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
   padding: 32px;
   z-index: 200;
 }
-.login-logo {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 80px;
-  color: white;
-  letter-spacing: 4px;
-  line-height: 1;
-  margin-bottom: 8px;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.2);
-}
 .login-logo-sub {
-  font-family: var(--font-tech);
-  font-size: 13px;
-  color: rgba(255,255,255,0.75);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
+      font-family: var(--font-tech);
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 12px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      padding-left: 12px;
+    }
+    .login-logo-full {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+    .login-logo-full span {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 44px;
+      color: white;
+      line-height: 1.05;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+    }
 .login-tagline {
   font-family: var(--font-display);
   font-style: italic;
