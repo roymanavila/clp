@@ -1026,8 +1026,12 @@ function LoginScreen() {
 
   return (
     <div className="login-screen">
-      <div className="login-logo-sub">CLP</div>
-      <div className="login-logo">Calp</div>
+      <div className="login-logo-sub">C L P</div>
+      <div className="login-logo-full">
+        <span>Calendario</span>
+        <span>de Limpieza</span>
+        <span>Programada</span>
+      </div>
       <div className="login-tagline">El orden es elegante</div>
       <button className="login-google-btn" onClick={handleGoogleLogin} disabled={busy}>
         <svg className="g-icon" viewBox="0 0 24 24">
@@ -1039,7 +1043,7 @@ function LoginScreen() {
         {busy ? 'Conectando…' : 'Continuar con Google'}
       </button>
       {error && <div className="login-error">⚠️ {error}</div>}
-      <div className="login-footer">Calendario de Limpieza Programada</div>
+      <div className="login-footer">South Australia · 2026</div>
     </div>
   );
 }
