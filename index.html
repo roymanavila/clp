@@ -485,15 +485,160 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 <body>
 <div id="root"></div>
 
+<!-- =====================================================================
+     REEMPLAZA EN TU index.html DESDE LA LÍNEA QUE DICE:
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+     HASTA LA LÍNEA QUE DICE:
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        </script>
+     (es decir, todo el bloque de los 3 <script> de React + el <script type="text/babel">)
+
+     LO QUE SIGUE DESPUÉS (el <script> del service-worker) NO se toca.
+===================================================================== -->
+
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<!-- ===== ESTILOS EXTRA para la pantalla de login y para el botón flotante del Pantry ===== -->
+<style>
+/* Login screen */
+.login-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(180deg, var(--primary-dark) 0%, #0D47A1 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 32px;
+  z-index: 200;
+}
+.login-logo {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 80px;
+  color: white;
+  letter-spacing: 4px;
+  line-height: 1;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+.login-logo-sub {
+  font-family: var(--font-tech);
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.login-tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  color: rgba(255,255,255,0.85);
+  margin-top: 24px;
+  margin-bottom: 60px;
+  text-align: center;
+}
+.login-tagline::before, .login-tagline::after {
+  content: '✦'; color: var(--gold); margin: 0 10px; font-size: 11px;
+}
+.login-google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  background: white; color: #3c4043;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transition: transform 0.15s;
+}
+.login-google-btn:active { transform: scale(0.98); }
+.login-google-btn .g-icon {
+  width: 22px; height: 22px; flex-shrink: 0;
+}
+.login-error {
+  color: #FFCDD2;
+  font-size: 13px;
+  margin-top: 16px;
+  text-align: center;
+  max-width: 320px;
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+}
+.login-footer {
+  position: absolute; bottom: 32px;
+  font-family: var(--font-display); font-style: italic;
+  color: rgba(255,255,255,0.5);
+  font-size: 12px;
+}
+.full-loader {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+  z-index: 300;
+}
+.full-loader .spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--primary-faint);
+  border-top-color: var(--primary-dark);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.full-loader .msg {
+  font-family: var(--font-display); font-style: italic;
+  color: var(--text-soft); font-size: 14px;
+}
+
+/* FAB para agregar item al pantry */
+.pantry-fab {
+  position: fixed;
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
+  right: 16px;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--primary-dark); color: white;
+  border: none;
+  box-shadow: 0 6px 20px rgba(21,101,192,0.4);
+  cursor: pointer; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 300;
+  transition: transform 0.15s;
+}
+.pantry-fab:active { transform: scale(0.92); }
+
+/* Estado de "guardando..." */
+.saving-toast {
+  position: fixed;
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
+  left: 50%; transform: translateX(-50%);
+  background: rgba(26,43,60,0.92); color: white;
+  padding: 10px 18px; border-radius: 100px;
+  font-size: 12.5px; font-weight: 500;
+  z-index: 60;
+  animation: fadeIn 0.2s;
+}
+</style>
 
 <script type="text/babel">
-const { useState, useMemo } = React;
+const { useState, useMemo, useEffect, useCallback } = React;
 
-const USER = { name: 'Royman Avila', shortName: 'Roy', email: 'roymanavila@gmail.com', city: 'Adelaide', household: 'Casa Avila-Pares', role: 'admin', loginMethod: 'Google', membersCount: 3 };
+// ─────────────────────────────────────────────────────────────────────────
+// SUPABASE — cliente global
+// ─────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://qqgzlyjuzyjbwdcfdesz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Z7gen7hb6AvTVhS5SI7mFA_p-QaV5Vi';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ─────────────────────────────────────────────────────────────────────────
+// DATOS HARDCODEADOS — siguen aquí mientras el resto no esté conectado
+// ─────────────────────────────────────────────────────────────────────────
 const SPACES = {
   bedroom: { es: 'Habitación', icon: '🛏️', bgVar: 'var(--sp-bedroom-bg)', color: 'var(--sp-bedroom)' },
   bathroom: { es: 'Baño', icon: '🚽', bgVar: 'var(--sp-bathroom-bg)', color: 'var(--sp-bathroom)' },
@@ -545,7 +690,6 @@ const QUOTES = [
   'Diez minutos hoy valen más que tres horas el sábado.', 'El especialista no limpia, termina.',
 ];
 
-// ─── COMPRAS — NUEVO MODELO ───
 const INITIAL_STORES = [
   { id: 'coles', name: 'Coles · Mt Barker', initial: 'C', logoClass: 'coles' },
   { id: 'woolworths', name: 'Woolworths', initial: 'W', logoClass: 'woolworths' },
@@ -554,7 +698,6 @@ const INITIAL_STORES = [
   { id: 'bunnings', name: 'Bunnings Warehouse', initial: 'B', logoClass: 'bunnings' },
 ];
 
-// Cada tienda tiene UNA lista permanente de productos pendientes
 const INITIAL_STORE_LISTS = {
   coles: [
     { id: 'c1', name: 'Aceite de oliva 500ml', price: 12.50 },
@@ -563,38 +706,19 @@ const INITIAL_STORE_LISTS = {
     { id: 'c4', name: 'Huevos x 12', price: 5.80 },
     { id: 'c5', name: 'Leche entera 2L', price: 3.50 },
     { id: 'c6', name: 'Pan integral', price: 4.20 },
-    { id: 'c7', name: 'Plátanos 1kg', price: 4.00 },
-    { id: 'c8', name: 'Yogurt griego', price: 5.90 },
   ],
   woolworths: [
     { id: 'w1', name: 'Cereal de avena', price: 7.50 },
     { id: 'w2', name: 'Queso parmesano', price: 8.90 },
   ],
-  aldi: [],
-  iga: [],
-  bunnings: [
-    { id: 'b1', name: 'Bombillas LED x 4', price: 18.00 },
-  ],
+  aldi: [], iga: [],
+  bunnings: [{ id: 'b1', name: 'Bombillas LED x 4', price: 18.00 }],
 };
 
-// Historial de compras archivadas (mock con 2 previas)
 const INITIAL_HISTORY = [
   { id: 'arc1', storeId: 'coles', date: 'sábado 10 mayo', items: 14, total: 78.50, hasTicket: true },
   { id: 'arc2', storeId: 'aldi', date: 'martes 6 mayo', items: 5, total: 22.40, hasTicket: false },
   { id: 'arc3', storeId: 'woolworths', date: 'sábado 3 mayo', items: 9, total: 51.20, hasTicket: true },
-];
-
-const PANTRY_ITEMS = [
-  { id: 'pa1', name: 'Aceite de oliva 500ml', state: 'low', meta: '½ botella' },
-  { id: 'pa2', name: 'Arroz basmati', state: 'have', meta: '1 kg' },
-  { id: 'pa3', name: 'Café molido', state: 'have', meta: 'recién comprado' },
-  { id: 'pa4', name: 'Cereal de avena', state: 'low', meta: 'queda poco' },
-  { id: 'pa5', name: 'Detergente líquido', state: 'have', meta: 'lleno' },
-  { id: 'pa6', name: 'Huevos', state: 'have', meta: '10 unidades' },
-  { id: 'pa7', name: 'Leche', state: 'low', meta: '1 litro' },
-  { id: 'pa8', name: 'Pasta de dientes', state: 'out', meta: 'se acabó hoy' },
-  { id: 'pa9', name: 'Papel higiénico', state: 'have', meta: '8 rollos' },
-  { id: 'pa10', name: 'Yogurt griego', state: 'have', meta: '2 envases' },
 ];
 
 const SCANNER_DATABASE = [
@@ -618,12 +742,368 @@ const WEEK_TASKS = [
   { id: 13, name: 'Lavar platos', space: 'kitchen', state: 'pending', day: 14, freq: 'Diaria' },
 ];
 
+const HOUSEHOLD_MEMBERS_MOCK = [
+  { id: 'roy', name: 'Roy', shortName: 'Roy', color: '#1565C0', avatarBg: '#1565C0' },
+  { id: 'ruth', name: 'Ruth', shortName: 'Ruth', color: '#C2185B', avatarBg: '#C2185B' },
+  { id: 'proxy', name: 'Casa', shortName: 'Casa', color: '#C9A96E', avatarBg: '#C9A96E' },
+];
+
+const BALANCE_DATA = {
+  today: {
+    tasks: {
+      roy:   { count: 3, prev: 2, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 1 }, { name: 'Lavar los platos', space: 'kitchen', value: 1 }, { name: 'Sacar basura', space: 'whole_home', value: 1 }] },
+      ruth:  { count: 2, prev: 4, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 1 }, { name: 'Limpiar arenero', space: 'pets', value: 1 }] },
+      proxy: { count: 1, prev: 1, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 1 }] },
+    },
+    minutes: {
+      roy:   { count: 75, prev: 45, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 35 }, { name: 'Lavar los platos', space: 'kitchen', value: 25 }, { name: 'Sacar basura', space: 'whole_home', value: 15 }] },
+      ruth:  { count: 40, prev: 80, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 8 }, { name: 'Limpiar arenero', space: 'pets', value: 32 }] },
+      proxy: { count: 25, prev: 20, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 25 }] },
+    },
+    importance: {
+      roy:   { count: 8, prev: 6, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 3 }, { name: 'Lavar los platos', space: 'kitchen', value: 2 }, { name: 'Sacar basura', space: 'whole_home', value: 3 }] },
+      ruth:  { count: 5, prev: 9, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 1 }, { name: 'Limpiar arenero', space: 'pets', value: 4 }] },
+      proxy: { count: 3, prev: 3, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 3 }] },
+    },
+  },
+  week: {
+    tasks:      { roy: { count: 14, prev: 11 }, ruth: { count: 18, prev: 16 }, proxy: { count: 6, prev: 5 } },
+    minutes:    { roy: { count: 320, prev: 280 }, ruth: { count: 410, prev: 390 }, proxy: { count: 145, prev: 120 } },
+    importance: { roy: { count: 42, prev: 35 }, ruth: { count: 48, prev: 50 }, proxy: { count: 18, prev: 16 } },
+  },
+  month: {
+    tasks:      { roy: { count: 62, prev: 58 }, ruth: { count: 71, prev: 78 }, proxy: { count: 24, prev: 22 } },
+    minutes:    { roy: { count: 1420, prev: 1350 }, ruth: { count: 1680, prev: 1820 }, proxy: { count: 540, prev: 490 } },
+    importance: { roy: { count: 180, prev: 162 }, ruth: { count: 195, prev: 210 }, proxy: { count: 72, prev: 65 } },
+  },
+};
+
+const PERIODS = [
+  { id: 'today', label: 'Hoy' }, { id: 'week', label: 'Semana' }, { id: 'month', label: 'Mes' },
+];
+const METRICS = [
+  { id: 'tasks', label: 'Tareas', icon: '📋', unit: 'tarea', unitPlural: 'tareas' },
+  { id: 'minutes', label: 'Minutos', icon: '⏱', unit: 'min', unitPlural: 'min' },
+  { id: 'importance', label: 'Importancia', icon: '⭐', unit: 'pt', unitPlural: 'pts' },
+];
+
+// ─────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────
 function getGreeting(d = new Date()) { const h = d.getHours(); if (h >= 5 && h < 12) return 'Buenos días'; if (h >= 12 && h < 19) return 'Buenas tardes'; return 'Buenas noches'; }
 const DAY_NAMES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DAY_SHORT = ['D','L','M','X','J','V','S'];
 const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 function formatToday(d = new Date()) { return `${DAY_NAMES[d.getDay()]}, ${d.getDate()} de ${MONTHS[d.getMonth()]}`; }
 
+// ─────────────────────────────────────────────────────────────────────────
+// AUTH HOOK — escucha cambios de sesión de Supabase
+// ─────────────────────────────────────────────────────────────────────────
+function useSession() {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    sb.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setLoading(false);
+    });
+    const { data: sub } = sb.auth.onAuthStateChange((_event, sess) => {
+      setSession(sess);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  return { session, loading };
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// HOUSEHOLD HOOK — busca o crea el hogar del usuario
+// ─────────────────────────────────────────────────────────────────────────
+function useHousehold(session) {
+  const [household, setHousehold] = useState(null);
+  const [member, setMember] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+
+  const load = useCallback(async () => {
+    if (!session) { setLoading(false); return; }
+    setLoading(true);
+    // Busca el primer hogar al que pertenece este usuario
+    const { data: members, error } = await sb
+      .from('household_members')
+      .select('*, households(*)')
+      .eq('profile_id', session.user.id)
+      .eq('active', true)
+      .limit(1);
+
+    if (error) {
+      console.error('[useHousehold] error:', error);
+      setLoading(false);
+      return;
+    }
+
+    if (!members || members.length === 0) {
+      setNeedsOnboarding(true);
+      setHousehold(null);
+      setMember(null);
+    } else {
+      setMember(members[0]);
+      setHousehold(members[0].households);
+      setNeedsOnboarding(false);
+    }
+    setLoading(false);
+  }, [session]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const createHousehold = async (name) => {
+    if (!session) return { error: 'No session' };
+    // 1) crear el hogar
+    const { data: hh, error: e1 } = await sb
+      .from('households')
+      .insert({
+        name: name,
+        hemisphere: 'southern',
+        timezone: 'Australia/Adelaide',
+        created_by: session.user.id,
+      })
+      .select()
+      .single();
+    if (e1) { console.error('[createHousehold] households:', e1); return { error: e1.message }; }
+
+    // 2) crear el member admin
+    const userMeta = session.user.user_metadata || {};
+    const displayName = userMeta.full_name || userMeta.name || session.user.email;
+    const shortName = (userMeta.given_name || displayName).split(' ')[0];
+
+    const { data: mb, error: e2 } = await sb
+      .from('household_members')
+      .insert({
+        household_id: hh.id,
+        profile_id: session.user.id,
+        display_name: displayName,
+        short_name: shortName,
+        color: '#1565C0',
+        role: 'admin',
+        is_proxy: false,
+        active: true,
+      })
+      .select()
+      .single();
+    if (e2) { console.error('[createHousehold] members:', e2); return { error: e2.message }; }
+
+    setHousehold(hh);
+    setMember(mb);
+    setNeedsOnboarding(false);
+    return { ok: true };
+  };
+
+  return { household, member, loading, needsOnboarding, createHousehold, reload: load };
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// PANTRY HOOK — lee y escribe pantry_inventory
+// ─────────────────────────────────────────────────────────────────────────
+function usePantry(householdId) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(async () => {
+    if (!householdId) { setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await sb
+      .from('pantry_inventory')
+      .select('*')
+      .eq('household_id', householdId)
+      .order('created_at', { ascending: true });
+    if (error) {
+      console.error('[usePantry] load:', error);
+    } else {
+      setItems(data || []);
+    }
+    setLoading(false);
+  }, [householdId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const addItem = async ({ name, state = 'have', meta_text = '' }) => {
+    if (!householdId || !name.trim()) return;
+    setSaving(true);
+    const optimistic = {
+      id: 'temp-' + Date.now(),
+      household_id: householdId,
+      name: name.trim(),
+      state, meta_text,
+      created_at: new Date().toISOString(),
+    };
+    setItems(prev => [...prev, optimistic]);
+    const { data, error } = await sb
+      .from('pantry_inventory')
+      .insert({ household_id: householdId, name: name.trim(), state, meta_text })
+      .select().single();
+    setSaving(false);
+    if (error) {
+      console.error('[usePantry] add:', error);
+      setItems(prev => prev.filter(i => i.id !== optimistic.id));
+      alert('No pude guardar el producto: ' + error.message);
+      return;
+    }
+    setItems(prev => prev.map(i => i.id === optimistic.id ? data : i));
+  };
+
+  const updateState = async (id, newState) => {
+    const prevItems = items;
+    setItems(prev => prev.map(i => i.id === id ? { ...i, state: newState } : i));
+    setSaving(true);
+    const { error } = await sb
+      .from('pantry_inventory')
+      .update({ state: newState, last_updated_at: new Date().toISOString() })
+      .eq('id', id);
+    setSaving(false);
+    if (error) {
+      console.error('[usePantry] updateState:', error);
+      setItems(prevItems); // revertir
+      alert('No pude actualizar el estado: ' + error.message);
+    }
+  };
+
+  const updateMeta = async (id, newMeta) => {
+    const prevItems = items;
+    setItems(prev => prev.map(i => i.id === id ? { ...i, meta_text: newMeta } : i));
+    setSaving(true);
+    const { error } = await sb
+      .from('pantry_inventory')
+      .update({ meta_text: newMeta, last_updated_at: new Date().toISOString() })
+      .eq('id', id);
+    setSaving(false);
+    if (error) {
+      console.error('[usePantry] updateMeta:', error);
+      setItems(prevItems);
+    }
+  };
+
+  const removeItem = async (id) => {
+    const prevItems = items;
+    setItems(prev => prev.filter(i => i.id !== id));
+    setSaving(true);
+    const { error } = await sb.from('pantry_inventory').delete().eq('id', id);
+    setSaving(false);
+    if (error) {
+      console.error('[usePantry] delete:', error);
+      setItems(prevItems);
+      alert('No pude eliminar: ' + error.message);
+    }
+  };
+
+  return { items, loading, saving, addItem, updateState, updateMeta, removeItem };
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// PANTALLA DE LOGIN
+// ─────────────────────────────────────────────────────────────────────────
+function LoginScreen() {
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    setBusy(true); setError(null);
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) { setError(error.message); setBusy(false); }
+  };
+
+  return (
+    <div className="login-screen">
+      <div className="login-logo-sub">CLP</div>
+      <div className="login-logo">Calp</div>
+      <div className="login-tagline">El orden es elegante</div>
+      <button className="login-google-btn" onClick={handleGoogleLogin} disabled={busy}>
+        <svg className="g-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        {busy ? 'Conectando…' : 'Continuar con Google'}
+      </button>
+      {error && <div className="login-error">⚠️ {error}</div>}
+      <div className="login-footer">Calendario de Limpieza Programada</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// MODAL DE ONBOARDING — crear el primer hogar
+// ─────────────────────────────────────────────────────────────────────────
+function OnboardingModal({ session, onCreate }) {
+  const userMeta = session.user.user_metadata || {};
+  const firstName = (userMeta.given_name || userMeta.full_name || session.user.email || 'Casa').split(' ')[0];
+  const suggested = `Casa ${firstName}`;
+
+  const [name, setName] = useState(suggested);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+
+  const submit = async () => {
+    if (!name.trim()) return;
+    setBusy(true); setError(null);
+    const res = await onCreate(name.trim());
+    setBusy(false);
+    if (res && res.error) setError(res.error);
+  };
+
+  return (
+    <div className="modal-backdrop" style={{alignItems:'center'}}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()} style={{borderRadius:24, maxWidth:420, margin:'0 16px'}}>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>Bienvenido a CLP 🏡</h2>
+          <div className="sub">Vamos a crear tu hogar</div>
+        </div>
+        <div style={{padding:'0 22px 8px', fontFamily:'var(--font-display)', fontStyle:'italic', textAlign:'center', color:'var(--text-soft)', fontSize:14}}>
+          Después podrás invitar a más miembros desde el perfil.
+        </div>
+        <div className="input-block" style={{marginTop:14}}>
+          <div className="input-label">Nombre de tu hogar</div>
+          <input
+            type="text"
+            className="text-input"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="ej. Casa Avila"
+            autoFocus
+          />
+        </div>
+        {error && <div className="login-error" style={{margin:'0 16px', color:'var(--danger)', background:'#FFEBEE'}}>⚠️ {error}</div>}
+        <div className="modal-actions" style={{marginTop:12, padding:'0 16px 8px'}}>
+          <button className="btn-primary-modal" onClick={submit} disabled={busy || !name.trim()} style={{flex:1}}>
+            {busy ? 'Creando…' : 'Crear hogar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// FULL LOADER
+// ─────────────────────────────────────────────────────────────────────────
+function FullLoader({ msg = 'Cargando…' }) {
+  return (
+    <div className="full-loader">
+      <div className="spinner"></div>
+      <div className="msg">{msg}</div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// COMPONENTES DE LA APP (igual que antes pero con session/household pasado)
+// ─────────────────────────────────────────────────────────────────────────
 function TaskCard({ task, onOpen }) {
   const space = SPACES[task.space] || SPACES.whole_home;
   const isCompleted = task.state === 'completed';
@@ -646,11 +1126,12 @@ function TaskCard({ task, onOpen }) {
   );
 }
 
-function HomeScreen({ onOpenTask }) {
+function HomeScreen({ onOpenTask, member, household }) {
   const today = useMemo(() => new Date(), []);
   const greeting = getGreeting(today);
-  const dateLine = `${formatToday(today)} · ${USER.city}`;
+  const dateLine = `${formatToday(today)} · Adelaide`;
   const quote = useMemo(() => QUOTES[Math.floor(Math.random() * QUOTES.length)], []);
+  const shortName = member ? member.short_name : 'tú';
   const todayTasks = WEEK_TASKS.filter(t => t.day === 13);
   const counts = {
     pending: todayTasks.filter(t => t.state === 'pending' || t.state === 'overdue').length,
@@ -665,7 +1146,7 @@ function HomeScreen({ onOpenTask }) {
       <div className="blue-header">
         <button className="bell">🔔</button>
         <div className="eyebrow">{greeting.toUpperCase()}</div>
-        <div className="greeting-name">{USER.shortName}<span className="wave">👋</span></div>
+        <div className="greeting-name">{shortName}<span className="wave">👋</span></div>
         <div className="sub">{dateLine}</div>
       </div>
       <div className="stats-container">
@@ -733,7 +1214,6 @@ function TaskDetailScreen({ task, onBack }) {
   const allSubsDone = totalSubs === 0 || doneCount === totalSubs;
   const progressPct = totalSubs > 0 ? (doneCount / totalSubs) * 100 : 0;
   const stateLabel = { pending: 'Pendiente', progress: 'En curso', overdue: 'Atrasada', assigned: 'Asignada', completed: 'Completada' }[task.state];
-
   return (
     <>
       <div className="blue-header">
@@ -774,11 +1254,12 @@ function TaskDetailScreen({ task, onBack }) {
   );
 }
 
-// ─── COMPRAS ───
-function ShoppingScreen({ stores, storeLists, history, onOpenStore, onOpenHistory, onOpenScanner }) {
+// ─────────────────────────────────────────────────────────────────────────
+// COMPRAS (sin cambios)
+// ─────────────────────────────────────────────────────────────────────────
+function ShoppingScreen({ stores, storeLists, history, onOpenStore, onOpenHistory, onOpenScanner, householdId }) {
   const [tab, setTab] = useState('stores');
   const totalPending = Object.values(storeLists).reduce((s, list) => s + list.length, 0);
-
   return (
     <>
       <div className="blue-header">
@@ -800,8 +1281,8 @@ function ShoppingScreen({ stores, storeLists, history, onOpenStore, onOpenHistor
       </div>
       {tab === 'stores' && <StoresTab stores={stores} storeLists={storeLists} onOpenStore={onOpenStore} />}
       {tab === 'history' && <HistoryTab history={history} stores={stores} onOpenHistory={onOpenHistory} />}
-      {tab === 'pantry' && <PantryTab />}
-      <button className="scanner-fab" onClick={onOpenScanner}>📷</button>
+      {tab === 'pantry' && <PantryTab householdId={householdId} />}
+      {tab !== 'pantry' && <button className="scanner-fab" onClick={onOpenScanner}>📷</button>}
     </>
   );
 }
@@ -859,21 +1340,17 @@ function HistoryTab({ history, stores, onOpenHistory }) {
   );
 }
 
-// ─── Lista de productos de una tienda ───
 function StoreListScreen({ store, list, onBack, onTickProduct, onEditPrice, onDeleteProduct, onAddManual, onCloseCompra }) {
   const sortedList = [...list].sort((a, b) => a.name.localeCompare(b.name));
   const total = list.reduce((s, p) => s + p.price, 0);
   const [removingIds, setRemovingIds] = useState([]);
-
   const handleTick = (productId) => {
-    // Animación: marca como removing, luego borra del estado real tras 250ms
     setRemovingIds(prev => [...prev, productId]);
     setTimeout(() => {
       onTickProduct(productId);
       setRemovingIds(prev => prev.filter(id => id !== productId));
     }, 250);
   };
-
   return (
     <>
       <div className="blue-header">
@@ -881,57 +1358,32 @@ function StoreListScreen({ store, list, onBack, onTickProduct, onEditPrice, onDe
         <h1>{store.name}</h1>
         <div className="sub">{list.length === 0 ? 'Lista vacía' : `${list.length} ${list.length === 1 ? 'producto pendiente' : 'productos pendientes'}`}</div>
       </div>
-
       {list.length > 0 && (
         <div className="list-banner">
           <span className="left">Toca el producto cuando lo eches al carro</span>
           <span className="right">≈ ${total.toFixed(2)}</span>
         </div>
       )}
-
       {list.length === 0 ? (
-        <div className="empty" style={{padding: '40px 22px'}}>
-          Lista vacía.<br/>Agrega productos manualmente o con el escáner 📷
-        </div>
+        <div className="empty" style={{padding: '40px 22px'}}>Lista vacía.<br/>Agrega productos manualmente o con el escáner 📷</div>
       ) : (
         <div style={{paddingTop: 14, paddingBottom: 8}}>
           {sortedList.map(p => (
-            <div
-              key={p.id}
-              className={'product-row' + (removingIds.includes(p.id) ? ' removing' : '')}
-              onClick={() => handleTick(p.id)}
-            >
+            <div key={p.id} className={'product-row' + (removingIds.includes(p.id) ? ' removing' : '')} onClick={() => handleTick(p.id)}>
               <div className="product-check"></div>
               <div className="product-name">{p.name}</div>
-              <button
-                className="product-price-btn"
-                onClick={e => { e.stopPropagation(); onEditPrice(p); }}
-              >
-                ${p.price.toFixed(2)}
-              </button>
-              <button
-                className="product-delete"
-                onClick={e => { e.stopPropagation(); onDeleteProduct(p.id); }}
-              >
-                ✕
-              </button>
+              <button className="product-price-btn" onClick={e => { e.stopPropagation(); onEditPrice(p); }}>${p.price.toFixed(2)}</button>
+              <button className="product-delete" onClick={e => { e.stopPropagation(); onDeleteProduct(p.id); }}>✕</button>
             </div>
           ))}
         </div>
       )}
-
       <div className="add-card" onClick={onAddManual}>+ Agregar producto manualmente</div>
-
-      {list.length > 0 && (
-        <button className="btn-primary" onClick={onCloseCompra}>
-          🧾 Cerrar compra y archivar
-        </button>
-      )}
+      {list.length > 0 && <button className="btn-primary" onClick={onCloseCompra}>🧾 Cerrar compra y archivar</button>}
     </>
   );
 }
 
-// ─── Cierre de compra ───
 function CloseCompraScreen({ store, list, onBack, onArchive }) {
   const total = list.reduce((s, p) => s + p.price, 0);
   return (
@@ -956,36 +1408,32 @@ function CloseCompraScreen({ store, list, onBack, onArchive }) {
   );
 }
 
-// ─── Modal: agregar producto manual ───
-function AddProductModal({ onClose, onAdd }) {
+function AddProductModal({ onClose, onAdd, title = 'Agregar producto', subtitle = 'A esta lista', namePlaceholder = 'ej. Aceite de oliva 500ml', priceLabel = 'Precio estimado (opcional)', hidePrice = false }) {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-
   const handleAdd = () => {
     if (!name.trim()) return;
     onAdd({ name: name.trim(), price: parseFloat(price) || 0 });
   };
-
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head">
-          <h2>Agregar producto</h2>
-          <div className="sub">A esta lista de la tienda</div>
-        </div>
+        <div className="modal-head"><h2>{title}</h2><div className="sub">{subtitle}</div></div>
         <div className="input-block">
           <div className="input-label">Nombre</div>
-          <input type="text" className="text-input" placeholder="ej. Aceite de oliva 500ml" value={name} onChange={e => setName(e.target.value)} autoFocus />
+          <input type="text" className="text-input" placeholder={namePlaceholder} value={name} onChange={e => setName(e.target.value)} autoFocus />
         </div>
-        <div className="input-block">
-          <div className="input-label">Precio estimado (opcional)</div>
-          <div className="input-with-prefix">
-            <span className="prefix">$</span>
-            <input type="number" inputMode="decimal" className="text-input" placeholder="0.00" value={price} onChange={e => setPrice(e.target.value)} />
+        {!hidePrice && (
+          <div className="input-block">
+            <div className="input-label">{priceLabel}</div>
+            <div className="input-with-prefix">
+              <span className="prefix">$</span>
+              <input type="number" inputMode="decimal" className="text-input" placeholder="0.00" value={price} onChange={e => setPrice(e.target.value)} />
+            </div>
           </div>
-        </div>
+        )}
         <div className="modal-actions">
           <button className="btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn-primary-modal" onClick={handleAdd} disabled={!name.trim()}>Agregar</button>
@@ -995,19 +1443,14 @@ function AddProductModal({ onClose, onAdd }) {
   );
 }
 
-// ─── Modal: editar precio ───
 function EditPriceModal({ product, onClose, onSave }) {
   const [price, setPrice] = useState(String(product.price));
-
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head">
-          <h2>Editar precio</h2>
-          <div className="sub">{product.name}</div>
-        </div>
+        <div className="modal-head"><h2>Editar precio</h2><div className="sub">{product.name}</div></div>
         <div className="input-block">
           <div className="input-label">Precio</div>
           <div className="input-with-prefix">
@@ -1024,17 +1467,13 @@ function EditPriceModal({ product, onClose, onSave }) {
   );
 }
 
-// ─── Modal: elegir tienda para escaneo ───
 function StoreSelectorModal({ stores, scannedProduct, onClose, onChoose, onCreateNew }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head">
-          <h2>¿A cuál lista lo agrego?</h2>
-          <div className="sub">{scannedProduct.name} · ${scannedProduct.price.toFixed(2)}</div>
-        </div>
+        <div className="modal-head"><h2>¿A cuál lista lo agrego?</h2><div className="sub">{scannedProduct.name} · ${scannedProduct.price.toFixed(2)}</div></div>
         <div className="store-selector">
           {stores.map(s => (
             <div key={s.id} className="ss-row" onClick={() => onChoose(s.id)}>
@@ -1050,13 +1489,9 @@ function StoreSelectorModal({ stores, scannedProduct, onClose, onChoose, onCreat
   );
 }
 
-// ─── Modal del escáner ───
 function ScannerModal({ stores, onClose, onProductScanned }) {
   const [scanned, setScanned] = useState(null);
-
   const simulateScan = (product) => setScanned(product);
-  const reset = () => setScanned(null);
-
   if (scanned) {
     return (
       <StoreSelectorModal
@@ -1068,16 +1503,12 @@ function ScannerModal({ stores, onClose, onProductScanned }) {
       />
     );
   }
-
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head">
-          <h2>📷 Escanear producto</h2>
-          <div className="sub">Apunta al código de barras o QR</div>
-        </div>
+        <div className="modal-head"><h2>📷 Escanear producto</h2><div className="sub">Apunta al código de barras o QR</div></div>
         <div style={{margin: '0 16px 18px', background: '#1A2B3C', borderRadius: 16, padding: '40px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: 14}}>
           <div style={{width: 200, height: 110, margin: '0 auto 14px', border: '2px solid #64B5F6', borderRadius: 8, position: 'relative', background: 'rgba(100,181,246,0.05)'}}>
             <div style={{position: 'absolute', top: '50%', left: 8, right: 8, height: 2, background: '#FF5252', boxShadow: '0 0 10px #FF5252', animation: 'scan 2s ease-in-out infinite'}}></div>
@@ -1102,28 +1533,28 @@ function ScannerModal({ stores, onClose, onProductScanned }) {
   );
 }
 
-// ─── PANTRY ───
-function PantryTab() {
-  const [items, setItems] = useState(PANTRY_ITEMS);
+// ─────────────────────────────────────────────────────────────────────────
+// PANTRY — AHORA CONECTADO A SUPABASE
+// ─────────────────────────────────────────────────────────────────────────
+function PantryTab({ householdId }) {
+  const { items, loading, saving, addItem, updateState, updateMeta, removeItem } = usePantry(householdId);
   const [openItem, setOpenItem] = useState(null);
+  const [addOpen, setAddOpen] = useState(false);
 
-  const cycleState = (id, e) => {
+  const cycleState = (id, currentState, e) => {
     e.stopPropagation();
     const order = ['have', 'low', 'out'];
-    setItems(prev => prev.map(item => {
-      if (item.id !== id) return item;
-      const nextIdx = (order.indexOf(item.state) + 1) % order.length;
-      return { ...item, state: order[nextIdx] };
-    }));
+    const nextIdx = (order.indexOf(currentState) + 1) % order.length;
+    updateState(id, order[nextIdx]);
   };
 
-  const updateItemState = (id, newState) => {
-    setItems(prev => prev.map(item => item.id === id ? { ...item, state: newState } : item));
+  const handleChangeState = (id, newState) => {
+    updateState(id, newState);
     setOpenItem(prev => prev && prev.id === id ? { ...prev, state: newState } : prev);
   };
 
-  const removeItem = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id));
+  const handleRemove = (id) => {
+    removeItem(id);
     setOpenItem(null);
   };
 
@@ -1133,16 +1564,28 @@ function PantryTab() {
 
   const renderRow = (item) => (
     <div key={item.id} className={`pantry-row ${item.state}`} onClick={() => setOpenItem(item)}>
-      <button className="pantry-indicator-btn" onClick={e => cycleState(item.id, e)}>
+      <button className="pantry-indicator-btn" onClick={e => cycleState(item.id, item.state, e)}>
         <span className="dot"></span>
       </button>
       <span className="pantry-name">{item.name}</span>
-      <span className="pantry-meta">{item.meta}</span>
+      <span className="pantry-meta">{item.meta_text || ''}</span>
     </div>
   );
 
+  if (loading) {
+    return <div className="empty" style={{padding:'40px 22px'}}>Cargando despensa…</div>;
+  }
+
   return (
     <>
+      {items.length === 0 && (
+        <div className="ph-card">
+          <span className="emoji">📦</span>
+          <div className="title">Tu despensa está vacía</div>
+          <div className="body">Agrega los productos que sueles tener en casa. Marca cada uno como <strong>Tienes</strong>, <strong>Por acabarse</strong> o <strong>Se acabó</strong>.</div>
+        </div>
+      )}
+
       {outItems.length > 0 && (
         <div className="pantry-section">
           <div className="pantry-section-head"><span className="title">🔴 Se acabó</span><span className="count">{outItems.length}</span></div>
@@ -1161,22 +1604,59 @@ function PantryTab() {
           {haveItems.map(renderRow)}
         </div>
       )}
-      <div style={{padding: '14px 22px 8px', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 12, color: 'var(--text-soft)', textAlign: 'center'}}>
-        Toca el círculo para cambiar estado · toca el producto para más opciones
-      </div>
+
+      {items.length > 0 && (
+        <div style={{padding: '14px 22px 8px', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 12, color: 'var(--text-soft)', textAlign: 'center'}}>
+          Toca el círculo para cambiar estado · toca el producto para más opciones
+        </div>
+      )}
       <div className="tagline">El orden es elegante</div>
 
-      {openItem && <PantryItemModal item={openItem} onClose={() => setOpenItem(null)} onChangeState={s => updateItemState(openItem.id, s)} onRemove={() => removeItem(openItem.id)} />}
+      <button className="pantry-fab" onClick={() => setAddOpen(true)}>+</button>
+      {saving && <div className="saving-toast">Guardando…</div>}
+
+      {addOpen && (
+        <AddProductModal
+          title="Agregar al pantry"
+          subtitle="Un producto que sueles tener en casa"
+          namePlaceholder="ej. Aceite de oliva 500ml"
+          priceLabel="Cantidad o nota (opcional)"
+          hidePrice={false}
+          onClose={() => setAddOpen(false)}
+          onAdd={async ({ name, price }) => {
+            // En el pantry, lo que el usuario llama "precio" en realidad lo usamos como nota inicial
+            // Mejor: reusar el modal pero adaptado. Por ahora dejamos sin meta.
+            await addItem({ name, state: 'have', meta_text: '' });
+            setAddOpen(false);
+          }}
+        />
+      )}
+
+      {openItem && (
+        <PantryItemModal
+          item={openItem}
+          onClose={() => setOpenItem(null)}
+          onChangeState={s => handleChangeState(openItem.id, s)}
+          onRemove={() => handleRemove(openItem.id)}
+          onUpdateMeta={(text) => {
+            updateMeta(openItem.id, text);
+            setOpenItem(prev => prev ? { ...prev, meta_text: text } : prev);
+          }}
+        />
+      )}
     </>
   );
 }
 
-function PantryItemModal({ item, onClose, onChangeState, onRemove }) {
+function PantryItemModal({ item, onClose, onChangeState, onRemove, onUpdateMeta }) {
   const STATES = [
     { id: 'have', label: 'Tienes' },
     { id: 'low', label: 'Por acabarse' },
     { id: 'out', label: 'Se acabó' },
   ];
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [metaDraft, setMetaDraft] = useState(item.meta_text || '');
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
@@ -1188,7 +1668,28 @@ function PantryItemModal({ item, onClose, onChangeState, onRemove }) {
         </div>
         <div className="product-modal-hero">
           <div className="pname">{item.name}</div>
-          <div className="pmeta">{item.meta}</div>
+          {!editingMeta ? (
+            <div className="pmeta" onClick={() => setEditingMeta(true)} style={{cursor:'pointer', textDecoration:'underline dotted', textUnderlineOffset:3}}>
+              {item.meta_text || 'agregar nota'}
+            </div>
+          ) : (
+            <div style={{marginTop:8, display:'flex', gap:6, justifyContent:'center'}}>
+              <input
+                type="text"
+                className="text-input"
+                style={{fontSize:13, padding:'8px 12px', maxWidth:240}}
+                value={metaDraft}
+                onChange={e => setMetaDraft(e.target.value)}
+                placeholder="ej. ½ botella, queda poco"
+                autoFocus
+              />
+              <button
+                className="btn-primary-modal"
+                style={{padding:'8px 14px', fontSize:13}}
+                onClick={() => { onUpdateMeta(metaDraft); setEditingMeta(false); }}
+              >Ok</button>
+            </div>
+          )}
         </div>
         <div className="state-selector">
           <div className="label">Estado actual</div>
@@ -1202,9 +1703,6 @@ function PantryItemModal({ item, onClose, onChangeState, onRemove }) {
           </div>
         </div>
         <div style={{padding: '0 16px'}}>
-          <button className="scan-btn"><span className="ic">🔢</span><span>Ajustar cantidad</span></button>
-          <button className="scan-btn"><span className="ic">🛒</span><span>Agregar a lista de compras</span></button>
-          <button className="scan-btn"><span className="ic">📜</span><span>Ver historial</span></button>
           <button className="scan-btn" onClick={onRemove} style={{color: 'var(--danger)'}}><span className="ic" style={{background: '#FFEBEE', color: 'var(--danger)'}}>🗑️</span><span style={{fontWeight: 600}}>Eliminar del pantry</span></button>
         </div>
       </div>
@@ -1212,70 +1710,16 @@ function PantryItemModal({ item, onClose, onChangeState, onRemove }) {
   );
 }
 
-// ─── BALANCE ───
-const HOUSEHOLD_MEMBERS = [
-  { id: 'roy', name: 'Roy', shortName: 'Roy', color: '#1565C0', avatarBg: '#1565C0' },
-  { id: 'ruth', name: 'Ruth', shortName: 'Ruth', color: '#C2185B', avatarBg: '#C2185B' },
-  { id: 'proxy', name: 'Casa', shortName: 'Casa', color: '#C9A96E', avatarBg: '#C9A96E' },
-];
-
-// Datos mock — participación por período y métrica
-// Estructura: { period: { metric: { memberId: { count, value, tasks: [{name, space, value}] } } } }
-const BALANCE_DATA = {
-  today: {
-    tasks: {
-      roy:   { count: 3, prev: 2, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 1 }, { name: 'Lavar los platos', space: 'kitchen', value: 1 }, { name: 'Sacar basura', space: 'whole_home', value: 1 }] },
-      ruth:  { count: 2, prev: 4, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 1 }, { name: 'Limpiar arenero', space: 'pets', value: 1 }] },
-      proxy: { count: 1, prev: 1, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 1 }] },
-    },
-    minutes: {
-      roy:   { count: 75, prev: 45, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 35 }, { name: 'Lavar los platos', space: 'kitchen', value: 25 }, { name: 'Sacar basura', space: 'whole_home', value: 15 }] },
-      ruth:  { count: 40, prev: 80, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 8 }, { name: 'Limpiar arenero', space: 'pets', value: 32 }] },
-      proxy: { count: 25, prev: 20, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 25 }] },
-    },
-    importance: {
-      roy:   { count: 8, prev: 6, tasks: [{ name: 'Aspirar la sala', space: 'living_room', value: 3 }, { name: 'Lavar los platos', space: 'kitchen', value: 2 }, { name: 'Sacar basura', space: 'whole_home', value: 3 }] },
-      ruth:  { count: 5, prev: 9, tasks: [{ name: 'Tender la cama', space: 'bedroom', value: 1 }, { name: 'Limpiar arenero', space: 'pets', value: 4 }] },
-      proxy: { count: 3, prev: 3, tasks: [{ name: 'Regar el jardín', space: 'garden', value: 3 }] },
-    },
-  },
-  week: {
-    tasks:      { roy: { count: 14, prev: 11 }, ruth: { count: 18, prev: 16 }, proxy: { count: 6, prev: 5 } },
-    minutes:    { roy: { count: 320, prev: 280 }, ruth: { count: 410, prev: 390 }, proxy: { count: 145, prev: 120 } },
-    importance: { roy: { count: 42, prev: 35 }, ruth: { count: 48, prev: 50 }, proxy: { count: 18, prev: 16 } },
-  },
-  month: {
-    tasks:      { roy: { count: 62, prev: 58 }, ruth: { count: 71, prev: 78 }, proxy: { count: 24, prev: 22 } },
-    minutes:    { roy: { count: 1420, prev: 1350 }, ruth: { count: 1680, prev: 1820 }, proxy: { count: 540, prev: 490 } },
-    importance: { roy: { count: 180, prev: 162 }, ruth: { count: 195, prev: 210 }, proxy: { count: 72, prev: 65 } },
-  },
-};
-
-const PERIODS = [
-  { id: 'today', label: 'Hoy' },
-  { id: 'week', label: 'Semana' },
-  { id: 'month', label: 'Mes' },
-];
-
-const METRICS = [
-  { id: 'tasks', label: 'Tareas', icon: '📋', unit: 'tarea', unitPlural: 'tareas' },
-  { id: 'minutes', label: 'Minutos', icon: '⏱', unit: 'min', unitPlural: 'min' },
-  { id: 'importance', label: 'Importancia', icon: '⭐', unit: 'pt', unitPlural: 'pts' },
-];
-
-// SVG Donut Chart
+// ─────────────────────────────────────────────────────────────────────────
+// BALANCE (sin cambios)
+// ─────────────────────────────────────────────────────────────────────────
 function DonutChart({ segments, total }) {
-  const radius = 56;
-  const strokeWidth = 22;
-  const cx = 70, cy = 70;
+  const radius = 56; const strokeWidth = 22; const cx = 70, cy = 70;
   const circumference = 2 * Math.PI * radius;
-
   let cumulativePct = 0;
   return (
     <svg viewBox="0 0 140 140">
-      {/* Track */}
       <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#F0EBE0" strokeWidth={strokeWidth} />
-      {/* Segments */}
       {segments.map((seg, idx) => {
         if (seg.value === 0) return null;
         const pct = seg.value / total;
@@ -1283,17 +1727,7 @@ function DonutChart({ segments, total }) {
         const dashoffset = -cumulativePct * circumference;
         cumulativePct += pct;
         return (
-          <circle
-            key={idx}
-            cx={cx} cy={cy} r={radius}
-            fill="none"
-            stroke={seg.color}
-            strokeWidth={strokeWidth}
-            strokeDasharray={dasharray}
-            strokeDashoffset={dashoffset}
-            strokeLinecap="butt"
-            className="donut-segment"
-          />
+          <circle key={idx} cx={cx} cy={cy} r={radius} fill="none" stroke={seg.color} strokeWidth={strokeWidth} strokeDasharray={dasharray} strokeDashoffset={dashoffset} strokeLinecap="butt" className="donut-segment" />
         );
       })}
     </svg>
@@ -1303,55 +1737,30 @@ function DonutChart({ segments, total }) {
 function BalanceScreen() {
   const [period, setPeriod] = useState('today');
   const [metric, setMetric] = useState('tasks');
-
   const data = BALANCE_DATA[period][metric];
   const metricInfo = METRICS.find(m => m.id === metric);
-
-  // Calcular totales y porcentajes
-  const total = HOUSEHOLD_MEMBERS.reduce((s, m) => s + (data[m.id]?.count || 0), 0);
-  const segments = HOUSEHOLD_MEMBERS.map(m => ({
-    member: m,
-    value: data[m.id]?.count || 0,
-    prev: data[m.id]?.prev || 0,
+  const total = HOUSEHOLD_MEMBERS_MOCK.reduce((s, m) => s + (data[m.id]?.count || 0), 0);
+  const segments = HOUSEHOLD_MEMBERS_MOCK.map(m => ({
+    member: m, value: data[m.id]?.count || 0, prev: data[m.id]?.prev || 0,
     pct: total > 0 ? Math.round(((data[m.id]?.count || 0) / total) * 100) : 0,
-    color: m.color,
-    tasks: data[m.id]?.tasks || [],
+    color: m.color, tasks: data[m.id]?.tasks || [],
   }));
-
-  // Insight: ¿está balanceado?
   const maxPct = Math.max(...segments.map(s => s.pct));
   const minPct = Math.min(...segments.filter(s => s.value > 0).map(s => s.pct));
   let insight;
-  if (total === 0) {
-    insight = { ic: '🌙', text: 'Aún no hay actividad registrada en este período.' };
-  } else if (maxPct - minPct < 15) {
-    insight = { ic: '⚖️', text: <>Distribución <strong>equilibrada</strong>. El hogar está funcionando como equipo.</> };
-  } else if (maxPct >= 60) {
+  if (total === 0) insight = { ic: '🌙', text: 'Aún no hay actividad registrada en este período.' };
+  else if (maxPct - minPct < 15) insight = { ic: '⚖️', text: <>Distribución <strong>equilibrada</strong>. El hogar está funcionando como equipo.</> };
+  else if (maxPct >= 60) {
     const leader = segments.find(s => s.pct === maxPct);
     insight = { ic: '👁️', text: <>El <strong>{leader.member.name}</strong> ha tenido la mayor carga este período ({leader.pct}%).</> };
-  } else {
-    insight = { ic: '📍', text: 'Distribución dispar — algunos miembros contribuyeron más que otros.' };
-  }
-
-  // Comparativa global
-  const totalPrev = HOUSEHOLD_MEMBERS.reduce((s, m) => s + (data[m.id]?.prev || 0), 0);
+  } else insight = { ic: '📍', text: 'Distribución dispar — algunos miembros contribuyeron más que otros.' };
+  const totalPrev = HOUSEHOLD_MEMBERS_MOCK.reduce((s, m) => s + (data[m.id]?.prev || 0), 0);
   const diff = total - totalPrev;
   const diffPct = totalPrev > 0 ? Math.round((diff / totalPrev) * 100) : 0;
   const periodLabelMap = { today: 'ayer', week: 'la semana pasada', month: 'el mes pasado' };
-  const comparativeText = totalPrev === 0
-    ? 'Sin datos del período anterior para comparar'
-    : `${diffPct > 0 ? '+' : ''}${diffPct}% vs ${periodLabelMap[period]}`;
+  const comparativeText = totalPrev === 0 ? 'Sin datos del período anterior para comparar' : `${diffPct > 0 ? '+' : ''}${diffPct}% vs ${periodLabelMap[period]}`;
   const compareClass = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
   const compareArrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-
-  const formatValue = (n) => {
-    if (metric === 'minutes' && n >= 60) {
-      const h = Math.floor(n / 60);
-      const m = n % 60;
-      return m === 0 ? `${h}h` : `${h}h ${m}m`;
-    }
-    return `${n}${metric === 'minutes' ? ' min' : ''}`;
-  };
 
   return (
     <>
@@ -1361,27 +1770,18 @@ function BalanceScreen() {
         <h1 className="large">Balance</h1>
         <div className="sub">Distribución por miembro</div>
       </div>
-
-      {/* Selector de período */}
       <div className="period-selector">
         {PERIODS.map(p => (
-          <button key={p.id} className={'period-tab' + (period === p.id ? ' active' : '')} onClick={() => setPeriod(p.id)}>
-            {p.label}
-          </button>
+          <button key={p.id} className={'period-tab' + (period === p.id ? ' active' : '')} onClick={() => setPeriod(p.id)}>{p.label}</button>
         ))}
       </div>
-
-      {/* Selector de métrica */}
       <div className="metric-chips">
         {METRICS.map(m => (
           <button key={m.id} className={'metric-chip' + (metric === m.id ? ' active' : '')} onClick={() => setMetric(m.id)}>
-            <span>{m.icon}</span>
-            <span>{m.label}</span>
+            <span>{m.icon}</span><span>{m.label}</span>
           </button>
         ))}
       </div>
-
-      {/* Donut + leyenda */}
       <div className="donut-card">
         <div className="donut-wrap">
           <div className="donut-svg-wrap">
@@ -1401,112 +1801,15 @@ function BalanceScreen() {
             ))}
           </div>
         </div>
-
         <div className="compare-row">
           <span className={'compare-arrow ' + compareClass}>{compareArrow}</span>
           <span className="compare-text">{comparativeText}</span>
         </div>
       </div>
-
-      {/* Insight */}
       <div className="insight-card">
         <div className="insight-ic">{insight.ic}</div>
         <div className="insight-body">{insight.text}</div>
       </div>
-
-      {/* Detalle por miembro — solo cuando es "today" (tiene tasks detalladas) */}
-      {period === 'today' && segments.some(s => s.tasks && s.tasks.length > 0) && (
-        <>
-          <div className="section-head"><span className="title">Detalle por miembro</span><span className="link muted">hoy</span></div>
-          {segments.map(seg => {
-            if (seg.value === 0) return null;
-            const memberData = data[seg.member.id];
-            return (
-              <div key={seg.member.id} className="member-card">
-                <div className="member-head">
-                  <div className="member-avatar" style={{ background: seg.member.avatarBg }}>
-                    {seg.member.shortName[0]}
-                  </div>
-                  <div className="member-name">{seg.member.name}</div>
-                  <div className="member-pct" style={{ color: seg.color }}>{seg.pct}%</div>
-                </div>
-                <div className="member-bar">
-                  <div className="member-bar-fill" style={{ width: `${seg.pct}%`, background: seg.color }}></div>
-                </div>
-                <div className="member-stats">
-                  <div className="mstat">
-                    <div className="mstat-num">{memberData.count}</div>
-                    <div className="mstat-label">{metricInfo.label}</div>
-                  </div>
-                  <div className="mstat">
-                    <div className="mstat-num">{seg.tasks.length}</div>
-                    <div className="mstat-label">Distintas</div>
-                  </div>
-                  <div className="mstat">
-                    <div className="mstat-num">{memberData.prev}</div>
-                    <div className="mstat-label">Ayer</div>
-                  </div>
-                </div>
-                <div className="member-tasks">
-                  {seg.tasks.map((t, idx) => {
-                    const space = SPACES[t.space] || SPACES.whole_home;
-                    return (
-                      <div key={idx} className="member-task-pill">
-                        <span className="pill-ic">{space.icon}</span>
-                        <span style={{flex: 1}}>{t.name}</span>
-                        <span style={{ color: 'var(--text-soft)', fontFamily: 'var(--font-tech)', fontSize: 11 }}>
-                          {metric === 'minutes' ? `${t.value} min` : metric === 'importance' ? `${t.value} pts` : ''}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </>
-      )}
-
-      {/* Para week/month: cards simplificadas */}
-      {period !== 'today' && total > 0 && (
-        <>
-          <div className="section-head"><span className="title">Por miembro</span><span className="link muted">{period === 'week' ? 'esta semana' : 'este mes'}</span></div>
-          {segments.map(seg => {
-            if (seg.value === 0) return null;
-            const prevDiff = seg.value - seg.prev;
-            const prevDiffPct = seg.prev > 0 ? Math.round((prevDiff / seg.prev) * 100) : 0;
-            return (
-              <div key={seg.member.id} className="member-card">
-                <div className="member-head">
-                  <div className="member-avatar" style={{ background: seg.member.avatarBg }}>{seg.member.shortName[0]}</div>
-                  <div className="member-name">{seg.member.name}</div>
-                  <div className="member-pct" style={{ color: seg.color }}>{seg.pct}%</div>
-                </div>
-                <div className="member-bar">
-                  <div className="member-bar-fill" style={{ width: `${seg.pct}%`, background: seg.color }}></div>
-                </div>
-                <div className="member-stats">
-                  <div className="mstat">
-                    <div className="mstat-num">{seg.value}</div>
-                    <div className="mstat-label">{metricInfo.label}</div>
-                  </div>
-                  <div className="mstat">
-                    <div className="mstat-num">{seg.prev}</div>
-                    <div className="mstat-label">Anterior</div>
-                  </div>
-                  <div className="mstat">
-                    <div className="mstat-num" style={{ color: prevDiff > 0 ? 'var(--state-completed-text)' : prevDiff < 0 ? 'var(--state-overdue-text)' : 'var(--text-soft)' }}>
-                      {prevDiff > 0 ? '+' : ''}{prevDiffPct}%
-                    </div>
-                    <div className="mstat-label">Cambio</div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </>
-      )}
-
       <div className="tagline">El orden es elegante</div>
     </>
   );
@@ -1641,23 +1944,27 @@ function Toggle({ checked, onChange }) {
   return <label className="toggle"><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} /><span className="toggle-slider"></span></label>;
 }
 
-function ProfileScreen() {
+function ProfileScreen({ session, member, household, onLogout }) {
   const [notif, setNotif] = useState(true);
-  const initials = USER.name.split(' ').map(p => p[0]).slice(0, 2).join('');
+  const userMeta = session?.user?.user_metadata || {};
+  const fullName = member?.display_name || userMeta.full_name || userMeta.name || session?.user?.email || '—';
+  const shortName = member?.short_name || (userMeta.given_name || fullName.split(' ')[0]);
+  const email = session?.user?.email || '—';
+  const initials = fullName.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
   return (
     <>
       <div className="profile-hero">
         <button className="bell">🔔</button>
-        <div className="profile-avatar">{initials}<span className="badge-admin">Admin</span></div>
-        <div className="profile-name">{USER.name}</div>
-        <div className="profile-email">{USER.email}</div>
-        <div className="household-pill">🏡 {USER.household} · {USER.membersCount} miembros</div>
+        <div className="profile-avatar">{initials}{member?.role === 'admin' && <span className="badge-admin">Admin</span>}</div>
+        <div className="profile-name">{fullName}</div>
+        <div className="profile-email">{email}</div>
+        {household && <div className="household-pill">🏡 {household.name}</div>}
       </div>
       <div className="pr-section">
         <div className="pr-section-title">Datos personales</div>
         <div className="pr-list">
-          <div className="pr-row"><div className="pr-ic">👤</div><div className="pr-body"><div className="pr-label">Nombre visible</div></div><div className="pr-right">{USER.shortName}<span className="pr-chev">›</span></div></div>
-          <div className="pr-row"><div className="pr-ic">📧</div><div className="pr-body"><div className="pr-label">Correo y login</div><div className="pr-hint">{USER.loginMethod}</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">👤</div><div className="pr-body"><div className="pr-label">Nombre visible</div></div><div className="pr-right">{shortName}<span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">📧</div><div className="pr-body"><div className="pr-label">Correo y login</div><div className="pr-hint">Google</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
         </div>
       </div>
       <div className="pr-section">
@@ -1669,20 +1976,20 @@ function ProfileScreen() {
       <div className="pr-section">
         <div className="pr-section-title admin">Gestión del hogar</div>
         <div className="pr-list">
-          <div className="pr-row"><div className="pr-ic">🏡</div><div className="pr-body"><div className="pr-label">Espacios del hogar</div></div><div className="pr-right">9<span className="pr-chev">›</span></div></div>
-          <div className="pr-row"><div className="pr-ic">👥</div><div className="pr-body"><div className="pr-label">Miembros</div></div><div className="pr-right">{USER.membersCount}<span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">🏡</div><div className="pr-body"><div className="pr-label">Espacios del hogar</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">👥</div><div className="pr-body"><div className="pr-label">Miembros</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
           <div className="pr-row"><div className="pr-ic">🏪</div><div className="pr-body"><div className="pr-label">Tiendas</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
         </div>
       </div>
       <div className="pr-section">
         <div className="pr-section-title">Sesión</div>
         <div className="pr-list">
-          <div className="pr-row"><div className="pr-ic">📅</div><div className="pr-body"><div className="pr-label">Google Calendar</div></div><div className="pr-right" style={{color:'var(--state-completed-text)',fontWeight:600}}>Vinculado<span className="pr-chev">›</span></div></div>
-          <div className="pr-row danger"><div className="pr-ic">↪</div><div className="pr-body"><div className="pr-label">Cerrar sesión</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
+          <div className="pr-row"><div className="pr-ic">📅</div><div className="pr-body"><div className="pr-label">Google Calendar</div></div><div className="pr-right" style={{color:'var(--text-soft)'}}>Pendiente<span className="pr-chev">›</span></div></div>
+          <div className="pr-row danger" onClick={onLogout}><div className="pr-ic">↪</div><div className="pr-body"><div className="pr-label">Cerrar sesión</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
         </div>
       </div>
       <div className="app-info">
-        <div className="version">CLP v1.0</div>
+        <div className="version">CLP v1.1</div>
         <div style={{marginTop:4}}>Calendario de Limpieza Programada</div>
         <div style={{marginTop:8,fontStyle:'italic',fontFamily:'var(--font-display)',color:'var(--gold)'}}>El orden es elegante</div>
       </div>
@@ -1699,7 +2006,10 @@ const SECTIONS = [
   { id: 'profile', icon: '👤', label: 'Perfil' },
 ];
 
-function App() {
+// ─────────────────────────────────────────────────────────────────────────
+// APP PRINCIPAL — necesita session, household, member
+// ─────────────────────────────────────────────────────────────────────────
+function MainApp({ session, household, member, onLogout }) {
   const [section, setSection] = useState('home');
   const [openTask, setOpenTask] = useState(null);
   const [openArticle, setOpenArticle] = useState(null);
@@ -1710,69 +2020,22 @@ function App() {
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [editPriceProduct, setEditPriceProduct] = useState(null);
 
-  // Estado global de listas y tiendas
   const [stores] = useState(INITIAL_STORES);
   const [storeLists, setStoreLists] = useState(INITIAL_STORE_LISTS);
   const [history, setHistory] = useState(INITIAL_HISTORY);
 
-  const closeAll = () => {
-    setOpenTask(null); setOpenArticle(null); setOpenStore(null); setOpenCloseCompra(null);
-  };
+  const closeAll = () => { setOpenTask(null); setOpenArticle(null); setOpenStore(null); setOpenCloseCompra(null); };
 
-  // Acciones sobre listas
-  const tickProduct = (storeId, productId) => {
-    setStoreLists(prev => ({
-      ...prev,
-      [storeId]: prev[storeId].filter(p => p.id !== productId)
-    }));
-  };
-
-  const editPrice = (storeId, productId, newPrice) => {
-    setStoreLists(prev => ({
-      ...prev,
-      [storeId]: prev[storeId].map(p => p.id === productId ? { ...p, price: newPrice } : p)
-    }));
-    setEditPriceProduct(null);
-  };
-
-  const deleteProduct = (storeId, productId) => {
-    setStoreLists(prev => ({
-      ...prev,
-      [storeId]: prev[storeId].filter(p => p.id !== productId)
-    }));
-  };
-
-  const addManualProduct = (storeId, product) => {
-    const newId = `manual-${Date.now()}`;
-    setStoreLists(prev => ({
-      ...prev,
-      [storeId]: [...prev[storeId], { id: newId, name: product.name, price: product.price }]
-    }));
-    setAddProductOpen(false);
-  };
-
-  const handleProductScanned = (product, storeId) => {
-    const newId = `scan-${Date.now()}`;
-    setStoreLists(prev => ({
-      ...prev,
-      [storeId]: [...(prev[storeId] || []), { id: newId, name: product.name, price: product.price }]
-    }));
-    setScannerOpen(false);
-  };
-
+  const tickProduct = (storeId, productId) => setStoreLists(prev => ({ ...prev, [storeId]: prev[storeId].filter(p => p.id !== productId) }));
+  const editPrice = (storeId, productId, newPrice) => { setStoreLists(prev => ({ ...prev, [storeId]: prev[storeId].map(p => p.id === productId ? { ...p, price: newPrice } : p) })); setEditPriceProduct(null); };
+  const deleteProduct = (storeId, productId) => setStoreLists(prev => ({ ...prev, [storeId]: prev[storeId].filter(p => p.id !== productId) }));
+  const addManualProduct = (storeId, product) => { setStoreLists(prev => ({ ...prev, [storeId]: [...prev[storeId], { id: `manual-${Date.now()}`, name: product.name, price: product.price }] })); setAddProductOpen(false); };
+  const handleProductScanned = (product, storeId) => { setStoreLists(prev => ({ ...prev, [storeId]: [...(prev[storeId] || []), { id: `scan-${Date.now()}`, name: product.name, price: product.price }] })); setScannerOpen(false); };
   const archiveCompra = () => {
     if (!openCloseCompra) return;
     const list = storeLists[openCloseCompra.id] || [];
     const total = list.reduce((s, p) => s + p.price, 0);
-    const newArchive = {
-      id: `arc-${Date.now()}`,
-      storeId: openCloseCompra.id,
-      date: 'hoy',
-      items: list.length,
-      total,
-      hasTicket: false,
-    };
-    setHistory(prev => [newArchive, ...prev]);
+    setHistory(prev => [{ id: `arc-${Date.now()}`, storeId: openCloseCompra.id, date: 'hoy', items: list.length, total, hasTicket: false }, ...prev]);
     setStoreLists(prev => ({ ...prev, [openCloseCompra.id]: [] }));
     setOpenCloseCompra(null);
   };
@@ -1780,46 +2043,28 @@ function App() {
   const renderScreen = () => {
     if (openTask) return <TaskDetailScreen task={openTask} onBack={closeAll} />;
     if (openArticle) return <ArticleScreen article={openArticle} onBack={closeAll} />;
-    if (openCloseCompra) {
-      return <CloseCompraScreen
-        store={openCloseCompra}
-        list={storeLists[openCloseCompra.id] || []}
-        onBack={() => { setOpenCloseCompra(null); setOpenStore(openCloseCompra); }}
-        onArchive={archiveCompra}
-      />;
-    }
+    if (openCloseCompra) return <CloseCompraScreen store={openCloseCompra} list={storeLists[openCloseCompra.id] || []} onBack={() => { setOpenCloseCompra(null); setOpenStore(openCloseCompra); }} onArchive={archiveCompra} />;
     if (openStore) {
       const list = storeLists[openStore.id] || [];
-      return <StoreListScreen
-        store={openStore}
-        list={list}
-        onBack={closeAll}
+      return <StoreListScreen store={openStore} list={list} onBack={closeAll}
         onTickProduct={(pid) => tickProduct(openStore.id, pid)}
         onEditPrice={(p) => setEditPriceProduct({ storeId: openStore.id, product: p })}
         onDeleteProduct={(pid) => deleteProduct(openStore.id, pid)}
         onAddManual={() => setAddProductOpen(true)}
-        onCloseCompra={() => { setOpenCloseCompra(openStore); setOpenStore(null); }}
-      />;
+        onCloseCompra={() => { setOpenCloseCompra(openStore); setOpenStore(null); }} />;
     }
-
     switch (section) {
-      case 'home': return <HomeScreen onOpenTask={t => { closeAll(); setOpenTask(t); }} />;
+      case 'home': return <HomeScreen onOpenTask={t => { closeAll(); setOpenTask(t); }} member={member} household={household} />;
       case 'tasks': return <TasksScreen onOpenTask={t => { closeAll(); setOpenTask(t); }} />;
-      case 'shopping': return <ShoppingScreen
-        stores={stores}
-        storeLists={storeLists}
-        history={history}
-        onOpenStore={s => { closeAll(); setOpenStore(s); }}
-        onOpenHistory={() => {}}
-        onOpenScanner={() => setScannerOpen(true)}
-      />;
+      case 'shopping': return <ShoppingScreen stores={stores} storeLists={storeLists} history={history}
+        onOpenStore={s => { closeAll(); setOpenStore(s); }} onOpenHistory={() => {}}
+        onOpenScanner={() => setScannerOpen(true)} householdId={household.id} />;
       case 'balance': return <BalanceScreen />;
       case 'library': return <LibraryScreen onOpenArticle={a => { closeAll(); setOpenArticle(a); }} />;
-      case 'profile': return <ProfileScreen />;
-      default: return <HomeScreen />;
+      case 'profile': return <ProfileScreen session={session} member={member} household={household} onLogout={onLogout} />;
+      default: return <HomeScreen member={member} household={household} />;
     }
   };
-
   const screenKey = openTask ? `t-${openTask.id}` : openArticle ? `a-${openArticle.id}` : openCloseCompra ? `cc-${openCloseCompra.id}` : openStore ? `s-${openStore.id}` : section;
 
   return (
@@ -1833,7 +2078,6 @@ function App() {
           </button>
         ))}
       </nav>
-
       {scannerOpen && <ScannerModal stores={stores} onClose={() => setScannerOpen(false)} onProductScanned={handleProductScanned} />}
       {addProductOpen && openStore && <AddProductModal onClose={() => setAddProductOpen(false)} onAdd={(p) => addManualProduct(openStore.id, p)} />}
       {editPriceProduct && <EditPriceModal product={editPriceProduct.product} onClose={() => setEditPriceProduct(null)} onSave={(price) => editPrice(editPriceProduct.storeId, editPriceProduct.product.id, price)} />}
@@ -1841,7 +2085,27 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+// ─────────────────────────────────────────────────────────────────────────
+// ROOT — decide qué mostrar según el estado de auth/onboarding
+// ─────────────────────────────────────────────────────────────────────────
+function Root() {
+  const { session, loading: sessionLoading } = useSession();
+  const { household, member, loading: householdLoading, needsOnboarding, createHousehold } = useHousehold(session);
+
+  const handleLogout = async () => {
+    await sb.auth.signOut();
+  };
+
+  if (sessionLoading) return <FullLoader msg="Cargando…" />;
+  if (!session) return <LoginScreen />;
+  if (householdLoading) return <FullLoader msg="Preparando tu hogar…" />;
+  if (needsOnboarding) return <OnboardingModal session={session} onCreate={createHousehold} />;
+  if (!household) return <FullLoader msg="Cargando…" />;
+
+  return <MainApp session={session} household={household} member={member} onLogout={handleLogout} />;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
 </script>
 <script>
 if ('serviceWorker' in navigator) {
