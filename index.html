@@ -480,6 +480,170 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .ph-card .emoji { font-size: 38px; margin-bottom: 10px; display: block; }
 .ph-card .title { font-family: var(--font-display); font-size: 22px; font-weight: 500; margin-bottom: 6px; }
 .ph-card .body { color: var(--text-soft); font-size: 13.5px; line-height: 1.55; }
+
+/* ===== Miembros del hogar ===== */
+.member-row {
+  background: white;
+  border-radius: 12px;
+  margin: 0 16px 8px;
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--border);
+}
+.member-row .avatar-circle {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 500; font-size: 15px;
+  color: white; flex-shrink: 0;
+}
+.member-row .m-body { flex: 1; min-width: 0; }
+.member-row .m-name {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  line-height: 1.2;
+}
+.member-row .m-role {
+  font-size: 11.5px; color: var(--text-soft); margin-top: 2px;
+}
+.member-row .m-tag {
+  font-size: 10px; padding: 3px 8px; border-radius: 8px;
+  font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
+  flex-shrink: 0;
+}
+.member-row .m-tag.admin { background: #FFF8E1; color: #F57F17; }
+.member-row .m-tag.you   { background: var(--primary-faint); color: var(--primary-dark); }
+ 
+.invite-btn {
+  background: var(--primary-faint);
+  border: 1.5px dashed var(--primary-light);
+  border-radius: 12px;
+  margin: 8px 16px 0;
+  padding: 14px;
+  text-align: center;
+  color: var(--primary-dark);
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 14px;
+  cursor: pointer;
+}
+.invite-btn:active { background: var(--primary-light); color: white; }
+ 
+.invitations-accordion {
+  margin: 16px 16px 0;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.invitations-head {
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  font-size: 13px; color: var(--text-soft); font-weight: 500;
+}
+.invitations-head:active { background: #FAFAF7; }
+.invitations-count {
+  background: var(--state-pending-bg);
+  color: var(--state-pending-text);
+  font-family: var(--font-tech);
+  font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 10px;
+}
+.invitations-arrow {
+  color: #C4C0B5; font-size: 18px;
+  transition: transform 0.2s;
+}
+.invitations-arrow.open { transform: rotate(90deg); }
+ 
+.invitation-row {
+  padding: 12px 16px;
+  border-top: 1px solid #F0EBE0;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.invitation-row .inv-meta {
+  font-size: 11.5px; color: var(--text-soft);
+}
+.invitation-row .inv-link {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  background: #F5F0E8;
+  padding: 8px 10px;
+  border-radius: 8px;
+  word-break: break-all;
+  color: var(--text);
+}
+.invitation-row .inv-actions {
+  display: flex; gap: 8px;
+}
+.invitation-row .inv-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: white;
+  font-family: var(--font-body);
+  font-size: 12px; font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.invitation-row .inv-btn:active { background: #FAFAF7; }
+.invitation-row .inv-btn.danger { color: var(--danger); border-color: #FFCDD2; }
+.invitation-row .inv-btn.primary { background: var(--primary-dark); color: white; border-color: var(--primary-dark); }
+ 
+/* Modal de invitación creada (mostrar link) */
+.invite-result-hero {
+  margin: 0 16px 14px;
+  background: var(--state-completed-bg);
+  border: 1px solid var(--state-completed-border);
+  border-radius: 14px;
+  padding: 20px 16px;
+  text-align: center;
+}
+.invite-result-hero .ok-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+.invite-result-hero .title {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 500;
+  color: var(--state-completed-text);
+  margin-bottom: 4px;
+}
+.invite-result-hero .sub {
+  font-size: 12px;
+  color: var(--state-completed-text);
+}
+ 
+.invite-link-box {
+  margin: 0 16px 14px;
+  padding: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.invite-link-box .label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  color: var(--text-soft); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.invite-link-box .link {
+  font-family: 'Courier New', monospace;
+  font-size: 11.5px;
+  background: #F5F0E8;
+  padding: 10px 12px;
+  border-radius: 8px;
+  word-break: break-all;
+  color: var(--text);
+}
+ 
+/* Toast verde para "copiado" */
+.copied-toast {
+  position: fixed;
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--state-completed-text);
+  color: white;
+  padding: 10px 18px; border-radius: 100px;
+  font-size: 13px; font-weight: 500;
+  z-index: 200;
+  animation: fadeIn 0.2s;
+}
 </style>
 </head>
 <body>
@@ -1957,7 +2121,287 @@ function Toggle({ checked, onChange }) {
   return <label className="toggle"><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} /><span className="toggle-slider"></span></label>;
 }
 
-function ProfileScreen({ session, member, household, onLogout }) {
+// ─────────────────────────────────────────────────────────────────────────
+// INVITACIONES — generador de tokens + hook para gestionarlas
+// ─────────────────────────────────────────────────────────────────────────
+function generateInviteToken() {
+  // 16 caracteres alfanuméricos seguros
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789abcdefghjkmnpqrstuvwxyz';
+  let out = '';
+  for (let i = 0; i < 16; i++) {
+    out += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return out;
+}
+ 
+function buildInviteUrl(token) {
+  // Mantenemos parámetros de debug si están activos
+  const params = new URLSearchParams(window.location.search);
+  params.set('invite', token);
+  return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+}
+ 
+function useInvitations(householdId, userId) {
+  const [invitations, setInvitations] = useState([]);
+  const [loading, setLoading] = useState(true);
+ 
+  const load = useCallback(async () => {
+    if (!householdId) { setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await sb
+      .from('household_invitations')
+      .select('*')
+      .eq('household_id', householdId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+    if (error) console.error('[useInvitations] load:', error);
+    setInvitations(data || []);
+    setLoading(false);
+  }, [householdId]);
+ 
+  useEffect(() => { load(); }, [load]);
+ 
+  const create = async () => {
+    if (!householdId || !userId) return { error: 'No hay hogar activo' };
+    const token = generateInviteToken();
+    const { data, error } = await sb
+      .from('household_invitations')
+      .insert({
+        household_id: householdId,
+        invited_by: userId,
+        token,
+        role: 'member',
+        status: 'pending',
+      })
+      .select()
+      .single();
+    if (error) {
+      console.error('[useInvitations] create:', error);
+      return { error: error.message };
+    }
+    setInvitations(prev => [data, ...prev]);
+    return { ok: true, invitation: data };
+  };
+ 
+  const revoke = async (invitationId) => {
+    const prevList = invitations;
+    setInvitations(prev => prev.filter(i => i.id !== invitationId));
+    const { error } = await sb
+      .from('household_invitations')
+      .delete()
+      .eq('id', invitationId);
+    if (error) {
+      console.error('[useInvitations] revoke:', error);
+      setInvitations(prevList);
+      alert('No pude revocar la invitación: ' + error.message);
+    }
+  };
+ 
+  return { invitations, loading, create, revoke, reload: load };
+}
+ 
+// ─────────────────────────────────────────────────────────────────────────
+// Modal: invitación creada — muestra el link y opciones de compartir
+// ─────────────────────────────────────────────────────────────────────────
+function InvitationCreatedModal({ invitation, household, onClose, onShowToast }) {
+  const inviteUrl = buildInviteUrl(invitation.token);
+ 
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      onShowToast('✓ Link copiado');
+    } catch (e) {
+      // Fallback si clipboard no funciona
+      const textarea = document.createElement('textarea');
+      textarea.value = inviteUrl;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try { document.execCommand('copy'); onShowToast('✓ Link copiado'); }
+      catch (err) { onShowToast('✗ No pude copiar'); }
+      document.body.removeChild(textarea);
+    }
+  };
+ 
+  const shareWhatsapp = () => {
+    const text = `Te invito a unirte a "${household.name}" en CLP:\n\n${inviteUrl}`;
+    const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(wa, '_blank');
+  };
+ 
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>Invitación creada</h2>
+          <div className="sub">Compártela con quien quieras invitar</div>
+        </div>
+ 
+        <div className="invite-result-hero">
+          <span className="ok-icon">✨</span>
+          <div className="title">¡Listo!</div>
+          <div className="sub">Quien abra este link entrará a "{household.name}"</div>
+        </div>
+ 
+        <div className="invite-link-box">
+          <div className="label">Link de invitación</div>
+          <div className="link">{inviteUrl}</div>
+        </div>
+ 
+        <div className="modal-actions">
+          <button className="btn-secondary" onClick={copyLink}>📋 Copiar link</button>
+          <button className="btn-primary-modal" onClick={shareWhatsapp}>💬 WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+ 
+// ─────────────────────────────────────────────────────────────────────────
+// Sección: miembros + invitaciones (se usa dentro de ProfileScreen)
+// ─────────────────────────────────────────────────────────────────────────
+function MembersSection({ session, member, household }) {
+  const userId = session.user.id;
+  const [members, setMembers] = useState([]);
+  const [loadingMembers, setLoadingMembers] = useState(true);
+  const { invitations, create, revoke } = useInvitations(household?.id, userId);
+  const [createdInvitation, setCreatedInvitation] = useState(null);
+  const [showInvitations, setShowInvitations] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [busy, setBusy] = useState(false);
+ 
+  // Cargar miembros del hogar
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      if (!household?.id) { setLoadingMembers(false); return; }
+      const { data, error } = await sb
+        .from('household_members')
+        .select('*')
+        .eq('household_id', household.id)
+        .eq('active', true)
+        .order('joined_at', { ascending: true });
+      if (!cancelled) {
+        if (error) console.error('[MembersSection] load:', error);
+        setMembers(data || []);
+        setLoadingMembers(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [household?.id]);
+ 
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
+ 
+  const handleCreate = async () => {
+    setBusy(true);
+    const res = await create();
+    setBusy(false);
+    if (res.error) {
+      alert('No pude crear la invitación: ' + res.error);
+      return;
+    }
+    setCreatedInvitation(res.invitation);
+  };
+ 
+  const copyExistingLink = async (token) => {
+    const url = buildInviteUrl(token);
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('✓ Link copiado');
+    } catch (e) {
+      const textarea = document.createElement('textarea');
+      textarea.value = url;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try { document.execCommand('copy'); showToast('✓ Link copiado'); }
+      catch (err) { showToast('✗ No pude copiar'); }
+      document.body.removeChild(textarea);
+    }
+  };
+ 
+  if (!household) return null;
+ 
+  const formatDate = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const day = d.getDate();
+    const mon = MONTHS[d.getMonth()];
+    return `${day} de ${mon}`;
+  };
+ 
+  return (
+    <div className="pr-section">
+      <div className="pr-section-title">Miembros del hogar</div>
+ 
+      {loadingMembers ? (
+        <div className="empty" style={{padding:'20px'}}>Cargando…</div>
+      ) : (
+        members.map(m => {
+          const initials = (m.short_name || m.display_name || '?').charAt(0).toUpperCase();
+          const isYou = m.profile_id === userId;
+          return (
+            <div key={m.id} className="member-row">
+              <div className="avatar-circle" style={{ background: m.color || '#C2185B' }}>{initials}</div>
+              <div className="m-body">
+                <div className="m-name">{m.display_name}</div>
+                <div className="m-role">
+                  {m.role === 'admin' ? 'Administrador' : 'Miembro'}
+                  {m.is_proxy ? ' · Proxy' : ''}
+                </div>
+              </div>
+              {isYou && <span className="m-tag you">tú</span>}
+              {!isYou && m.role === 'admin' && <span className="m-tag admin">admin</span>}
+            </div>
+          );
+        })
+      )}
+ 
+      <button className="invite-btn" onClick={handleCreate} disabled={busy}>
+        {busy ? 'Generando…' : '+ Invitar a alguien'}
+      </button>
+ 
+      {invitations.length > 0 && (
+        <div className="invitations-accordion">
+          <div className="invitations-head" onClick={() => setShowInvitations(v => !v)}>
+            <span>Invitaciones pendientes</span>
+            <span style={{display:'flex', alignItems:'center', gap:8}}>
+              <span className="invitations-count">{invitations.length}</span>
+              <span className={'invitations-arrow' + (showInvitations ? ' open' : '')}>›</span>
+            </span>
+          </div>
+          {showInvitations && invitations.map(inv => (
+            <div key={inv.id} className="invitation-row">
+              <div className="inv-meta">Creada el {formatDate(inv.created_at)}</div>
+              <div className="inv-link">{buildInviteUrl(inv.token)}</div>
+              <div className="inv-actions">
+                <button className="inv-btn primary" onClick={() => copyExistingLink(inv.token)}>📋 Copiar</button>
+                <button className="inv-btn danger" onClick={() => revoke(inv.id)}>✕ Revocar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+ 
+      {createdInvitation && (
+        <InvitationCreatedModal
+          invitation={createdInvitation}
+          household={household}
+          onClose={() => setCreatedInvitation(null)}
+          onShowToast={showToast}
+        />
+      )}
+ 
+      {toast && <div className="copied-toast">{toast}</div>}
+    </div>
+  );
+}
+  
+  function ProfileScreen({ session, member, household, onLogout }) {
   const [notif, setNotif] = useState(true);
   const userMeta = session?.user?.user_metadata || {};
   const fullName = member?.display_name || userMeta.full_name || userMeta.name || session?.user?.email || '—';
@@ -1986,11 +2430,12 @@ function ProfileScreen({ session, member, household, onLogout }) {
           <div className="pr-row" style={{cursor:'default'}}><div className="pr-ic">🔔</div><div className="pr-body"><div className="pr-label">Activar</div></div><div className="pr-right"><Toggle checked={notif} onChange={setNotif} /></div></div>
         </div>
       </div>
+     <MembersSection session={session} member={member} household={household} />
+ 
       <div className="pr-section">
         <div className="pr-section-title admin">Gestión del hogar</div>
         <div className="pr-list">
           <div className="pr-row"><div className="pr-ic">🏡</div><div className="pr-body"><div className="pr-label">Espacios del hogar</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
-          <div className="pr-row"><div className="pr-ic">👥</div><div className="pr-body"><div className="pr-label">Miembros</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
           <div className="pr-row"><div className="pr-ic">🏪</div><div className="pr-body"><div className="pr-label">Tiendas</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
         </div>
       </div>
