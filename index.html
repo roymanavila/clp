@@ -328,7 +328,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .scanner-fab:active { transform: scale(0.92); }
 
 /* MODAL */
-.modal-backdrop { position: fixed; inset: 0; background: rgba(15,25,40,0.6); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(15,25,40,0.6); backdrop-filter: blur(4px); z-index: 400; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal-sheet { background: var(--bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 16px 0 calc(20px + var(--safe-bottom)); animation: slideUp 0.25s; max-height: 88vh; overflow-y: auto; position: relative; }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -2818,14 +2818,15 @@ function Root() {
   if (hhLoading || reqLoading) return <FullLoader msg="Cargando tu hogar…" />;
 
   // 4) Si hay modal de invite por mostrar → mostrarlo primero (sobre el resto)
+  // FIX (Capa 3): si el invitado NO tiene hogares previos, NO renderizamos full-loader detrás
+  // porque su z-index alto (300) tapaba al modal-backdrop (100). El modal del invite ya cubre
+  // toda la pantalla con su propio backdrop, así que un fondo extra es innecesario.
   if (showInviteModal && pendingInviteToken) {
     return (
       <>
-        {/* Renderizar un fondo: si tiene hogares, mostrar MainApp detrás; si no, mostrar nada */}
-        {memberships.length > 0 && household ? (
+        {/* Solo renderizar MainApp como fondo si ya tiene hogares; si no, dejar el modal solo */}
+        {memberships.length > 0 && household && (
           <MainApp session={session} member={member} household={household} memberships={memberships} onLogout={handleLogout} onSwitchHousehold={switchHousehold} />
-        ) : (
-          <div className="full-loader"><div className="msg">Procesando invitación…</div></div>
         )}
         <InviteIncomingModal
           token={pendingInviteToken}
