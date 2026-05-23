@@ -265,9 +265,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .article-cta .btn-cta { background: var(--primary-dark); color: white; border: none; padding: 12px 22px; border-radius: 100px; font-weight: 600; font-size: 13px; cursor: pointer; box-shadow: 0 3px 10px rgba(21,101,192,0.2); font-family: var(--font-body); }
 .article-cta .btn-cta .star { color: #FFD54F; margin-right: 4px; }
 
-/* ===== COMPRAS (nuevo modelo) ===== */
-
-/* Store card en tab Tiendas */
+/* ===== COMPRAS ===== */
 .store-card { background: white; border-radius: 14px; margin: 0 16px 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.1s; }
 .store-card:active { transform: scale(0.98); }
 .store-card.has-items { border-left: 4px solid var(--primary-dark); }
@@ -286,7 +284,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 
 .add-card { background: rgba(255,255,255,0.5); border: 1.5px dashed #C4C0B5; border-radius: 14px; margin: 4px 16px 8px; padding: 14px; text-align: center; color: var(--text-soft); font-style: italic; font-family: var(--font-display); font-size: 14px; cursor: pointer; }
 
-/* Lista de productos de la tienda */
 .list-banner { background: var(--primary-faint); border-bottom: 1px solid #BBDEFB; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; }
 .list-banner .left { color: var(--primary-dark); font-weight: 500; }
 .list-banner .right { color: var(--primary-dark); font-family: var(--font-tech); font-weight: 600; font-size: 14px; }
@@ -303,7 +300,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .product-delete { width: 28px; height: 28px; border: none; background: transparent; color: #C4C0B5; font-size: 18px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
 .product-delete:active { background: #FFEBEE; color: var(--danger); }
 
-/* Historial */
 .history-card { background: white; border-radius: 14px; margin: 0 16px 8px; padding: 14px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); cursor: pointer; }
 .history-card .h-body { flex: 1; }
 .history-card .h-title { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
@@ -328,7 +324,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .pantry-row.out .pantry-name { color: var(--state-overdue-text); font-weight: 600; }
 .pantry-row .pantry-meta { font-size: 11px; color: var(--text-soft); text-align: right; flex-shrink: 0; margin-left: 8px; }
 
-/* SCANNER FAB */
 .scanner-fab { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); right: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-dark); color: white; border: none; box-shadow: 0 6px 20px rgba(21,101,192,0.4); cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.15s; }
 .scanner-fab:active { transform: scale(0.92); }
 
@@ -343,7 +338,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .modal-head .sub { font-size: 12px; color: var(--text-soft); }
 .modal-close { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.05); border: none; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; color: var(--text-soft); }
 
-/* Modal de "agregar producto" / "editar precio" */
 .input-block { margin: 0 16px 12px; }
 .input-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; margin-bottom: 6px; padding-left: 4px; }
 .text-input { width: 100%; border: 1px solid var(--border); border-radius: 12px; padding: 14px 14px; font-family: var(--font-body); font-size: 16px; color: var(--text); background: white; outline: none; transition: border-color 0.15s; }
@@ -356,14 +350,13 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .modal-actions .btn-secondary { flex: 1; background: white; border: 1px solid var(--border); padding: 14px; border-radius: 12px; font-family: var(--font-body); font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; }
 .modal-actions .btn-primary-modal { flex: 2; background: var(--primary-dark); color: white; border: none; padding: 14px; border-radius: 12px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; }
 .modal-actions .btn-primary-modal:disabled { background: #CCC9C1; cursor: not-allowed; }
+.modal-actions .btn-primary-modal.danger { background: var(--danger); }
 
-/* Store selector (al escanear) */
 .store-selector { padding: 0 16px; display: flex; flex-direction: column; gap: 6px; }
 .store-selector .ss-row { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .store-selector .ss-row:active { background: #FAFAF7; }
 .store-selector .ss-row.new-store { background: var(--primary-faint); border-color: var(--primary-light); color: var(--primary-dark); justify-content: center; font-weight: 600; }
 
-/* Scanner result */
 .scan-result { margin: 0 16px 14px; background: white; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
 .scan-result-header { padding: 14px 16px; text-align: center; }
 .scan-result-header.found { background: var(--state-completed-bg); color: var(--state-completed-text); }
@@ -381,7 +374,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .scan-btn:active { background: #FAFAF7; }
 .scan-btn .ic { width: 28px; height: 28px; border-radius: 8px; background: var(--primary-faint); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
 
-/* Modal de detalle pantry */
 .product-modal-hero { margin: 0 16px 14px; background: white; border-radius: 14px; padding: 16px 16px 14px; border: 1px solid var(--border); text-align: center; }
 .product-modal-hero .pname { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 6px; line-height: 1.2; }
 .product-modal-hero .pmeta { font-size: 12px; color: var(--text-soft); }
@@ -397,7 +389,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .state-opt.selected { background: white; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(33,150,243,0.12); }
 .state-opt.selected .so-label { color: var(--text); font-weight: 600; }
 
-/* CIERRE DE COMPRA */
 .close-hero { background: linear-gradient(180deg, var(--state-completed-bg), #F1F8E9); border: 1px solid var(--state-completed-border); margin: 16px; border-radius: 18px; padding: 22px 16px 20px; text-align: center; }
 .close-hero .quote-it { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--state-completed-text); margin-bottom: 4px; }
 .close-hero .total-amount { font-family: var(--font-tech); font-size: 40px; font-weight: 600; color: var(--state-completed-text); line-height: 1.05; margin: 6px 0 4px; }
@@ -407,7 +398,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .ticket-card .title { color: #F57F17; font-weight: 600; font-size: 13.5px; margin-bottom: 4px; }
 .ticket-card .hint { font-family: var(--font-display); font-style: italic; font-size: 11.5px; color: #F9A825; }
 
-/* ===== BALANCE ===== */
+/* BALANCE */
 .period-selector { background: white; border-bottom: 1px solid var(--border); padding: 0; display: flex; }
 .period-tab { flex: 1; padding: 14px 12px 13px; background: none; border: none; font-size: 13.5px; font-weight: 500; color: var(--text-soft); cursor: pointer; position: relative; text-align: center; }
 .period-tab.active { color: var(--primary-dark); font-weight: 600; }
@@ -418,7 +409,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .metric-chip { background: white; border: 1px solid var(--border); border-radius: 100px; padding: 7px 14px; font-size: 12px; color: var(--text-soft); font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s; font-family: var(--font-body); display: flex; align-items: center; gap: 5px; }
 .metric-chip.active { background: var(--primary-faint); border-color: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
 
-/* Donut chart */
 .donut-card { background: white; border-radius: 18px; margin: 8px 16px 16px; padding: 22px 18px 20px; border: 1px solid var(--border); }
 .donut-wrap { display: flex; align-items: center; gap: 18px; }
 .donut-svg-wrap { width: 140px; height: 140px; flex-shrink: 0; position: relative; }
@@ -434,7 +424,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .legend-row .name { flex: 1; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .legend-row .pct { font-family: var(--font-tech); font-weight: 600; color: var(--text); font-size: 13px; }
 
-/* Comparativa */
 .compare-row { display: flex; align-items: center; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #F0EBE0; font-size: 12px; }
 .compare-arrow { font-size: 14px; font-family: var(--font-tech); font-weight: 700; }
 .compare-arrow.up { color: var(--state-completed-text); }
@@ -442,7 +431,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .compare-arrow.flat { color: var(--text-soft); }
 .compare-text { color: var(--text-soft); flex: 1; }
 
-/* Member detail card */
 .member-card { background: white; border-radius: 14px; margin: 0 16px 8px; padding: 14px 16px; border: 1px solid var(--border); }
 .member-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
 .member-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 500; font-size: 16px; flex-shrink: 0; color: white; }
@@ -458,7 +446,6 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .member-task-pill { font-size: 11.5px; color: var(--text-soft); padding: 5px 0; display: flex; align-items: center; gap: 6px; }
 .member-task-pill .pill-ic { width: 18px; text-align: center; }
 
-/* Insight card */
 .insight-card { margin: 0 16px 14px; background: var(--primary-faint); border: 1px solid var(--primary-light); border-radius: 14px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 10px; }
 .insight-card .insight-ic { width: 32px; height: 32px; border-radius: 8px; background: var(--white); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .insight-card .insight-body { flex: 1; font-size: 12.5px; color: var(--primary-dark); line-height: 1.45; }
@@ -472,6 +459,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .nav-item.active { color: var(--primary-dark); }
 .nav-item.active .icon { filter: grayscale(0); opacity: 1; transform: scale(1.05); }
 .nav-item.active::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 28px; height: 3px; background: var(--primary); border-radius: 0 0 4px 4px; }
+.nav-item .nav-badge { position: absolute; top: 6px; right: calc(50% - 18px); background: var(--danger); color: white; font-family: var(--font-tech); font-size: 9px; font-weight: 700; min-width: 16px; height: 16px; padding: 0 5px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(198,40,40,0.4); }
 
 .tagline { font-family: var(--font-display); font-style: italic; font-size: 12.5px; color: var(--text-soft); text-align: center; margin: 18px 0 4px; letter-spacing: 0.5px; }
 .tagline::before, .tagline::after { content: '✦'; color: var(--gold); margin: 0 8px; font-size: 9px; }
@@ -481,101 +469,54 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .ph-card .title { font-family: var(--font-display); font-size: 22px; font-weight: 500; margin-bottom: 6px; }
 .ph-card .body { color: var(--text-soft); font-size: 13.5px; line-height: 1.55; }
 
-/* ===== Miembros del hogar ===== */
-.member-row {
-  background: white;
-  border-radius: 12px;
-  margin: 0 16px 8px;
-  padding: 12px 14px;
-  display: flex; align-items: center; gap: 12px;
-  border: 1px solid var(--border);
-}
-.member-row .avatar-circle {
-  width: 36px; height: 36px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-weight: 500; font-size: 15px;
-  color: white; flex-shrink: 0;
-}
+/* MIEMBROS DEL HOGAR */
+.member-row { background: white; border-radius: 12px; margin: 0 16px 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); }
+.member-row .avatar-circle { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 500; font-size: 15px; color: white; flex-shrink: 0; }
 .member-row .m-body { flex: 1; min-width: 0; }
-.member-row .m-name {
-  font-size: 14px; font-weight: 600; color: var(--text);
-  line-height: 1.2;
-}
-.member-row .m-role {
-  font-size: 11.5px; color: var(--text-soft); margin-top: 2px;
-}
-.member-row .m-tag {
-  font-size: 10px; padding: 3px 8px; border-radius: 8px;
-  font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
-  flex-shrink: 0;
-}
+.member-row .m-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.2; }
+.member-row .m-role { font-size: 11.5px; color: var(--text-soft); margin-top: 2px; }
+.member-row .m-tag { font-size: 10px; padding: 3px 8px; border-radius: 8px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; flex-shrink: 0; }
 .member-row .m-tag.admin { background: #FFF8E1; color: #F57F17; }
-.member-row .m-tag.you   { background: var(--primary-faint); color: var(--primary-dark); }
- 
-.invite-btn {
-  background: var(--primary-faint);
-  border: 1.5px dashed var(--primary-light);
-  border-radius: 12px;
+.member-row .m-tag.you { background: var(--primary-faint); color: var(--primary-dark); }
+
+/* GENERAR/REGENERAR ENLACE - card único */
+.invite-link-card {
+  background: white;
+  border-radius: 14px;
   margin: 8px 16px 0;
   padding: 14px;
-  text-align: center;
-  color: var(--primary-dark);
-  font-family: var(--font-body);
-  font-weight: 600; font-size: 14px;
-  cursor: pointer;
-}
-.invite-btn:active { background: var(--primary-light); color: white; }
- 
-.invitations-accordion {
-  margin: 16px 16px 0;
-  background: white;
-  border-radius: 12px;
   border: 1px solid var(--border);
-  overflow: hidden;
 }
-.invitations-head {
-  padding: 12px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  cursor: pointer;
-  font-size: 13px; color: var(--text-soft); font-weight: 500;
+.invite-link-card.no-link {
+  background: var(--primary-faint);
+  border: 1.5px dashed var(--primary-light);
+  text-align: center;
 }
-.invitations-head:active { background: #FAFAF7; }
-.invitations-count {
-  background: var(--state-pending-bg);
-  color: var(--state-pending-text);
-  font-family: var(--font-tech);
-  font-size: 11px; font-weight: 700;
-  padding: 2px 8px; border-radius: 10px;
+.invite-link-card .ilc-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+  color: var(--text-soft); text-transform: uppercase;
+  margin-bottom: 6px;
 }
-.invitations-arrow {
-  color: #C4C0B5; font-size: 18px;
-  transition: transform 0.2s;
-}
-.invitations-arrow.open { transform: rotate(90deg); }
- 
-.invitation-row {
-  padding: 12px 16px;
-  border-top: 1px solid #F0EBE0;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.invitation-row .inv-meta {
-  font-size: 11.5px; color: var(--text-soft);
-}
-.invitation-row .inv-link {
+.invite-link-card .ilc-link {
   font-family: 'Courier New', monospace;
-  font-size: 11px;
-  background: #F5F0E8;
-  padding: 8px 10px;
+  font-size: 11.5px;
+  background: var(--bg);
+  padding: 10px 12px;
   border-radius: 8px;
   word-break: break-all;
   color: var(--text);
+  margin-bottom: 10px;
 }
-.invitation-row .inv-actions {
-  display: flex; gap: 8px;
+.invite-link-card .ilc-meta {
+  font-size: 11px; color: var(--text-soft);
+  margin-bottom: 10px;
 }
-.invitation-row .inv-btn {
+.invite-link-card .ilc-actions {
+  display: flex; gap: 6px;
+}
+.invite-link-card .ilc-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 9px 10px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: white;
@@ -583,56 +524,152 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
   font-size: 12px; font-weight: 500;
   color: var(--text);
   cursor: pointer;
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
 }
-.invitation-row .inv-btn:active { background: #FAFAF7; }
-.invitation-row .inv-btn.danger { color: var(--danger); border-color: #FFCDD2; }
-.invitation-row .inv-btn.primary { background: var(--primary-dark); color: white; border-color: var(--primary-dark); }
- 
-/* Modal de invitación creada (mostrar link) */
-.invite-result-hero {
-  margin: 0 16px 14px;
-  background: var(--state-completed-bg);
-  border: 1px solid var(--state-completed-border);
-  border-radius: 14px;
-  padding: 20px 16px;
-  text-align: center;
-}
-.invite-result-hero .ok-icon { font-size: 36px; display: block; margin-bottom: 8px; }
-.invite-result-hero .title {
-  font-family: var(--font-display);
-  font-size: 18px; font-weight: 500;
-  color: var(--state-completed-text);
-  margin-bottom: 4px;
-}
-.invite-result-hero .sub {
-  font-size: 12px;
-  color: var(--state-completed-text);
-}
- 
-.invite-link-box {
-  margin: 0 16px 14px;
-  padding: 12px;
-  background: white;
-  border: 1px solid var(--border);
+.invite-link-card .ilc-btn:active { background: #FAFAF7; }
+.invite-link-card .ilc-btn.primary { background: var(--primary-dark); color: white; border-color: var(--primary-dark); }
+.invite-link-card .ilc-btn.regen { color: var(--text-soft); border-color: #C4C0B5; font-size: 11.5px; }
+
+.invite-btn-big {
+  width: 100%;
+  background: var(--primary-dark);
+  border: none;
   border-radius: 12px;
+  padding: 14px;
+  color: white;
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 14px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 3px 10px rgba(21,101,192,0.2);
 }
-.invite-link-box .label {
-  font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
-  color: var(--text-soft); text-transform: uppercase;
-  margin-bottom: 6px;
+.invite-btn-big:active { transform: scale(0.98); }
+.invite-btn-big:disabled { background: #CCC9C1; box-shadow: none; cursor: not-allowed; }
+
+/* SOLICITUDES PENDIENTES */
+.request-card {
+  background: white;
+  border-radius: 14px;
+  margin: 0 16px 8px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--state-pending-border);
 }
-.invite-link-box .link {
-  font-family: 'Courier New', monospace;
-  font-size: 11.5px;
-  background: #F5F0E8;
-  padding: 10px 12px;
-  border-radius: 8px;
-  word-break: break-all;
+.request-card .rc-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px;
+}
+.request-card .rc-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--state-pending-bg);
+  color: var(--state-pending-text);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 500; font-size: 17px;
+  flex-shrink: 0;
+}
+.request-card .rc-body { flex: 1; min-width: 0; }
+.request-card .rc-name {
+  font-size: 14.5px; font-weight: 600;
+  color: var(--text); line-height: 1.2;
+}
+.request-card .rc-email {
+  font-size: 11.5px; color: var(--text-soft);
+  margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.request-card .rc-meta {
+  font-size: 11px; color: var(--text-soft);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+.request-card .rc-actions {
+  display: flex; gap: 8px;
+}
+.request-card .rc-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+}
+.request-card .rc-btn.approve { background: var(--state-completed-text); color: white; }
+.request-card .rc-btn.approve:active { transform: scale(0.98); }
+.request-card .rc-btn.reject { background: white; color: var(--danger); border: 1px solid #FFCDD2; }
+.request-card .rc-btn.reject:active { background: #FFEBEE; }
+.request-card .rc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* PANTALLA "ESPERANDO APROBACIÓN" */
+.waiting-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(180deg, var(--bg) 0%, #EFE8DA 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 32px 24px;
+  z-index: 150;
+}
+.waiting-emoji {
+  font-size: 64px; margin-bottom: 18px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+.waiting-title {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: 500;
   color: var(--text);
+  text-align: center;
+  margin-bottom: 10px;
+  line-height: 1.2;
 }
- 
-/* Toast verde para "copiado" */
+.waiting-message {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-soft);
+  text-align: center;
+  max-width: 340px;
+  line-height: 1.55;
+  margin-bottom: 32px;
+}
+.waiting-message strong {
+  color: var(--text); font-weight: 600;
+  font-family: var(--font-tech);
+}
+.waiting-actions {
+  display: flex; flex-direction: column; gap: 10px;
+  width: 100%; max-width: 320px;
+}
+.waiting-btn {
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+.waiting-btn.refresh {
+  background: var(--primary-dark); color: white;
+  box-shadow: 0 4px 12px rgba(21,101,192,0.25);
+}
+.waiting-btn.cancel {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid #FFCDD2;
+}
+.waiting-btn:active { transform: scale(0.98); }
+.waiting-tagline {
+  position: absolute; bottom: 32px;
+  font-family: var(--font-display); font-style: italic;
+  font-size: 13px; color: var(--text-soft);
+}
+.waiting-tagline::before, .waiting-tagline::after {
+  content: '✦'; color: var(--gold); margin: 0 8px;
+}
+
+/* TOAST */
 .copied-toast {
   position: fixed;
   bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
@@ -644,21 +681,46 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
   z-index: 200;
   animation: fadeIn 0.2s;
 }
+.copied-toast.danger { background: var(--danger); }
+.copied-toast.info { background: rgba(26,43,60,0.92); }
+
+/* MODAL DE INVITACIÓN para el invitado */
+.invite-incoming-hero {
+  margin: 0 16px 14px;
+  background: linear-gradient(135deg, var(--primary-faint), #BBDEFB);
+  border: 1px solid var(--primary-light);
+  border-radius: 14px;
+  padding: 24px 16px;
+  text-align: center;
+}
+.invite-incoming-hero .ih-emoji {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 8px;
+}
+.invite-incoming-hero .ih-title {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 500;
+  color: var(--primary-dark);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.invite-incoming-hero .ih-household {
+  font-family: var(--font-tech);
+  font-size: 18px; font-weight: 600;
+  color: var(--text);
+  margin: 8px 0;
+}
+.invite-incoming-hero .ih-sub {
+  font-size: 12.5px;
+  color: var(--primary-dark);
+  font-style: italic;
+  font-family: var(--font-display);
+}
 </style>
 </head>
 <body>
 <div id="root"></div>
-
-<!-- =====================================================================
-     REEMPLAZA EN TU index.html DESDE LA LÍNEA QUE DICE:
-        <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-     HASTA LA LÍNEA QUE DICE:
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-        </script>
-     (es decir, todo el bloque de los 3 <script> de React + el <script type="text/babel">)
-
-     LO QUE SIGUE DESPUÉS (el <script> del service-worker) NO se toca.
-===================================================================== -->
 
 <script>if(new URLSearchParams(location.search).get('debug')==='1'){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/eruda';document.head.appendChild(s);s.onload=function(){eruda.init();};}</script>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -666,152 +728,91 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-<!-- ===== ESTILOS EXTRA para la pantalla de login y para el botón flotante del Pantry ===== -->
 <style>
-/* Login screen */
-.login-screen {
-  position: fixed; inset: 0;
-  background: linear-gradient(180deg, var(--primary-dark) 0%, #0D47A1 100%);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 32px;
-  z-index: 200;
-}
-.login-logo-sub {
-      font-family: var(--font-tech);
-      font-size: 14px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.85);
-      letter-spacing: 12px;
-      text-transform: uppercase;
-      margin-bottom: 18px;
-      padding-left: 12px;
-    }
-    .login-logo-full {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      margin-bottom: 8px;
-    }
-    .login-logo-full span {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 44px;
-      color: white;
-      line-height: 1.05;
-      letter-spacing: 0.5px;
-      text-shadow: 0 2px 20px rgba(0,0,0,0.2);
-    }
-.login-tagline {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 17px;
-  color: rgba(255,255,255,0.85);
-  margin-top: 24px;
-  margin-bottom: 60px;
-  text-align: center;
-}
-.login-tagline::before, .login-tagline::after {
-  content: '✦'; color: var(--gold); margin: 0 10px; font-size: 11px;
-}
-.login-google-btn {
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  background: white; color: #3c4043;
-  border: none;
-  padding: 16px 24px;
-  border-radius: 14px;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  width: 100%;
-  max-width: 320px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  transition: transform 0.15s;
-}
+.login-screen { position: fixed; inset: 0; background: linear-gradient(180deg, var(--primary-dark) 0%, #0D47A1 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; z-index: 200; }
+.login-logo-sub { font-family: var(--font-tech); font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); letter-spacing: 12px; text-transform: uppercase; margin-bottom: 18px; padding-left: 12px; }
+.login-logo-full { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-bottom: 8px; }
+.login-logo-full span { font-family: var(--font-display); font-weight: 500; font-size: 44px; color: white; line-height: 1.05; letter-spacing: 0.5px; text-shadow: 0 2px 20px rgba(0,0,0,0.2); }
+.login-tagline { font-family: var(--font-display); font-style: italic; font-size: 17px; color: rgba(255,255,255,0.85); margin-top: 24px; margin-bottom: 60px; text-align: center; }
+.login-tagline::before, .login-tagline::after { content: '✦'; color: var(--gold); margin: 0 10px; font-size: 11px; }
+.login-invite-banner { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 14px; padding: 16px; margin-bottom: 24px; max-width: 320px; text-align: center; color: white; }
+.login-invite-banner .lib-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
+.login-invite-banner .lib-title { font-family: var(--font-display); font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+.login-invite-banner .lib-sub { font-size: 12px; color: rgba(255,255,255,0.85); font-family: var(--font-body); }
+.login-google-btn { display: flex; align-items: center; justify-content: center; gap: 12px; background: white; color: #3c4043; border: none; padding: 16px 24px; border-radius: 14px; font-family: var(--font-body); font-weight: 600; font-size: 15px; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: transform 0.15s; }
 .login-google-btn:active { transform: scale(0.98); }
-.login-google-btn .g-icon {
-  width: 22px; height: 22px; flex-shrink: 0;
-}
-.login-error {
-  color: #FFCDD2;
-  font-size: 13px;
-  margin-top: 16px;
-  text-align: center;
-  max-width: 320px;
-  padding: 10px 16px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
-}
-.login-footer {
-  position: absolute; bottom: 32px;
-  font-family: var(--font-display); font-style: italic;
-  color: rgba(255,255,255,0.5);
-  font-size: 12px;
-}
-.full-loader {
-  position: fixed; inset: 0;
-  background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column; gap: 16px;
-  z-index: 300;
-}
-.full-loader .spinner {
-  width: 40px; height: 40px;
-  border: 3px solid var(--primary-faint);
-  border-top-color: var(--primary-dark);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+.login-google-btn .g-icon { width: 22px; height: 22px; flex-shrink: 0; }
+.login-error { color: #FFCDD2; font-size: 13px; margin-top: 16px; text-align: center; max-width: 320px; padding: 10px 16px; background: rgba(0,0,0,0.2); border-radius: 10px; }
+.login-footer { position: absolute; bottom: 32px; font-family: var(--font-display); font-style: italic; color: rgba(255,255,255,0.5); font-size: 12px; }
+.full-loader { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 300; }
+.full-loader .spinner { width: 40px; height: 40px; border: 3px solid var(--primary-faint); border-top-color: var(--primary-dark); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.full-loader .msg {
-  font-family: var(--font-display); font-style: italic;
-  color: var(--text-soft); font-size: 14px;
-}
-
-/* FAB para agregar item al pantry */
-.pantry-fab {
-  position: fixed;
-  bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
-  right: 16px;
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: var(--primary-dark); color: white;
-  border: none;
-  box-shadow: 0 6px 20px rgba(21,101,192,0.4);
-  cursor: pointer; z-index: 40;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px; font-weight: 300;
-  transition: transform 0.15s;
-}
+.full-loader .msg { font-family: var(--font-display); font-style: italic; color: var(--text-soft); font-size: 14px; }
+.pantry-fab { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); right: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-dark); color: white; border: none; box-shadow: 0 6px 20px rgba(21,101,192,0.4); cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; transition: transform 0.15s; }
 .pantry-fab:active { transform: scale(0.92); }
-
-/* Estado de "guardando..." */
-.saving-toast {
-  position: fixed;
-  bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px);
-  left: 50%; transform: translateX(-50%);
-  background: rgba(26,43,60,0.92); color: white;
-  padding: 10px 18px; border-radius: 100px;
-  font-size: 12.5px; font-weight: 500;
-  z-index: 60;
-  animation: fadeIn 0.2s;
-}
+.saving-toast { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); left: 50%; transform: translateX(-50%); background: rgba(26,43,60,0.92); color: white; padding: 10px 18px; border-radius: 100px; font-size: 12.5px; font-weight: 500; z-index: 60; animation: fadeIn 0.2s; }
 </style>
 
 <script type="text/babel">
 const { useState, useMemo, useEffect, useCallback } = React;
 
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 // SUPABASE — cliente global
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://qqgzlyjuzyjbwdcfdesz.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Z7gen7hb6AvTVhS5SI7mFA_p-QaV5Vi';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ─────────────────────────────────────────────────────────────────────────
-// DATOS HARDCODEADOS — siguen aquí mientras el resto no esté conectado
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// CAPA 3 — Persistencia local del hogar activo y del invite pendiente
+// ═══════════════════════════════════════════════════════════════════════════
+const LS_ACTIVE_HOUSEHOLD = 'clp_active_household_id';
+const SS_PENDING_INVITE = 'clp_pending_invite_token';
+
+function getActiveHouseholdId() {
+  try { return localStorage.getItem(LS_ACTIVE_HOUSEHOLD); } catch (e) { return null; }
+}
+function setActiveHouseholdId(id) {
+  try { localStorage.setItem(LS_ACTIVE_HOUSEHOLD, id); } catch (e) {}
+}
+function clearActiveHouseholdId() {
+  try { localStorage.removeItem(LS_ACTIVE_HOUSEHOLD); } catch (e) {}
+}
+
+function getPendingInviteToken() {
+  try { return sessionStorage.getItem(SS_PENDING_INVITE); } catch (e) { return null; }
+}
+function setPendingInviteToken(token) {
+  try { sessionStorage.setItem(SS_PENDING_INVITE, token); } catch (e) {}
+}
+function clearPendingInviteToken() {
+  try { sessionStorage.removeItem(SS_PENDING_INVITE); } catch (e) {}
+}
+
+function extractInviteFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('invite');
+}
+function cleanInviteFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('invite')) {
+    params.delete('invite');
+    const newQs = params.toString();
+    const newUrl = window.location.pathname + (newQs ? '?' + newQs : '');
+    window.history.replaceState({}, '', newUrl);
+  }
+}
+
+// Al cargar la app: si hay ?invite= en la URL, lo guardo en sessionStorage
+// (sobrevive al redirect de Google OAuth)
+(function captureInviteOnBoot() {
+  const tok = extractInviteFromUrl();
+  if (tok) setPendingInviteToken(tok);
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DATOS HARDCODEADOS (mientras se conectan el resto de módulos)
+// ═══════════════════════════════════════════════════════════════════════════
 const SPACES = {
   bedroom: { es: 'Habitación', icon: '🛏️', bgVar: 'var(--sp-bedroom-bg)', color: 'var(--sp-bedroom)' },
   bathroom: { es: 'Baño', icon: '🚽', bgVar: 'var(--sp-bathroom-bg)', color: 'var(--sp-bathroom)' },
@@ -854,15 +855,12 @@ const ARTICLES = [
   },
   { id: 'pl1', category: 'planes', emoji: '🚀', title: 'Plan Arranque', minutes: 4, bg: 'linear-gradient(135deg,#BBDEFB,#64B5F6)', subtitle: '8-12 tareas mínimas', isPlan: true },
 ];
-
 const FEATURED_ARTICLE_ID = 'e1';
-
 const QUOTES = [
   'Un hogar ordenado es una mente en paz.', 'Lo que cuidas, te cuida.',
   'Pequeños pasos, grandes resultados.', 'El orden es una forma silenciosa de cariño.',
   'Diez minutos hoy valen más que tres horas el sábado.', 'El especialista no limpia, termina.',
 ];
-
 const INITIAL_STORES = [
   { id: 'coles', name: 'Coles · Mt Barker', initial: 'C', logoClass: 'coles' },
   { id: 'woolworths', name: 'Woolworths', initial: 'W', logoClass: 'woolworths' },
@@ -870,7 +868,6 @@ const INITIAL_STORES = [
   { id: 'iga', name: 'IGA Local', initial: 'I', logoClass: 'iga' },
   { id: 'bunnings', name: 'Bunnings Warehouse', initial: 'B', logoClass: 'bunnings' },
 ];
-
 const INITIAL_STORE_LISTS = {
   coles: [
     { id: 'c1', name: 'Aceite de oliva 500ml', price: 12.50 },
@@ -887,18 +884,15 @@ const INITIAL_STORE_LISTS = {
   aldi: [], iga: [],
   bunnings: [{ id: 'b1', name: 'Bombillas LED x 4', price: 18.00 }],
 };
-
 const INITIAL_HISTORY = [
   { id: 'arc1', storeId: 'coles', date: 'sábado 10 mayo', items: 14, total: 78.50, hasTicket: true },
   { id: 'arc2', storeId: 'aldi', date: 'martes 6 mayo', items: 5, total: 22.40, hasTicket: false },
   { id: 'arc3', storeId: 'woolworths', date: 'sábado 3 mayo', items: 9, total: 51.20, hasTicket: true },
 ];
-
 const SCANNER_DATABASE = [
   { barcode: '9300658000016', name: 'Aceite de oliva 500ml', brand: 'Bertolli', price: 12.50, inPantry: true, lastUpdate: 'hace 12 días', stock: '½ botella' },
   { barcode: '9300658000023', name: 'Detergente Earth Choice 2L', brand: 'Earth Choice', price: 7.90, inPantry: false },
 ];
-
 const TASK_DETAILS = {
   9: { description: 'Encimera, fregadero y barrido de la cocina.', subtasks: ['Limpiar la encimera', 'Lavar el fregadero', 'Barrer el piso'] },
   8: { description: 'Limpieza completa del inodoro.', subtasks: ['Tapa y asiento', 'Interior con cepillo', 'Desinfectar la base'] },
@@ -914,13 +908,11 @@ const WEEK_TASKS = [
   { id: 12, name: 'Tender la cama', space: 'bedroom', state: 'completed', day: 13, freq: 'Diaria', by: 'Ruth · 7:30' },
   { id: 13, name: 'Lavar platos', space: 'kitchen', state: 'pending', day: 14, freq: 'Diaria' },
 ];
-
 const HOUSEHOLD_MEMBERS_MOCK = [
   { id: 'roy', name: 'Roy', shortName: 'Roy', color: '#1565C0', avatarBg: '#1565C0' },
   { id: 'ruth', name: 'Ruth', shortName: 'Ruth', color: '#C2185B', avatarBg: '#C2185B' },
   { id: 'proxy', name: 'Casa', shortName: 'Casa', color: '#C9A96E', avatarBg: '#C9A96E' },
 ];
-
 const BALANCE_DATA = {
   today: {
     tasks: {
@@ -950,7 +942,6 @@ const BALANCE_DATA = {
     importance: { roy: { count: 180, prev: 162 }, ruth: { count: 195, prev: 210 }, proxy: { count: 72, prev: 65 } },
   },
 };
-
 const PERIODS = [
   { id: 'today', label: 'Hoy' }, { id: 'week', label: 'Semana' }, { id: 'month', label: 'Mes' },
 ];
@@ -960,92 +951,121 @@ const METRICS = [
   { id: 'importance', label: 'Importancia', icon: '⭐', unit: 'pt', unitPlural: 'pts' },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 function getGreeting(d = new Date()) { const h = d.getHours(); if (h >= 5 && h < 12) return 'Buenos días'; if (h >= 12 && h < 19) return 'Buenas tardes'; return 'Buenas noches'; }
 const DAY_NAMES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DAY_SHORT = ['D','L','M','X','J','V','S'];
 const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 function formatToday(d = new Date()) { return `${DAY_NAMES[d.getDay()]}, ${d.getDate()} de ${MONTHS[d.getMonth()]}`; }
+function formatDateShort(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getDate()} de ${MONTHS[d.getMonth()]}`;
+}
+function buildInviteUrl(token) {
+  const params = new URLSearchParams(window.location.search);
+  params.delete('invite');
+  params.set('invite', token);
+  return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+}
 
-// ─────────────────────────────────────────────────────────────────────────
-// AUTH HOOK — escucha cambios de sesión de Supabase
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// HOOKS — Sesión, Hogar, Invitaciones, Solicitudes, Pantry
+// ═══════════════════════════════════════════════════════════════════════════
+
 function useSession() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     sb.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
     });
-    const { data: sub } = sb.auth.onAuthStateChange((_event, sess) => {
-      setSession(sess);
-    });
+    const { data: sub } = sb.auth.onAuthStateChange((_event, sess) => { setSession(sess); });
     return () => sub.subscription.unsubscribe();
   }, []);
-
   return { session, loading };
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// HOUSEHOLD HOOK — busca o crea el hogar del usuario
-// ─────────────────────────────────────────────────────────────────────────
-function useHousehold(session) {
-  const [household, setHousehold] = useState(null);
-  const [member, setMember] = useState(null);
+// ─── useHouseholds: lista TODAS las membresías activas del usuario ─────────
+// Esto es la base para multi-hogar (Capa 4 lo aprovechará)
+function useHouseholds(session) {
+  const [memberships, setMemberships] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   const load = useCallback(async () => {
     if (!session) { setLoading(false); return; }
     setLoading(true);
-    // Busca el primer hogar al que pertenece este usuario
-    const { data: members, error } = await sb
+    const { data, error } = await sb
       .from('household_members')
       .select('*, households(*)')
       .eq('profile_id', session.user.id)
       .eq('active', true)
-      .limit(1);
-
-    if (error) {
-      console.error('[useHousehold] error:', error);
-      setLoading(false);
-      return;
-    }
-
-    if (!members || members.length === 0) {
-      setNeedsOnboarding(true);
-      setHousehold(null);
-      setMember(null);
-    } else {
-      setMember(members[0]);
-      setHousehold(members[0].households);
-      setNeedsOnboarding(false);
-    }
+      .order('joined_at', { ascending: true });
+    if (error) console.error('[useHouseholds] load:', error);
+    setMemberships(data || []);
     setLoading(false);
   }, [session]);
 
   useEffect(() => { load(); }, [load]);
 
-  const createHousehold = async (name) => {
+  return { memberships, loading, reload: load };
+}
+
+// ─── useActiveHousehold: deriva el hogar activo desde memberships + LS ─────
+function useActiveHousehold(memberships) {
+  const [activeHouseholdId, setActiveHouseholdIdState] = useState(getActiveHouseholdId);
+
+  // Sincronizar al cargar memberships
+  useEffect(() => {
+    if (memberships.length === 0) return;
+    const stored = getActiveHouseholdId();
+    const isValid = stored && memberships.some(m => m.household_id === stored);
+    if (!isValid) {
+      // Si no hay stored o no es válido, usar el primero
+      const fallback = memberships[0].household_id;
+      setActiveHouseholdId(fallback);
+      setActiveHouseholdIdState(fallback);
+    } else if (stored !== activeHouseholdId) {
+      setActiveHouseholdIdState(stored);
+    }
+  }, [memberships]);
+
+  const switchHousehold = (id) => {
+    setActiveHouseholdId(id);
+    setActiveHouseholdIdState(id);
+  };
+
+  const active = useMemo(() => {
+    if (!activeHouseholdId) return null;
+    return memberships.find(m => m.household_id === activeHouseholdId) || null;
+  }, [memberships, activeHouseholdId]);
+
+  return {
+    household: active?.households || null,
+    member: active || null,
+    activeHouseholdId,
+    switchHousehold,
+  };
+}
+
+// ─── useCreateHousehold: para onboarding (cuando el usuario no tiene ninguno)
+function useCreateHousehold(session, onCreated) {
+  const create = async (name) => {
     if (!session) return { error: 'No session' };
-    // 1) crear el hogar
     const { data: hh, error: e1 } = await sb
       .from('households')
       .insert({
-        name: name,
+        name,
         hemisphere: 'southern',
         timezone: 'Australia/Adelaide',
         created_by: session.user.id,
       })
-      .select()
-      .single();
+      .select().single();
     if (e1) { console.error('[createHousehold] households:', e1); return { error: e1.message }; }
 
-    // 2) crear el member admin
     const userMeta = session.user.user_metadata || {};
     const displayName = userMeta.full_name || userMeta.name || session.user.email;
     const shortName = (userMeta.given_name || displayName).split(' ')[0];
@@ -1062,22 +1082,148 @@ function useHousehold(session) {
         is_proxy: false,
         active: true,
       })
-      .select()
-      .single();
+      .select().single();
     if (e2) { console.error('[createHousehold] members:', e2); return { error: e2.message }; }
 
-    setHousehold(hh);
-    setMember(mb);
-    setNeedsOnboarding(false);
+    setActiveHouseholdId(hh.id);
+    if (onCreated) onCreated(hh.id);
+    return { ok: true, household: hh, member: mb };
+  };
+  return { create };
+}
+
+// ─── useActiveInvitation: la ÚNICA invitación pendiente del hogar activo ───
+function useActiveInvitation(householdId) {
+  const [invitation, setInvitation] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    if (!householdId) { setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await sb
+      .from('household_invitations')
+      .select('*')
+      .eq('household_id', householdId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error) console.error('[useActiveInvitation] load:', error);
+    setInvitation((data && data[0]) || null);
+    setLoading(false);
+  }, [householdId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const regenerate = async () => {
+    if (!householdId) return { error: 'No household' };
+    const { data, error } = await sb.rpc('regenerate_invitation', { p_household_id: householdId });
+    if (error) { console.error('[regenerate] rpc:', error); return { error: error.message }; }
+    if (!data?.success) {
+      const msg = data?.error === 'not_a_member' ? 'No eres miembro de este hogar.' : (data?.message || 'No se pudo generar el enlace.');
+      return { error: msg };
+    }
+    // Recargar invitación activa
+    await load();
+    return { ok: true, token: data.token };
+  };
+
+  const revoke = async () => {
+    if (!invitation) return;
+    const prev = invitation;
+    setInvitation(null);
+    const { error } = await sb
+      .from('household_invitations')
+      .update({ status: 'revoked' })
+      .eq('id', invitation.id);
+    if (error) {
+      console.error('[revoke] error:', error);
+      setInvitation(prev);
+      return { error: error.message };
+    }
     return { ok: true };
   };
 
-  return { household, member, loading, needsOnboarding, createHousehold, reload: load };
+  return { invitation, loading, regenerate, revoke, reload: load };
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// PANTRY HOOK — lee y escribe pantry_inventory
-// ─────────────────────────────────────────────────────────────────────────
+// ─── useJoinRequests: solicitudes pendientes del hogar activo (para admin) ─
+function useJoinRequests(householdId) {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState(null);
+
+  const load = useCallback(async () => {
+    if (!householdId) { setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await sb
+      .from('household_join_requests')
+      .select('*')
+      .eq('household_id', householdId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true });
+    if (error) console.error('[useJoinRequests] load:', error);
+    setRequests(data || []);
+    setLoading(false);
+  }, [householdId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const approve = async (id) => {
+    setBusyId(id);
+    const { data, error } = await sb.rpc('approve_join_request', { p_request_id: id });
+    setBusyId(null);
+    if (error) { console.error('[approve] rpc:', error); return { error: error.message }; }
+    if (!data?.success) return { error: data?.message || 'No se pudo aprobar.' };
+    setRequests(prev => prev.filter(r => r.id !== id));
+    return { ok: true };
+  };
+
+  const reject = async (id) => {
+    setBusyId(id);
+    const { data, error } = await sb.rpc('reject_join_request', { p_request_id: id });
+    setBusyId(null);
+    if (error) { console.error('[reject] rpc:', error); return { error: error.message }; }
+    if (!data?.success) return { error: data?.message || 'No se pudo rechazar.' };
+    setRequests(prev => prev.filter(r => r.id !== id));
+    return { ok: true };
+  };
+
+  return { requests, loading, busyId, approve, reject, reload: load };
+}
+
+// ─── useMyPendingRequests: las solicitudes que YO he enviado a otros hogares
+function useMyPendingRequests(session) {
+  const [myRequests, setMyRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    if (!session) { setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await sb
+      .from('household_join_requests')
+      .select('*, households(*)')
+      .eq('profile_id', session.user.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+    if (error) console.error('[useMyPendingRequests] load:', error);
+    setMyRequests(data || []);
+    setLoading(false);
+  }, [session]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const cancel = async (requestId) => {
+    const { data, error } = await sb.rpc('cancel_my_join_request', { p_request_id: requestId });
+    if (error) { console.error('[cancel] rpc:', error); return { error: error.message }; }
+    if (!data?.success) return { error: data?.message || 'No se pudo cancelar.' };
+    setMyRequests(prev => prev.filter(r => r.id !== requestId));
+    return { ok: true };
+  };
+
+  return { myRequests, loading, cancel, reload: load };
+}
+
+// ─── usePantry ─────────────────────────────────────────────────────────────
 function usePantry(householdId) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1087,15 +1233,11 @@ function usePantry(householdId) {
     if (!householdId) { setLoading(false); return; }
     setLoading(true);
     const { data, error } = await sb
-      .from('pantry_inventory')
-      .select('*')
+      .from('pantry_inventory').select('*')
       .eq('household_id', householdId)
       .order('created_at', { ascending: true });
-    if (error) {
-      console.error('[usePantry] load:', error);
-    } else {
-      setItems(data || []);
-    }
+    if (error) console.error('[usePantry] load:', error);
+    else setItems(data || []);
     setLoading(false);
   }, [householdId]);
 
@@ -1104,18 +1246,9 @@ function usePantry(householdId) {
   const addItem = async ({ name, state = 'have', meta_text = '' }) => {
     if (!householdId || !name.trim()) return;
     setSaving(true);
-    const optimistic = {
-      id: 'temp-' + Date.now(),
-      household_id: householdId,
-      name: name.trim(),
-      state, meta_text,
-      created_at: new Date().toISOString(),
-    };
+    const optimistic = { id: 'temp-' + Date.now(), household_id: householdId, name: name.trim(), state, meta_text, created_at: new Date().toISOString() };
     setItems(prev => [...prev, optimistic]);
-    const { data, error } = await sb
-      .from('pantry_inventory')
-      .insert({ household_id: householdId, name: name.trim(), state, meta_text })
-      .select().single();
+    const { data, error } = await sb.from('pantry_inventory').insert({ household_id: householdId, name: name.trim(), state, meta_text }).select().single();
     setSaving(false);
     if (error) {
       console.error('[usePantry] add:', error);
@@ -1130,31 +1263,18 @@ function usePantry(householdId) {
     const prevItems = items;
     setItems(prev => prev.map(i => i.id === id ? { ...i, state: newState } : i));
     setSaving(true);
-    const { error } = await sb
-      .from('pantry_inventory')
-      .update({ state: newState, last_updated_at: new Date().toISOString() })
-      .eq('id', id);
+    const { error } = await sb.from('pantry_inventory').update({ state: newState, last_updated_at: new Date().toISOString() }).eq('id', id);
     setSaving(false);
-    if (error) {
-      console.error('[usePantry] updateState:', error);
-      setItems(prevItems); // revertir
-      alert('No pude actualizar el estado: ' + error.message);
-    }
+    if (error) { console.error('[usePantry] updateState:', error); setItems(prevItems); alert('No pude actualizar el estado: ' + error.message); }
   };
 
   const updateMeta = async (id, newMeta) => {
     const prevItems = items;
     setItems(prev => prev.map(i => i.id === id ? { ...i, meta_text: newMeta } : i));
     setSaving(true);
-    const { error } = await sb
-      .from('pantry_inventory')
-      .update({ meta_text: newMeta, last_updated_at: new Date().toISOString() })
-      .eq('id', id);
+    const { error } = await sb.from('pantry_inventory').update({ meta_text: newMeta, last_updated_at: new Date().toISOString() }).eq('id', id);
     setSaving(false);
-    if (error) {
-      console.error('[usePantry] updateMeta:', error);
-      setItems(prevItems);
-    }
+    if (error) { console.error('[usePantry] updateMeta:', error); setItems(prevItems); }
   };
 
   const removeItem = async (id) => {
@@ -1163,32 +1283,29 @@ function usePantry(householdId) {
     setSaving(true);
     const { error } = await sb.from('pantry_inventory').delete().eq('id', id);
     setSaving(false);
-    if (error) {
-      console.error('[usePantry] delete:', error);
-      setItems(prevItems);
-      alert('No pude eliminar: ' + error.message);
-    }
+    if (error) { console.error('[usePantry] delete:', error); setItems(prevItems); alert('No pude eliminar: ' + error.message); }
   };
 
   return { items, loading, saving, addItem, updateState, updateMeta, removeItem };
 }
 
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 // PANTALLA DE LOGIN
-// ─────────────────────────────────────────────────────────────────────────
-function LoginScreen() {
+// ═══════════════════════════════════════════════════════════════════════════
+function LoginScreen({ pendingInvite }) {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
-
   const handleGoogleLogin = async () => {
     setBusy(true); setError(null);
+    // Conservar el invite token en la URL del redirect (defensa adicional)
+    let redirectTo = window.location.origin + window.location.pathname;
+    if (pendingInvite) redirectTo += '?invite=' + encodeURIComponent(pendingInvite);
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + window.location.pathname }
+      options: { redirectTo }
     });
     if (error) { setError(error.message); setBusy(false); }
   };
-
   return (
     <div className="login-screen">
       <div className="login-logo-sub">C L P</div>
@@ -1198,6 +1315,15 @@ function LoginScreen() {
         <span>Programada</span>
       </div>
       <div className="login-tagline">El orden es elegante</div>
+
+      {pendingInvite && (
+        <div className="login-invite-banner">
+          <span className="lib-emoji">✉️</span>
+          <div className="lib-title">Tienes una invitación</div>
+          <div className="lib-sub">Inicia sesión para verla</div>
+        </div>
+      )}
+
       <button className="login-google-btn" onClick={handleGoogleLogin} disabled={busy}>
         <svg className="g-icon" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -1213,18 +1339,16 @@ function LoginScreen() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// MODAL DE ONBOARDING — crear el primer hogar
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// MODAL DE ONBOARDING — crear primer hogar
+// ═══════════════════════════════════════════════════════════════════════════
 function OnboardingModal({ session, onCreate }) {
   const userMeta = session.user.user_metadata || {};
   const firstName = (userMeta.given_name || userMeta.full_name || session.user.email || 'Casa').split(' ')[0];
   const suggested = `Casa ${firstName}`;
-
   const [name, setName] = useState(suggested);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-
   const submit = async () => {
     if (!name.trim()) return;
     setBusy(true); setError(null);
@@ -1232,28 +1356,17 @@ function OnboardingModal({ session, onCreate }) {
     setBusy(false);
     if (res && res.error) setError(res.error);
   };
-
   return (
     <div className="modal-backdrop" style={{alignItems:'center'}}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()} style={{borderRadius:24, maxWidth:420, margin:'0 16px'}}>
         <div className="modal-handle"></div>
-        <div className="modal-head">
-          <h2>Bienvenido a CLP 🏡</h2>
-          <div className="sub">Vamos a crear tu hogar</div>
-        </div>
+        <div className="modal-head"><h2>Bienvenido a CLP 🏡</h2><div className="sub">Vamos a crear tu hogar</div></div>
         <div style={{padding:'0 22px 8px', fontFamily:'var(--font-display)', fontStyle:'italic', textAlign:'center', color:'var(--text-soft)', fontSize:14}}>
           Después podrás invitar a más miembros desde el perfil.
         </div>
         <div className="input-block" style={{marginTop:14}}>
           <div className="input-label">Nombre de tu hogar</div>
-          <input
-            type="text"
-            className="text-input"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="ej. Casa Avila"
-            autoFocus
-          />
+          <input type="text" className="text-input" value={name} onChange={e => setName(e.target.value)} placeholder="ej. Casa Avila" autoFocus />
         </div>
         {error && <div className="login-error" style={{margin:'0 16px', color:'var(--danger)', background:'#FFEBEE'}}>⚠️ {error}</div>}
         <div className="modal-actions" style={{marginTop:12, padding:'0 16px 8px'}}>
@@ -1266,9 +1379,9 @@ function OnboardingModal({ session, onCreate }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 // FULL LOADER
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
 function FullLoader({ msg = 'Cargando…' }) {
   return (
     <div className="full-loader">
@@ -1278,9 +1391,178 @@ function FullLoader({ msg = 'Cargando…' }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// COMPONENTES DE LA APP (igual que antes pero con session/household pasado)
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// CAPA 3 — MODAL: el invitado decide si solicita unirse al hogar
+// ═══════════════════════════════════════════════════════════════════════════
+function InviteIncomingModal({ token, onClose, onRequested, onShowToast }) {
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [info, setInfo] = useState(null);
+  const [errMsg, setErrMsg] = useState(null);
+
+  // Buscar info de la invitación al abrir
+  useEffect(() => {
+    let cancelled = false;
+    async function lookup() {
+      setLoading(true);
+      // Buscar la invitación y el household asociado
+      const { data: inv, error: e1 } = await sb
+        .from('household_invitations')
+        .select('id, household_id, status')
+        .eq('token', token)
+        .eq('status', 'pending')
+        .maybeSingle();
+      if (cancelled) return;
+      if (e1 || !inv) {
+        setErrMsg('Este enlace ya no es válido o fue revocado.');
+        setLoading(false);
+        return;
+      }
+      const { data: hh, error: e2 } = await sb
+        .from('households')
+        .select('id, name')
+        .eq('id', inv.household_id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (e2 || !hh) {
+        setErrMsg('No pude cargar la información del hogar.');
+        setLoading(false);
+        return;
+      }
+      setInfo({ household: hh });
+      setLoading(false);
+    }
+    lookup();
+    return () => { cancelled = true; };
+  }, [token]);
+
+  const handleRequest = async () => {
+    setBusy(true);
+    const { data, error } = await sb.rpc('request_join', { invitation_token: token });
+    setBusy(false);
+    if (error) { onShowToast('✗ ' + error.message, 'danger'); return; }
+    if (!data?.success) {
+      if (data?.error === 'already_member') {
+        onShowToast('Ya eres miembro de este hogar', 'info');
+        clearPendingInviteToken();
+        cleanInviteFromUrl();
+        // Si ya es miembro, lo seteamos como activo
+        if (data.household_id) setActiveHouseholdId(data.household_id);
+        onClose();
+        if (onRequested) onRequested({ alreadyMember: true, household_id: data.household_id });
+        return;
+      }
+      onShowToast(data?.message || 'No se pudo enviar la solicitud', 'danger');
+      return;
+    }
+    // Solicitud creada exitosamente
+    clearPendingInviteToken();
+    cleanInviteFromUrl();
+    onClose();
+    if (onRequested) {
+      onRequested({
+        alreadyMember: false,
+        already_requested: !!data.already_requested,
+        request_id: data.request_id,
+        household_id: data.household_id,
+        household_name: data.household_name,
+      });
+    }
+  };
+
+  const handleDecline = () => {
+    clearPendingInviteToken();
+    cleanInviteFromUrl();
+    onClose();
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={handleDecline}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={handleDecline}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>Tienes una invitación</h2>
+          <div className="sub">Revisa los detalles antes de continuar</div>
+        </div>
+
+        {loading && (
+          <div style={{padding: '24px', textAlign: 'center'}}>
+            <div className="spinner" style={{margin: '0 auto', width: 32, height: 32, border: '3px solid var(--primary-faint)', borderTopColor: 'var(--primary-dark)', borderRadius: '50%', animation: 'spin 0.8s linear infinite'}}></div>
+            <div style={{marginTop: 12, fontFamily: 'var(--font-display)', fontStyle: 'italic', color: 'var(--text-soft)', fontSize: 13}}>Verificando enlace…</div>
+          </div>
+        )}
+
+        {!loading && errMsg && (
+          <>
+            <div style={{margin: '0 16px 14px', padding: '20px 16px', background: '#FFF3E0', border: '1px solid #FFB74D', borderRadius: 14, textAlign: 'center'}}>
+              <div style={{fontSize: 36, marginBottom: 8}}>⚠️</div>
+              <div style={{fontFamily: 'var(--font-display)', fontSize: 17, color: '#E65100', marginBottom: 6}}>Enlace no válido</div>
+              <div style={{fontSize: 12.5, color: '#E65100'}}>{errMsg}</div>
+            </div>
+            <div className="modal-actions">
+              <button className="btn-primary-modal" onClick={handleDecline} style={{flex: 1}}>Entendido</button>
+            </div>
+          </>
+        )}
+
+        {!loading && !errMsg && info && (
+          <>
+            <div className="invite-incoming-hero">
+              <span className="ih-emoji">✉️</span>
+              <div className="ih-title">Te invitaron a unirte a</div>
+              <div className="ih-household">{info.household.name}</div>
+              <div className="ih-sub">Tu solicitud será revisada por un administrador</div>
+            </div>
+            <div style={{padding: '0 22px 14px', fontSize: 12.5, color: 'var(--text-soft)', textAlign: 'center', lineHeight: 1.5}}>
+              Al enviar la solicitud, el dueño del hogar la verá en su perfil y podrá aceptarla o rechazarla. Mientras tanto, podrás seguir usando tus otros hogares normalmente.
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={handleDecline} disabled={busy}>Ahora no</button>
+              <button className="btn-primary-modal" onClick={handleRequest} disabled={busy}>
+                {busy ? 'Enviando…' : 'Solicitar unirme'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CAPA 3 — PANTALLA: "esperando aprobación" tras enviar solicitud
+// ═══════════════════════════════════════════════════════════════════════════
+function WaitingApprovalScreen({ request, onRefresh, onCancel, onContinue, busy }) {
+  return (
+    <div className="waiting-screen">
+      <div className="waiting-emoji">⏳</div>
+      <div className="waiting-title">Solicitud enviada</div>
+      <div className="waiting-message">
+        Tu solicitud para unirte a <strong>{request.household_name || 'el hogar'}</strong> está siendo revisada.
+        Te avisaremos cuando sea aprobada.
+      </div>
+      <div className="waiting-actions">
+        <button className="waiting-btn refresh" onClick={onRefresh} disabled={busy}>
+          {busy ? 'Verificando…' : '🔄 Verificar estado'}
+        </button>
+        {onContinue && (
+          <button className="waiting-btn" onClick={onContinue} style={{background: 'white', color: 'var(--text)', border: '1px solid var(--border)'}}>
+            Continuar con mi hogar actual
+          </button>
+        )}
+        <button className="waiting-btn cancel" onClick={onCancel} disabled={busy}>
+          Cancelar solicitud
+        </button>
+      </div>
+      <div className="waiting-tagline">El orden es elegante</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENTES DE LA APP — Home, Tasks, TaskDetail
+// ═══════════════════════════════════════════════════════════════════════════
 function TaskCard({ task, onOpen }) {
   const space = SPACES[task.space] || SPACES.whole_home;
   const isCompleted = task.state === 'completed';
@@ -1431,9 +1713,9 @@ function TaskDetailScreen({ task, onBack }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// COMPRAS (sin cambios)
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPRAS
+// ═══════════════════════════════════════════════════════════════════════════
 function ShoppingScreen({ stores, storeLists, history, onOpenStore, onOpenHistory, onOpenScanner, householdId }) {
   const [tab, setTab] = useState('stores');
   const totalPending = Object.values(storeLists).reduce((s, list) => s + list.length, 0);
@@ -1446,15 +1728,9 @@ function ShoppingScreen({ stores, storeLists, history, onOpenStore, onOpenHistor
         <div className="sub">Listas, productos y despensa</div>
       </div>
       <div className="shop-tabs">
-        <button className={'shop-tab' + (tab === 'stores' ? ' active' : '')} onClick={() => setTab('stores')}>
-          🏪 Tiendas {totalPending > 0 && <span className="badge-count">{totalPending}</span>}
-        </button>
-        <button className={'shop-tab' + (tab === 'history' ? ' active' : '')} onClick={() => setTab('history')}>
-          🗂️ Historial
-        </button>
-        <button className={'shop-tab' + (tab === 'pantry' ? ' active' : '')} onClick={() => setTab('pantry')}>
-          📦 Pantry
-        </button>
+        <button className={'shop-tab' + (tab === 'stores' ? ' active' : '')} onClick={() => setTab('stores')}>🏪 Tiendas {totalPending > 0 && <span className="badge-count">{totalPending}</span>}</button>
+        <button className={'shop-tab' + (tab === 'history' ? ' active' : '')} onClick={() => setTab('history')}>🗂️ Historial</button>
+        <button className={'shop-tab' + (tab === 'pantry' ? ' active' : '')} onClick={() => setTab('pantry')}>📦 Pantry</button>
       </div>
       {tab === 'stores' && <StoresTab stores={stores} storeLists={storeLists} onOpenStore={onOpenStore} />}
       {tab === 'history' && <HistoryTab history={history} stores={stores} onOpenHistory={onOpenHistory} />}
@@ -1492,9 +1768,7 @@ function StoresTab({ stores, storeLists, onOpenStore }) {
 }
 
 function HistoryTab({ history, stores, onOpenHistory }) {
-  if (history.length === 0) {
-    return <div className="empty" style={{padding:'40px 22px'}}>Aún no hay compras archivadas.<br/>Tu historial aparecerá aquí.</div>;
-  }
+  if (history.length === 0) return <div className="empty" style={{padding:'40px 22px'}}>Aún no hay compras archivadas.<br/>Tu historial aparecerá aquí.</div>;
   return (
     <>
       <div className="section-head"><span className="title">Compras archivadas</span><span className="link muted">{history.length}</span></div>
@@ -1504,10 +1778,7 @@ function HistoryTab({ history, stores, onOpenHistory }) {
         return (
           <div key={rec.id} className="history-card" onClick={() => onOpenHistory && onOpenHistory(rec)}>
             <div className={'store-logo ' + store.logoClass}>{store.initial}</div>
-            <div className="h-body">
-              <div className="h-title">{store.name}</div>
-              <div className="h-meta">{rec.date} · {rec.items} productos {rec.hasTicket && ' · 🧾'}</div>
-            </div>
+            <div className="h-body"><div className="h-title">{store.name}</div><div className="h-meta">{rec.date} · {rec.items} productos {rec.hasTicket && ' · 🧾'}</div></div>
             <div className="h-total">${rec.total.toFixed(2)}</div>
           </div>
         );
@@ -1671,13 +1942,9 @@ function ScannerModal({ stores, onClose, onProductScanned }) {
   const simulateScan = (product) => setScanned(product);
   if (scanned) {
     return (
-      <StoreSelectorModal
-        stores={stores}
-        scannedProduct={scanned}
-        onClose={onClose}
-        onChoose={(storeId) => { onProductScanned(scanned, storeId); }}
-        onCreateNew={() => alert('Crear tienda: pendiente')}
-      />
+      <StoreSelectorModal stores={stores} scannedProduct={scanned} onClose={onClose}
+        onChoose={(storeId) => onProductScanned(scanned, storeId)}
+        onCreateNew={() => alert('Crear tienda: pendiente')} />
     );
   }
   return (
@@ -1710,9 +1977,9 @@ function ScannerModal({ stores, onClose, onProductScanned }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// PANTRY — AHORA CONECTADO A SUPABASE
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// PANTRY
+// ═══════════════════════════════════════════════════════════════════════════
 function PantryTab({ householdId }) {
   const { items, loading, saving, addItem, updateState, updateMeta, removeItem } = usePantry(householdId);
   const [openItem, setOpenItem] = useState(null);
@@ -1724,16 +1991,11 @@ function PantryTab({ householdId }) {
     const nextIdx = (order.indexOf(currentState) + 1) % order.length;
     updateState(id, order[nextIdx]);
   };
-
   const handleChangeState = (id, newState) => {
     updateState(id, newState);
     setOpenItem(prev => prev && prev.id === id ? { ...prev, state: newState } : prev);
   };
-
-  const handleRemove = (id) => {
-    removeItem(id);
-    setOpenItem(null);
-  };
+  const handleRemove = (id) => { removeItem(id); setOpenItem(null); };
 
   const lowItems = items.filter(p => p.state === 'low');
   const outItems = items.filter(p => p.state === 'out');
@@ -1749,9 +2011,7 @@ function PantryTab({ householdId }) {
     </div>
   );
 
-  if (loading) {
-    return <div className="empty" style={{padding:'40px 22px'}}>Cargando despensa…</div>;
-  }
+  if (loading) return <div className="empty" style={{padding:'40px 22px'}}>Cargando despensa…</div>;
 
   return (
     <>
@@ -1762,7 +2022,6 @@ function PantryTab({ householdId }) {
           <div className="body">Agrega los productos que sueles tener en casa. Marca cada uno como <strong>Tienes</strong>, <strong>Por acabarse</strong> o <strong>Se acabó</strong>.</div>
         </div>
       )}
-
       {outItems.length > 0 && (
         <div className="pantry-section">
           <div className="pantry-section-head"><span className="title">🔴 Se acabó</span><span className="count">{outItems.length}</span></div>
@@ -1781,68 +2040,46 @@ function PantryTab({ householdId }) {
           {haveItems.map(renderRow)}
         </div>
       )}
-
       {items.length > 0 && (
         <div style={{padding: '14px 22px 8px', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 12, color: 'var(--text-soft)', textAlign: 'center'}}>
           Toca el círculo para cambiar estado · toca el producto para más opciones
         </div>
       )}
       <div className="tagline">El orden es elegante</div>
-
       <button className="pantry-fab" onClick={() => setAddOpen(true)}>+</button>
       {saving && <div className="saving-toast">Guardando…</div>}
-
       {addOpen && (
-        <AddProductModal
-          title="Agregar al pantry"
-          subtitle="Un producto que sueles tener en casa"
-          namePlaceholder="ej. Aceite de oliva 500ml"
-          priceLabel="Cantidad o nota (opcional)"
-          hidePrice={false}
+        <AddProductModal title="Agregar al pantry" subtitle="Un producto que sueles tener en casa"
+          namePlaceholder="ej. Aceite de oliva 500ml" priceLabel="Cantidad o nota (opcional)" hidePrice={false}
           onClose={() => setAddOpen(false)}
           onAdd={async ({ name, price }) => {
-            // En el pantry, lo que el usuario llama "precio" en realidad lo usamos como nota inicial
-            // Mejor: reusar el modal pero adaptado. Por ahora dejamos sin meta.
             await addItem({ name, state: 'have', meta_text: '' });
             setAddOpen(false);
-          }}
-        />
+          }} />
       )}
-
       {openItem && (
-        <PantryItemModal
-          item={openItem}
-          onClose={() => setOpenItem(null)}
+        <PantryItemModal item={openItem} onClose={() => setOpenItem(null)}
           onChangeState={s => handleChangeState(openItem.id, s)}
           onRemove={() => handleRemove(openItem.id)}
           onUpdateMeta={(text) => {
             updateMeta(openItem.id, text);
             setOpenItem(prev => prev ? { ...prev, meta_text: text } : prev);
-          }}
-        />
+          }} />
       )}
     </>
   );
 }
 
 function PantryItemModal({ item, onClose, onChangeState, onRemove, onUpdateMeta }) {
-  const STATES = [
-    { id: 'have', label: 'Tienes' },
-    { id: 'low', label: 'Por acabarse' },
-    { id: 'out', label: 'Se acabó' },
-  ];
+  const STATES = [{ id: 'have', label: 'Tienes' }, { id: 'low', label: 'Por acabarse' }, { id: 'out', label: 'Se acabó' }];
   const [editingMeta, setEditingMeta] = useState(false);
   const [metaDraft, setMetaDraft] = useState(item.meta_text || '');
-
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head">
-          <h2>Producto del pantry</h2>
-          <div className="sub">Cambia estado o gestiona</div>
-        </div>
+        <div className="modal-head"><h2>Producto del pantry</h2><div className="sub">Cambia estado o gestiona</div></div>
         <div className="product-modal-hero">
           <div className="pname">{item.name}</div>
           {!editingMeta ? (
@@ -1851,20 +2088,8 @@ function PantryItemModal({ item, onClose, onChangeState, onRemove, onUpdateMeta 
             </div>
           ) : (
             <div style={{marginTop:8, display:'flex', gap:6, justifyContent:'center'}}>
-              <input
-                type="text"
-                className="text-input"
-                style={{fontSize:13, padding:'8px 12px', maxWidth:240}}
-                value={metaDraft}
-                onChange={e => setMetaDraft(e.target.value)}
-                placeholder="ej. ½ botella, queda poco"
-                autoFocus
-              />
-              <button
-                className="btn-primary-modal"
-                style={{padding:'8px 14px', fontSize:13}}
-                onClick={() => { onUpdateMeta(metaDraft); setEditingMeta(false); }}
-              >Ok</button>
+              <input type="text" className="text-input" style={{fontSize:13, padding:'8px 12px', maxWidth:240}} value={metaDraft} onChange={e => setMetaDraft(e.target.value)} placeholder="ej. ½ botella, queda poco" autoFocus />
+              <button className="btn-primary-modal" style={{padding:'8px 14px', fontSize:13}} onClick={() => { onUpdateMeta(metaDraft); setEditingMeta(false); }}>Ok</button>
             </div>
           )}
         </div>
@@ -1880,34 +2105,40 @@ function PantryItemModal({ item, onClose, onChangeState, onRemove, onUpdateMeta 
           </div>
         </div>
         <div style={{padding: '0 16px'}}>
-          <button className="scan-btn" onClick={onRemove} style={{color: 'var(--danger)'}}><span className="ic" style={{background: '#FFEBEE', color: 'var(--danger)'}}>🗑️</span><span style={{fontWeight: 600}}>Eliminar del pantry</span></button>
+          <button className="scan-btn" onClick={onRemove} style={{color: 'var(--danger)'}}>
+            <span className="ic" style={{background: '#FFEBEE', color: 'var(--danger)'}}>🗑️</span>
+            <span style={{fontWeight: 600}}>Eliminar del pantry</span>
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// BALANCE (sin cambios)
-// ─────────────────────────────────────────────────────────────────────────
-function DonutChart({ segments, total }) {
-  const radius = 56; const strokeWidth = 22; const cx = 70, cy = 70;
-  const circumference = 2 * Math.PI * radius;
-  let cumulativePct = 0;
+// ═══════════════════════════════════════════════════════════════════════════
+// BALANCE
+// ═══════════════════════════════════════════════════════════════════════════
+function DonutChart({ data, members, total }) {
+  const radius = 50, stroke = 14, normRadius = radius - stroke / 2, circumference = normRadius * 2 * Math.PI;
+  let offset = 0;
   return (
-    <svg viewBox="0 0 140 140">
-      <circle cx={cx} cy={cy} r={radius} fill="none" stroke="#F0EBE0" strokeWidth={strokeWidth} />
-      {segments.map((seg, idx) => {
-        if (seg.value === 0) return null;
-        const pct = seg.value / total;
-        const dasharray = `${pct * circumference} ${circumference}`;
-        const dashoffset = -cumulativePct * circumference;
-        cumulativePct += pct;
-        return (
-          <circle key={idx} cx={cx} cy={cy} r={radius} fill="none" stroke={seg.color} strokeWidth={strokeWidth} strokeDasharray={dasharray} strokeDashoffset={dashoffset} strokeLinecap="butt" className="donut-segment" />
-        );
-      })}
-    </svg>
+    <div className="donut-svg-wrap">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r={normRadius} stroke="#F0EBE0" strokeWidth={stroke} fill="none" />
+        {members.map(m => {
+          const value = data[m.id]?.count || 0;
+          const pct = total > 0 ? value / total : 0;
+          const dash = circumference * pct;
+          const seg = <circle key={m.id} cx="60" cy="60" r={normRadius} stroke={m.color} strokeWidth={stroke} fill="none" strokeDasharray={`${dash} ${circumference - dash}`} strokeDashoffset={-offset} className="donut-segment" />;
+          offset += dash;
+          return seg;
+        })}
+      </svg>
+      <div className="donut-center">
+        <div className="big-num">{total}</div>
+        <div className="big-label">{total === 1 ? 'unidad' : 'totales'}</div>
+      </div>
+    </div>
   );
 }
 
@@ -1915,131 +2146,112 @@ function BalanceScreen() {
   const [period, setPeriod] = useState('today');
   const [metric, setMetric] = useState('tasks');
   const data = BALANCE_DATA[period][metric];
+  const total = Object.values(data).reduce((s, m) => s + m.count, 0);
+  const totalPrev = Object.values(data).reduce((s, m) => s + (m.prev || 0), 0);
   const metricInfo = METRICS.find(m => m.id === metric);
-  const total = HOUSEHOLD_MEMBERS_MOCK.reduce((s, m) => s + (data[m.id]?.count || 0), 0);
-  const segments = HOUSEHOLD_MEMBERS_MOCK.map(m => ({
-    member: m, value: data[m.id]?.count || 0, prev: data[m.id]?.prev || 0,
-    pct: total > 0 ? Math.round(((data[m.id]?.count || 0) / total) * 100) : 0,
-    color: m.color, tasks: data[m.id]?.tasks || [],
-  }));
-  const maxPct = Math.max(...segments.map(s => s.pct));
-  const minPct = Math.min(...segments.filter(s => s.value > 0).map(s => s.pct));
-  let insight;
-  if (total === 0) insight = { ic: '🌙', text: 'Aún no hay actividad registrada en este período.' };
-  else if (maxPct - minPct < 15) insight = { ic: '⚖️', text: <>Distribución <strong>equilibrada</strong>. El hogar está funcionando como equipo.</> };
-  else if (maxPct >= 60) {
-    const leader = segments.find(s => s.pct === maxPct);
-    insight = { ic: '👁️', text: <>El <strong>{leader.member.name}</strong> ha tenido la mayor carga este período ({leader.pct}%).</> };
-  } else insight = { ic: '📍', text: 'Distribución dispar — algunos miembros contribuyeron más que otros.' };
-  const totalPrev = HOUSEHOLD_MEMBERS_MOCK.reduce((s, m) => s + (data[m.id]?.prev || 0), 0);
-  const diff = total - totalPrev;
-  const diffPct = totalPrev > 0 ? Math.round((diff / totalPrev) * 100) : 0;
-  const periodLabelMap = { today: 'ayer', week: 'la semana pasada', month: 'el mes pasado' };
-  const comparativeText = totalPrev === 0 ? 'Sin datos del período anterior para comparar' : `${diffPct > 0 ? '+' : ''}${diffPct}% vs ${periodLabelMap[period]}`;
-  const compareClass = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
-  const compareArrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-
+  const periodLabel = period === 'today' ? 'hoy' : period === 'week' ? 'esta semana' : 'este mes';
+  const prevLabel = period === 'today' ? 'ayer' : period === 'week' ? 'semana pasada' : 'mes pasado';
+  const diff = total - totalPrev, pctDiff = totalPrev > 0 ? ((diff / totalPrev) * 100).toFixed(0) : 0;
   return (
     <>
-      <div className="blue-header">
-        <button className="bell">🔔</button>
-        <div className="eyebrow">SECCIÓN</div>
-        <h1 className="large">Balance</h1>
-        <div className="sub">Distribución por miembro</div>
-      </div>
+      <div className="blue-header"><div className="eyebrow">SECCIÓN</div><h1 className="large">Balance del hogar</h1><div className="sub">Cómo se distribuye el trabajo</div></div>
       <div className="period-selector">
-        {PERIODS.map(p => (
-          <button key={p.id} className={'period-tab' + (period === p.id ? ' active' : '')} onClick={() => setPeriod(p.id)}>{p.label}</button>
-        ))}
+        {PERIODS.map(p => <button key={p.id} className={'period-tab' + (period === p.id ? ' active' : '')} onClick={() => setPeriod(p.id)}>{p.label}</button>)}
       </div>
       <div className="metric-chips">
-        {METRICS.map(m => (
-          <button key={m.id} className={'metric-chip' + (metric === m.id ? ' active' : '')} onClick={() => setMetric(m.id)}>
-            <span>{m.icon}</span><span>{m.label}</span>
-          </button>
-        ))}
+        {METRICS.map(m => <button key={m.id} className={'metric-chip' + (metric === m.id ? ' active' : '')} onClick={() => setMetric(m.id)}><span>{m.icon}</span><span>{m.label}</span></button>)}
       </div>
       <div className="donut-card">
         <div className="donut-wrap">
-          <div className="donut-svg-wrap">
-            <DonutChart segments={segments} total={total || 1} />
-            <div className="donut-center">
-              <div className="big-num">{total}</div>
-              <div className="big-label">{metric === 'minutes' ? 'min totales' : (total === 1 ? metricInfo.unit : metricInfo.unitPlural)}</div>
-            </div>
-          </div>
+          <DonutChart data={data} members={HOUSEHOLD_MEMBERS_MOCK} total={total} />
           <div className="legend">
-            {segments.map(seg => (
-              <div key={seg.member.id} className="legend-row">
-                <span className="swatch" style={{ background: seg.color }}></span>
-                <span className="name">{seg.member.name}</span>
-                <span className="pct">{seg.pct}%</span>
-              </div>
-            ))}
+            {HOUSEHOLD_MEMBERS_MOCK.map(m => {
+              const value = data[m.id]?.count || 0, pct = total > 0 ? Math.round((value / total) * 100) : 0;
+              return <div key={m.id} className="legend-row"><div className="swatch" style={{background: m.color}}></div><div className="name">{m.name}</div><div className="pct">{pct}%</div></div>;
+            })}
           </div>
         </div>
         <div className="compare-row">
-          <span className={'compare-arrow ' + compareClass}>{compareArrow}</span>
-          <span className="compare-text">{comparativeText}</span>
+          <span className={'compare-arrow ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat')}>{diff > 0 ? '↑' : diff < 0 ? '↓' : '→'} {Math.abs(diff)}</span>
+          <span className="compare-text">{diff !== 0 ? `${diff > 0 ? '+' : ''}${pctDiff}% vs ${prevLabel}` : `igual que ${prevLabel}`}</span>
         </div>
       </div>
+      <div className="section-head"><span className="title">Por miembro · {periodLabel}</span></div>
+      {HOUSEHOLD_MEMBERS_MOCK.map(m => {
+        const memberData = data[m.id] || { count: 0, tasks: [], prev: 0 };
+        const pct = total > 0 ? Math.round((memberData.count / total) * 100) : 0;
+        const myPrev = memberData.prev || 0;
+        const myDiff = memberData.count - myPrev;
+        const stats = { total: memberData.count, tasks: memberData.tasks ? memberData.tasks.length : 0, change: myDiff };
+        return (
+          <div key={m.id} className="member-card">
+            <div className="member-head">
+              <div className="member-avatar" style={{background: m.avatarBg}}>{m.shortName[0]}</div>
+              <div className="member-name">{m.name}</div>
+              <div className="member-pct">{pct}%</div>
+            </div>
+            <div className="member-bar"><div className="member-bar-fill" style={{width: `${pct}%`, background: m.color}}></div></div>
+            <div className="member-stats">
+              <div className="mstat"><div className="mstat-num">{stats.total}</div><div className="mstat-label">{metricInfo.unitPlural}</div></div>
+              <div className="mstat"><div className="mstat-num">{stats.tasks || '—'}</div><div className="mstat-label">tareas</div></div>
+              <div className="mstat"><div className="mstat-num" style={{color: stats.change > 0 ? 'var(--state-completed-text)' : stats.change < 0 ? 'var(--state-overdue-text)' : 'var(--text-soft)'}}>{stats.change > 0 ? '+' : ''}{stats.change || '—'}</div><div className="mstat-label">vs ant.</div></div>
+            </div>
+            {memberData.tasks && memberData.tasks.length > 0 && (
+              <div className="member-tasks">
+                {memberData.tasks.slice(0, 3).map((t, i) => {
+                  const space = SPACES[t.space] || SPACES.whole_home;
+                  return <div key={i} className="member-task-pill"><span className="pill-ic">{space.icon}</span><span style={{flex:1}}>{t.name}</span><span style={{fontFamily:'var(--font-tech)', fontWeight:600}}>{t.value} {metric === 'minutes' ? 'min' : metric === 'importance' ? 'pt' : ''}</span></div>;
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
       <div className="insight-card">
-        <div className="insight-ic">{insight.ic}</div>
-        <div className="insight-body">{insight.text}</div>
+        <div className="insight-ic">💡</div>
+        <div className="insight-body"><strong>Insight:</strong> Esta semana Roy está cargando más de lo habitual. Considera redistribuir algunas tareas.</div>
       </div>
       <div className="tagline">El orden es elegante</div>
     </>
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// BIBLIOTECA + ARTÍCULO
+// ═══════════════════════════════════════════════════════════════════════════
 function LibraryScreen({ onOpenArticle }) {
   const featured = ARTICLES.find(a => a.id === FEATURED_ARTICLE_ID);
-  const renderCarousel = (catId) => {
-    const arts = ARTICLES.filter(a => a.category === catId);
-    if (arts.length === 0) return null;
-    const cat = CATEGORIES[catId];
-    return (
-      <div className="carousel-block" key={catId}>
-        <div className="carousel-head">
-          <span className="title">{cat.icon} {cat.es}</span>
-          <button className="more">Ver todos →</button>
-        </div>
-        <div className="carousel-track">
-          {arts.map(a => (
-            <div className="ccard" key={a.id} onClick={() => onOpenArticle(a)}>
-              <div className="ph" style={{ background: a.bg }}>{a.emoji}</div>
-              <div className="body"><h5>{a.title}</h5><div className="meta">{a.minutes} min · {cat.es}</div></div>
-            </div>
-          ))}
-          <button className="ccard-more"><span className="arrow">→</span><span>Ver todos<br/>{cat.es}</span></button>
-        </div>
-      </div>
-    );
-  };
   return (
     <>
-      <div className="blue-header">
-        <button className="bell">🔔</button>
-        <div className="eyebrow">SECCIÓN</div>
-        <h1 className="large">Biblioteca</h1>
-        <div className="sub">Hábitos, productividad y guías</div>
-      </div>
+      <div className="blue-header"><button className="bell">🔔</button><div className="eyebrow">CONOCIMIENTO</div><h1 className="large">Biblioteca</h1><div className="sub">Artículos y planes para cuidar mejor tu hogar</div></div>
       {featured && (
         <div className="featured-card" onClick={() => onOpenArticle(featured)}>
-          <div className="photo" style={{ background: featured.bg }}>{featured.emoji}</div>
+          <div className="photo" style={{background: featured.bg}}>{featured.emoji}</div>
           <div className="body">
-            <div className="tag">☀️ Destacado</div>
+            <div className="tag">★ DESTACADO · {CATEGORIES[featured.category].es.toUpperCase()}</div>
             <h3>{featured.title}</h3>
-            <div className="meta">{featured.minutes} min de lectura{featured.steps ? ` · ${featured.steps.length} pasos` : ''}</div>
+            <div className="meta">{featured.subtitle} · {featured.minutes} min</div>
           </div>
         </div>
       )}
-      <div style={{ height: 12 }}></div>
-      {renderCarousel('habitos')}
-      {renderCarousel('productividad')}
-      {renderCarousel('organizacion')}
-      {renderCarousel('estacional')}
-      {renderCarousel('planes')}
+      {Object.entries(CATEGORIES).map(([catId, cat]) => {
+        const arts = ARTICLES.filter(a => a.category === catId);
+        if (arts.length === 0) return null;
+        return (
+          <div key={catId} className="carousel-block">
+            <div className="carousel-head"><div className="title">{cat.icon} {cat.es}</div><button className="more">Ver todos →</button></div>
+            <div className="carousel-track">
+              {arts.map(a => (
+                <div key={a.id} className="ccard" onClick={() => onOpenArticle(a)}>
+                  <div className="ph" style={{background: a.bg}}>{a.emoji}</div>
+                  <div className="body"><h5>{a.title}</h5><div className="meta">{a.minutes} min · {a.subtitle}</div></div>
+                </div>
+              ))}
+              <div className="ccard-more"><span className="arrow">→</span><span>Ver todos</span></div>
+            </div>
+          </div>
+        );
+      })}
       <div className="tagline">El orden es elegante</div>
     </>
   );
@@ -2047,530 +2259,666 @@ function LibraryScreen({ onOpenArticle }) {
 
 function ArticleScreen({ article, onBack }) {
   const cat = CATEGORIES[article.category];
-  const initSteps = article.steps ? article.steps.map((_, i) => i < 2) : [];
-  const [doneSteps, setDoneSteps] = useState(initSteps);
-  const toggleStep = idx => setDoneSteps(prev => prev.map((v, i) => i === idx ? !v : v));
-  const showCTA = article.seasonal || article.isPlan;
+  const [stepsDone, setStepsDone] = useState((article.steps || []).map(() => false));
+  const totalSteps = (article.steps || []).length;
+  const doneCount = stepsDone.filter(Boolean).length;
   return (
     <>
-      <div className="blue-header">
+      <div className="blue-header" style={{paddingBottom: 26}}>
         <button className="back" onClick={onBack}><span className="arrow">←</span> Biblioteca</button>
-        <div className="category-badge">{cat.icon} {cat.es}</div>
+        <div className="eyebrow">{cat.icon} {cat.es.toUpperCase()} · {article.minutes} MIN</div>
+        <h1 style={{fontSize: 22, marginTop: 4}}>{article.title}</h1>
       </div>
       <div className="article-hero">
-        <div className="hero-image" style={{ background: article.bg }}>{article.emoji}</div>
+        <div className="hero-image" style={{background: article.bg}}>{article.emoji}</div>
         <div className="hero-body">
           <h1>{article.title}</h1>
           <div className="meta">
-            {article.steps && <><span>{article.steps.length} pasos</span><span className="dot"></span></>}
-            <span>⏱ {article.minutes} min</span>
-            {article.seasonal && <><span className="dot"></span><span>🇦🇺 hemisferio sur</span></>}
+            <span>{cat.icon} {cat.es}</span>
+            <span className="dot"></span>
+            <span>📖 {article.minutes} min</span>
+            {article.seasonal && <><span className="dot"></span><span>🍂 Estacional</span></>}
           </div>
         </div>
       </div>
       {article.intro && (
         <>
-          <div className="divider"><span>Por qué importa</span></div>
+          <div className="divider"><span>El contexto</span></div>
           <div className="article-intro">
             <p>{article.intro}</p>
             {article.pullQuote && <div className="pull-quote">{article.pullQuote}</div>}
           </div>
         </>
       )}
-      {article.steps && (
+      {article.steps && article.steps.length > 0 && (
         <>
-          <div className="divider"><span>Los {article.steps.length} pasos</span></div>
+          <div className="divider"><span>Las {totalSteps} tareas</span></div>
+          <div style={{padding:'0 22px 8px', textAlign:'center', fontSize:12, color:'var(--text-soft)', fontFamily:'var(--font-display)', fontStyle:'italic'}}>{doneCount}/{totalSteps} completadas</div>
           <div className="steps-wrapper">
-            {article.steps.map((s, idx) => (
-              <div key={idx} className={'step' + (doneSteps[idx] ? ' done' : '')} onClick={() => toggleStep(idx)}>
+            {article.steps.map((step, idx) => (
+              <div key={idx} className={'step' + (stepsDone[idx] ? ' done' : '')} onClick={() => setStepsDone(prev => prev.map((v, i) => i === idx ? !v : v))}>
                 <div className="step-check"></div>
                 <div className="step-body">
-                  <div className="step-number">PASO {idx + 1}</div>
-                  <div className="step-title">{s.title}</div>
-                  <div className="step-desc">{s.desc}</div>
+                  <div className="step-number">Tarea {String(idx + 1).padStart(2, '0')}</div>
+                  <div className="step-title">{step.title}</div>
+                  <div className="step-desc">{step.desc}</div>
                 </div>
               </div>
             ))}
           </div>
         </>
       )}
-      {!article.intro && !article.steps && (
-        <div className="article-intro" style={{ paddingTop: 20 }}>
-          <p style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', color: 'var(--text-soft)', textAlign: 'center', fontSize: 16 }}>{article.subtitle}</p>
-          <p style={{ textAlign: 'center', color: 'var(--text-soft)', fontSize: 13, marginTop: 16 }}>El contenido se está preparando.</p>
-        </div>
-      )}
-      {article.closing && (
-        <>
-          <div className="divider"><span>Y para terminar</span></div>
-          <div className="closing">{article.closing}</div>
-        </>
-      )}
-      {showCTA && (
-        <div className="article-cta">
-          <div className="question">{article.isPlan ? `¿Activar ${article.title}?` : '¿Hacer recurrente cada año?'}</div>
-          <button className="btn-cta"><span className="star">✦</span>{article.isPlan ? 'Activar este plan' : 'Activar como plan recurrente'}</button>
-        </div>
-      )}
+      {article.closing && <><div className="divider"><span>Para cerrar</span></div><div className="closing">{article.closing}</div></>}
+      <div className="article-cta">
+        <div className="question">¿Te resultó útil este artículo?</div>
+        <button className="btn-cta"><span className="star">★</span>Guardar como favorito</button>
+      </div>
       <div className="tagline">El orden es elegante</div>
     </>
   );
 }
 
-function Toggle({ checked, onChange }) {
-  return <label className="toggle"><input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} /><span className="toggle-slider"></span></label>;
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// CAPA 3 — MembersSection: nuevo modelo de invitaciones con aprobación
+// ═══════════════════════════════════════════════════════════════════════════
+function MembersSection({ session, member, household, onShowToast }) {
+  const isAdmin = member && member.role === 'admin';
+  const householdId = household?.id;
 
-// ─────────────────────────────────────────────────────────────────────────
-// INVITACIONES — generador de tokens + hook para gestionarlas
-// ─────────────────────────────────────────────────────────────────────────
-function generateInviteToken() {
-  // 16 caracteres alfanuméricos seguros
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789abcdefghjkmnpqrstuvwxyz';
-  let out = '';
-  for (let i = 0; i < 16; i++) {
-    out += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return out;
-}
- 
-function buildInviteUrl(token) {
-  // Mantenemos parámetros de debug si están activos
-  const params = new URLSearchParams(window.location.search);
-  params.set('invite', token);
-  return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-}
- 
-function useInvitations(householdId, userId) {
-  const [invitations, setInvitations] = useState([]);
-  const [loading, setLoading] = useState(true);
- 
-  const load = useCallback(async () => {
-    if (!householdId) { setLoading(false); return; }
-    setLoading(true);
-    const { data, error } = await sb
-      .from('household_invitations')
-      .select('*')
-      .eq('household_id', householdId)
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false });
-    if (error) console.error('[useInvitations] load:', error);
-    setInvitations(data || []);
-    setLoading(false);
-  }, [householdId]);
- 
-  useEffect(() => { load(); }, [load]);
- 
-  const create = async () => {
-    if (!householdId || !userId) return { error: 'No hay hogar activo' };
-    const token = generateInviteToken();
-    const { data, error } = await sb
-      .from('household_invitations')
-      .insert({
-        household_id: householdId,
-        invited_by: userId,
-        token,
-        role: 'member',
-        status: 'pending',
-      })
-      .select()
-      .single();
-    if (error) {
-      console.error('[useInvitations] create:', error);
-      return { error: error.message };
-    }
-    setInvitations(prev => [data, ...prev]);
-    return { ok: true, invitation: data };
+  const { invitation, loading: invLoading, regenerate, revoke } = useActiveInvitation(householdId);
+  const { requests, loading: reqLoading, busyId, approve, reject } = useJoinRequests(householdId);
+
+  const [members, setMembers] = useState([]);
+  const [busyRegen, setBusyRegen] = useState(false);
+  const [busyRevoke, setBusyRevoke] = useState(false);
+
+  // Cargar miembros del hogar
+  useEffect(() => {
+    if (!householdId) return;
+    sb.from('household_members').select('*').eq('household_id', householdId).eq('active', true).then(({ data }) => {
+      setMembers(data || []);
+    });
+  }, [householdId, requests.length]);
+
+  const inviteUrl = invitation ? buildInviteUrl(invitation.token) : '';
+
+  const handleGenerate = async () => {
+    setBusyRegen(true);
+    const res = await regenerate();
+    setBusyRegen(false);
+    if (res.error) { onShowToast('✗ ' + res.error, 'danger'); return; }
+    onShowToast('✓ Enlace generado');
   };
- 
-  const revoke = async (invitationId) => {
-    const prevList = invitations;
-    setInvitations(prev => prev.filter(i => i.id !== invitationId));
-    const { error } = await sb
-      .from('household_invitations')
-      .delete()
-      .eq('id', invitationId);
-    if (error) {
-      console.error('[useInvitations] revoke:', error);
-      setInvitations(prevList);
-      alert('No pude revocar la invitación: ' + error.message);
-    }
+
+  const handleRegenerate = async () => {
+    if (!confirm('Esto invalidará el enlace actual. ¿Generar uno nuevo?')) return;
+    setBusyRegen(true);
+    const res = await regenerate();
+    setBusyRegen(false);
+    if (res.error) { onShowToast('✗ ' + res.error, 'danger'); return; }
+    onShowToast('✓ Enlace nuevo creado');
   };
- 
-  return { invitations, loading, create, revoke, reload: load };
-}
- 
-// ─────────────────────────────────────────────────────────────────────────
-// Modal: invitación creada — muestra el link y opciones de compartir
-// ─────────────────────────────────────────────────────────────────────────
-function InvitationCreatedModal({ invitation, household, onClose, onShowToast }) {
-  const inviteUrl = buildInviteUrl(invitation.token);
- 
-  const copyLink = async () => {
+
+  const handleRevoke = async () => {
+    if (!confirm('¿Eliminar el enlace de invitación?')) return;
+    setBusyRevoke(true);
+    const res = await revoke();
+    setBusyRevoke(false);
+    if (res?.error) { onShowToast('✗ ' + res.error, 'danger'); return; }
+    onShowToast('✓ Enlace eliminado');
+  };
+
+  const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(inviteUrl);
-      onShowToast('✓ Link copiado');
+      onShowToast('✓ Enlace copiado');
     } catch (e) {
-      // Fallback si clipboard no funciona
-      const textarea = document.createElement('textarea');
-      textarea.value = inviteUrl;
-      document.body.appendChild(textarea);
-      textarea.select();
-      try { document.execCommand('copy'); onShowToast('✓ Link copiado'); }
-      catch (err) { onShowToast('✗ No pude copiar'); }
-      document.body.removeChild(textarea);
+      // Fallback para WebViews antiguas
+      const ta = document.createElement('textarea');
+      ta.value = inviteUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); onShowToast('✓ Enlace copiado'); }
+      catch (e2) { onShowToast('✗ No se pudo copiar', 'danger'); }
+      document.body.removeChild(ta);
     }
   };
- 
-  const shareWhatsapp = () => {
-    const text = `Te invito a unirte a "${household.name}" en CLP:\n\n${inviteUrl}`;
+
+  const handleWhatsApp = () => {
+    const text = `Te invito a unirte a "${household.name}" en CLP (Calendario de Limpieza Programada).\n\nÁbrelo aquí: ${inviteUrl}\n\nSi no tienes la app, primero inicia sesión en Chrome para que funcione bien.`;
     const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(wa, '_blank');
   };
- 
+
+  const handleApprove = async (reqId) => {
+    const res = await approve(reqId);
+    if (res.error) onShowToast('✗ ' + res.error, 'danger');
+    else onShowToast('✓ Miembro aceptado');
+  };
+
+  const handleReject = async (reqId) => {
+    if (!confirm('¿Rechazar esta solicitud?')) return;
+    const res = await reject(reqId);
+    if (res.error) onShowToast('✗ ' + res.error, 'danger');
+    else onShowToast('Solicitud rechazada', 'info');
+  };
+
+  return (
+    <>
+      {/* Solicitudes pendientes (solo admin) */}
+      {isAdmin && requests.length > 0 && (
+        <div className="pr-section">
+          <div className="pr-section-title">
+            🟡 Solicitudes pendientes
+            <span style={{background:'var(--state-pending-bg)', color:'var(--state-pending-text)', fontSize:10, padding:'2px 7px', borderRadius:8, fontFamily:'var(--font-tech)', fontWeight:700, marginLeft:'auto'}}>
+              {requests.length}
+            </span>
+          </div>
+          {requests.map(r => {
+            const initial = (r.requested_display_name || r.requested_email || '?').trim()[0].toUpperCase();
+            return (
+              <div key={r.id} className="request-card">
+                <div className="rc-head">
+                  <div className="rc-avatar">{initial}</div>
+                  <div className="rc-body">
+                    <div className="rc-name">{r.requested_display_name || 'Sin nombre'}</div>
+                    <div className="rc-email">{r.requested_email || '—'}</div>
+                  </div>
+                </div>
+                <div className="rc-meta">Solicitado {formatDateShort(r.created_at)}</div>
+                <div className="rc-actions">
+                  <button className="rc-btn reject" onClick={() => handleReject(r.id)} disabled={busyId === r.id}>
+                    Rechazar
+                  </button>
+                  <button className="rc-btn approve" onClick={() => handleApprove(r.id)} disabled={busyId === r.id}>
+                    {busyId === r.id ? '…' : '✓ Aceptar'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Sección miembros */}
+      <div className="pr-section">
+        <div className="pr-section-title">
+          👥 Miembros del hogar
+          <span style={{marginLeft:'auto', fontSize:10, color:'var(--text-soft)', fontWeight:500, letterSpacing:0.5}}>{members.length}</span>
+        </div>
+        {members.map(m => {
+          const isYou = m.profile_id === session.user.id;
+          return (
+            <div key={m.id} className="member-row">
+              <div className="avatar-circle" style={{background: m.color || '#1565C0'}}>{(m.short_name || m.display_name || '?')[0]}</div>
+              <div className="m-body">
+                <div className="m-name">{m.display_name}{isYou && ' (tú)'}</div>
+                <div className="m-role">{m.role === 'admin' ? 'Administrador' : 'Miembro'}{m.is_proxy && ' · Proxy'}</div>
+              </div>
+              {m.role === 'admin' && <div className="m-tag admin">Admin</div>}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Sección enlace de invitación (solo admin) */}
+      {isAdmin && (
+        <div className="pr-section">
+          <div className="pr-section-title">
+            🔗 Invitar nuevos miembros
+          </div>
+          {invLoading ? (
+            <div className="empty" style={{padding:'20px'}}>Cargando…</div>
+          ) : !invitation ? (
+            <div className="invite-link-card no-link">
+              <div style={{fontFamily:'var(--font-display)', fontStyle:'italic', fontSize:14, color:'var(--primary-dark)', marginBottom:12}}>
+                Aún no hay enlace activo
+              </div>
+              <button className="invite-btn-big" onClick={handleGenerate} disabled={busyRegen}>
+                {busyRegen ? 'Generando…' : '✨ Generar enlace de invitación'}
+              </button>
+            </div>
+          ) : (
+            <div className="invite-link-card">
+              <div className="ilc-label">Enlace activo</div>
+              <div className="ilc-link">{inviteUrl}</div>
+              <div className="ilc-meta">Creado {formatDateShort(invitation.created_at)} · Solo un enlace puede estar activo a la vez</div>
+              <div className="ilc-actions">
+                <button className="ilc-btn primary" onClick={handleCopy}>📋 Copiar</button>
+                <button className="ilc-btn primary" onClick={handleWhatsApp} style={{background:'#25D366', borderColor:'#25D366'}}>
+                  💬 WhatsApp
+                </button>
+              </div>
+              <div className="ilc-actions" style={{marginTop:6}}>
+                <button className="ilc-btn regen" onClick={handleRegenerate} disabled={busyRegen}>
+                  {busyRegen ? '…' : '🔄 Regenerar'}
+                </button>
+                <button className="ilc-btn regen" onClick={handleRevoke} disabled={busyRevoke} style={{color:'var(--danger)', borderColor:'#FFCDD2'}}>
+                  {busyRevoke ? '…' : '✕ Eliminar enlace'}
+                </button>
+              </div>
+            </div>
+          )}
+          <div style={{padding:'10px 22px 0', fontSize:11.5, color:'var(--text-soft)', fontStyle:'italic', fontFamily:'var(--font-display)', textAlign:'center', lineHeight:1.5}}>
+            Quienes usen el enlace deberán solicitar unirse. Tú apruebas o rechazas desde aquí.
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PROFILE SCREEN — modificado para Capa 3
+// ═══════════════════════════════════════════════════════════════════════════
+function ProfileScreen({ session, member, household, onLogout, onShowToast, onSwitchHousehold, memberships }) {
+  const userMeta = session.user.user_metadata || {};
+  const fullName = userMeta.full_name || userMeta.name || member?.display_name || 'Usuario';
+  const email = session.user.email;
+  const avatarLetter = (member?.short_name || fullName).trim()[0].toUpperCase();
+  const isAdmin = member && member.role === 'admin';
+
+  const handleLogoutClick = async () => {
+    if (!confirm('¿Cerrar sesión?')) return;
+    clearActiveHouseholdId();
+    clearPendingInviteToken();
+    await sb.auth.signOut();
+    onLogout && onLogout();
+  };
+
+  return (
+    <>
+      <div className="profile-hero">
+        <div className="profile-avatar">
+          {avatarLetter}
+          {isAdmin && <div className="badge-admin">Admin</div>}
+        </div>
+        <div className="profile-name">{fullName}</div>
+        <div className="profile-email">{email}</div>
+        {household && (
+          <div className="household-pill" onClick={onSwitchHousehold}>
+            🏡 {household.name}
+            {memberships && memberships.length > 1 && <span style={{opacity:0.7}}>· cambiar</span>}
+          </div>
+        )}
+      </div>
+
+      <MembersSection session={session} member={member} household={household} onShowToast={onShowToast} />
+
+      <div className="pr-section">
+        <div className="pr-section-title">⚙️ Preferencias</div>
+        <div className="pr-list">
+          <div className="pr-row"><div className="pr-ic">🔔</div><div className="pr-body"><div className="pr-label">Notificaciones</div><div className="pr-hint">Recordatorios de tareas</div></div>
+            <label className="toggle"><input type="checkbox" defaultChecked /><span className="toggle-slider"></span></label>
+          </div>
+          <div className="pr-row"><div className="pr-ic">🌙</div><div className="pr-body"><div className="pr-label">Tema oscuro</div><div className="pr-hint">Próximamente</div></div>
+            <label className="toggle"><input type="checkbox" disabled /><span className="toggle-slider"></span></label>
+          </div>
+          <div className="pr-row"><div className="pr-ic">🌍</div><div className="pr-body"><div className="pr-label">Idioma</div></div>
+            <div className="pr-right">Español <span className="pr-chev">›</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="pr-section">
+        <div className="pr-section-title">ℹ️ Sobre la app</div>
+        <div className="pr-list">
+          <div className="pr-row"><div className="pr-ic">📖</div><div className="pr-body"><div className="pr-label">Cómo usar CLP</div></div><span className="pr-chev">›</span></div>
+          <div className="pr-row"><div className="pr-ic">💬</div><div className="pr-body"><div className="pr-label">Enviar feedback</div></div><span className="pr-chev">›</span></div>
+        </div>
+      </div>
+
+      <div className="pr-section">
+        <div className="pr-list">
+          <div className="pr-row danger" onClick={handleLogoutClick}>
+            <div className="pr-ic">🚪</div>
+            <div className="pr-body"><div className="pr-label">Cerrar sesión</div></div>
+            <span className="pr-chev">›</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="app-info">
+        <div className="version">CLP v1.2 — Capa 3</div>
+        <div>South Australia · 2026</div>
+      </div>
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODAL — Cambiar de hogar activo (Capa 4 preview, ya funcional)
+// ═══════════════════════════════════════════════════════════════════════════
+function HouseholdSwitcherModal({ memberships, activeId, onClose, onSwitch }) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head">
-          <h2>Invitación creada</h2>
-          <div className="sub">Compártela con quien quieras invitar</div>
-        </div>
- 
-        <div className="invite-result-hero">
-          <span className="ok-icon">✨</span>
-          <div className="title">¡Listo!</div>
-          <div className="sub">Quien abra este link entrará a "{household.name}"</div>
-        </div>
- 
-        <div className="invite-link-box">
-          <div className="label">Link de invitación</div>
-          <div className="link">{inviteUrl}</div>
-        </div>
- 
-        <div className="modal-actions">
-          <button className="btn-secondary" onClick={copyLink}>📋 Copiar link</button>
-          <button className="btn-primary-modal" onClick={shareWhatsapp}>💬 WhatsApp</button>
-        </div>
-      </div>
-    </div>
-  );
-}
- 
-// ─────────────────────────────────────────────────────────────────────────
-// Sección: miembros + invitaciones (se usa dentro de ProfileScreen)
-// ─────────────────────────────────────────────────────────────────────────
-function MembersSection({ session, member, household }) {
-  const userId = session.user.id;
-  const [members, setMembers] = useState([]);
-  const [loadingMembers, setLoadingMembers] = useState(true);
-  const { invitations, create, revoke } = useInvitations(household?.id, userId);
-  const [createdInvitation, setCreatedInvitation] = useState(null);
-  const [showInvitations, setShowInvitations] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [busy, setBusy] = useState(false);
- 
-  // Cargar miembros del hogar
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      if (!household?.id) { setLoadingMembers(false); return; }
-      const { data, error } = await sb
-        .from('household_members')
-        .select('*')
-        .eq('household_id', household.id)
-        .eq('active', true)
-        .order('joined_at', { ascending: true });
-      if (!cancelled) {
-        if (error) console.error('[MembersSection] load:', error);
-        setMembers(data || []);
-        setLoadingMembers(false);
-      }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, [household?.id]);
- 
-  const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2000);
-  };
- 
-  const handleCreate = async () => {
-    setBusy(true);
-    const res = await create();
-    setBusy(false);
-    if (res.error) {
-      alert('No pude crear la invitación: ' + res.error);
-      return;
-    }
-    setCreatedInvitation(res.invitation);
-  };
- 
-  const copyExistingLink = async (token) => {
-    const url = buildInviteUrl(token);
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast('✓ Link copiado');
-    } catch (e) {
-      const textarea = document.createElement('textarea');
-      textarea.value = url;
-      document.body.appendChild(textarea);
-      textarea.select();
-      try { document.execCommand('copy'); showToast('✓ Link copiado'); }
-      catch (err) { showToast('✗ No pude copiar'); }
-      document.body.removeChild(textarea);
-    }
-  };
- 
-  if (!household) return null;
- 
-  const formatDate = (iso) => {
-    if (!iso) return '';
-    const d = new Date(iso);
-    const day = d.getDate();
-    const mon = MONTHS[d.getMonth()];
-    return `${day} de ${mon}`;
-  };
- 
-  return (
-    <div className="pr-section">
-      <div className="pr-section-title">Miembros del hogar</div>
- 
-      {loadingMembers ? (
-        <div className="empty" style={{padding:'20px'}}>Cargando…</div>
-      ) : (
-        members.map(m => {
-          const initials = (m.short_name || m.display_name || '?').charAt(0).toUpperCase();
-          const isYou = m.profile_id === userId;
-          return (
-            <div key={m.id} className="member-row">
-              <div className="avatar-circle" style={{ background: m.color || '#C2185B' }}>{initials}</div>
-              <div className="m-body">
-                <div className="m-name">{m.display_name}</div>
-                <div className="m-role">
-                  {m.role === 'admin' ? 'Administrador' : 'Miembro'}
-                  {m.is_proxy ? ' · Proxy' : ''}
+        <div className="modal-head"><h2>Tus hogares</h2><div className="sub">Selecciona el activo</div></div>
+        <div className="store-selector">
+          {memberships.map(m => {
+            const isActive = m.household_id === activeId;
+            return (
+              <div key={m.id} className="ss-row" onClick={() => { onSwitch(m.household_id); onClose(); }} style={isActive ? {borderColor:'var(--primary)', background:'var(--primary-faint)'} : {}}>
+                <div className="store-logo" style={{background:'var(--primary-faint)', color:'var(--primary-dark)'}}>🏡</div>
+                <div style={{flex:1, minWidth:0}}>
+                  <div style={{fontWeight:600, fontSize:14, color:'var(--text)'}}>{m.households?.name || 'Sin nombre'}</div>
+                  <div style={{fontSize:11.5, color:'var(--text-soft)'}}>{m.role === 'admin' ? 'Admin' : 'Miembro'}</div>
                 </div>
+                {isActive && <span style={{color:'var(--primary-dark)', fontSize:18, fontWeight:700}}>✓</span>}
               </div>
-              {isYou && <span className="m-tag you">tú</span>}
-              {!isYou && m.role === 'admin' && <span className="m-tag admin">admin</span>}
-            </div>
-          );
-        })
-      )}
- 
-      <button className="invite-btn" onClick={handleCreate} disabled={busy}>
-        {busy ? 'Generando…' : '+ Invitar a alguien'}
-      </button>
- 
-      {invitations.length > 0 && (
-        <div className="invitations-accordion">
-          <div className="invitations-head" onClick={() => setShowInvitations(v => !v)}>
-            <span>Invitaciones pendientes</span>
-            <span style={{display:'flex', alignItems:'center', gap:8}}>
-              <span className="invitations-count">{invitations.length}</span>
-              <span className={'invitations-arrow' + (showInvitations ? ' open' : '')}>›</span>
-            </span>
-          </div>
-          {showInvitations && invitations.map(inv => (
-            <div key={inv.id} className="invitation-row">
-              <div className="inv-meta">Creada el {formatDate(inv.created_at)}</div>
-              <div className="inv-link">{buildInviteUrl(inv.token)}</div>
-              <div className="inv-actions">
-                <button className="inv-btn primary" onClick={() => copyExistingLink(inv.token)}>📋 Copiar</button>
-                <button className="inv-btn danger" onClick={() => revoke(inv.id)}>✕ Revocar</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
-      )}
- 
-      {createdInvitation && (
-        <InvitationCreatedModal
-          invitation={createdInvitation}
-          household={household}
-          onClose={() => setCreatedInvitation(null)}
-          onShowToast={showToast}
-        />
-      )}
- 
-      {toast && <div className="copied-toast">{toast}</div>}
+        <div style={{padding:'14px 22px 0', fontSize:11.5, color:'var(--text-soft)', fontStyle:'italic', fontFamily:'var(--font-display)', textAlign:'center'}}>
+          El hogar activo determina qué tareas, despensa y compras verás.
+        </div>
+      </div>
     </div>
-  );
-}
-  
-  function ProfileScreen({ session, member, household, onLogout }) {
-  const [notif, setNotif] = useState(true);
-  const userMeta = session?.user?.user_metadata || {};
-  const fullName = member?.display_name || userMeta.full_name || userMeta.name || session?.user?.email || '—';
-  const shortName = member?.short_name || (userMeta.given_name || fullName.split(' ')[0]);
-  const email = session?.user?.email || '—';
-  const initials = fullName.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
-  return (
-    <>
-      <div className="profile-hero">
-        <button className="bell">🔔</button>
-        <div className="profile-avatar">{initials}{member?.role === 'admin' && <span className="badge-admin">Admin</span>}</div>
-        <div className="profile-name">{fullName}</div>
-        <div className="profile-email">{email}</div>
-        {household && <div className="household-pill">🏡 {household.name}</div>}
-      </div>
-      <div className="pr-section">
-        <div className="pr-section-title">Datos personales</div>
-        <div className="pr-list">
-          <div className="pr-row"><div className="pr-ic">👤</div><div className="pr-body"><div className="pr-label">Nombre visible</div></div><div className="pr-right">{shortName}<span className="pr-chev">›</span></div></div>
-          <div className="pr-row"><div className="pr-ic">📧</div><div className="pr-body"><div className="pr-label">Correo y login</div><div className="pr-hint">Google</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
-        </div>
-      </div>
-      <div className="pr-section">
-        <div className="pr-section-title">Notificaciones</div>
-        <div className="pr-list">
-          <div className="pr-row" style={{cursor:'default'}}><div className="pr-ic">🔔</div><div className="pr-body"><div className="pr-label">Activar</div></div><div className="pr-right"><Toggle checked={notif} onChange={setNotif} /></div></div>
-        </div>
-      </div>
-     <MembersSection session={session} member={member} household={household} />
- 
-      <div className="pr-section">
-        <div className="pr-section-title admin">Gestión del hogar</div>
-        <div className="pr-list">
-          <div className="pr-row"><div className="pr-ic">🏡</div><div className="pr-body"><div className="pr-label">Espacios del hogar</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
-          <div className="pr-row"><div className="pr-ic">🏪</div><div className="pr-body"><div className="pr-label">Tiendas</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
-        </div>
-      </div>
-      <div className="pr-section">
-        <div className="pr-section-title">Sesión</div>
-        <div className="pr-list">
-          <div className="pr-row"><div className="pr-ic">📅</div><div className="pr-body"><div className="pr-label">Google Calendar</div></div><div className="pr-right" style={{color:'var(--text-soft)'}}>Pendiente<span className="pr-chev">›</span></div></div>
-          <div className="pr-row danger" onClick={onLogout}><div className="pr-ic">↪</div><div className="pr-body"><div className="pr-label">Cerrar sesión</div></div><div className="pr-right"><span className="pr-chev">›</span></div></div>
-        </div>
-      </div>
-      <div className="app-info">
-        <div className="version">CLP v1.1</div>
-        <div style={{marginTop:4}}>Calendario de Limpieza Programada</div>
-        <div style={{marginTop:8,fontStyle:'italic',fontFamily:'var(--font-display)',color:'var(--gold)'}}>El orden es elegante</div>
-      </div>
-    </>
   );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN APP — orquesta secciones (con badge de solicitudes pendientes)
+// ═══════════════════════════════════════════════════════════════════════════
 const SECTIONS = [
   { id: 'home', icon: '🏠', label: 'Inicio' },
   { id: 'tasks', icon: '📋', label: 'Tareas' },
   { id: 'shopping', icon: '🛒', label: 'Compras' },
-  { id: 'balance', icon: '📊', label: 'Balance' },
+  { id: 'balance', icon: '⚖️', label: 'Balance' },
   { id: 'library', icon: '📚', label: 'Biblioteca' },
   { id: 'profile', icon: '👤', label: 'Perfil' },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────
-// APP PRINCIPAL — necesita session, household, member
-// ─────────────────────────────────────────────────────────────────────────
-function MainApp({ session, household, member, onLogout }) {
+function MainApp({ session, member, household, memberships, onLogout, onSwitchHousehold }) {
   const [section, setSection] = useState('home');
   const [openTask, setOpenTask] = useState(null);
   const [openArticle, setOpenArticle] = useState(null);
-  const [openStore, setOpenStore] = useState(null);
-  const [openCloseCompra, setOpenCloseCompra] = useState(null);
-
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const [addProductOpen, setAddProductOpen] = useState(false);
-  const [editPriceProduct, setEditPriceProduct] = useState(null);
-
-  const [stores] = useState(INITIAL_STORES);
+  const [shopView, setShopView] = useState('hub');
+  const [activeStore, setActiveStore] = useState(null);
+  const [activeHistory, setActiveHistory] = useState(null);
+  const [stores, setStores] = useState(INITIAL_STORES);
   const [storeLists, setStoreLists] = useState(INITIAL_STORE_LISTS);
   const [history, setHistory] = useState(INITIAL_HISTORY);
+  const [showScanner, setShowScanner] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingPrice, setEditingPrice] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [showHouseholdSwitcher, setShowHouseholdSwitcher] = useState(false);
 
-  const closeAll = () => { setOpenTask(null); setOpenArticle(null); setOpenStore(null); setOpenCloseCompra(null); };
+  // Contador de solicitudes pendientes para el badge del nav
+  const { requests: pendingRequests } = useJoinRequests(member?.role === 'admin' ? household?.id : null);
+  const pendingCount = pendingRequests.length;
 
-  const tickProduct = (storeId, productId) => setStoreLists(prev => ({ ...prev, [storeId]: prev[storeId].filter(p => p.id !== productId) }));
-  const editPrice = (storeId, productId, newPrice) => { setStoreLists(prev => ({ ...prev, [storeId]: prev[storeId].map(p => p.id === productId ? { ...p, price: newPrice } : p) })); setEditPriceProduct(null); };
-  const deleteProduct = (storeId, productId) => setStoreLists(prev => ({ ...prev, [storeId]: prev[storeId].filter(p => p.id !== productId) }));
-  const addManualProduct = (storeId, product) => { setStoreLists(prev => ({ ...prev, [storeId]: [...prev[storeId], { id: `manual-${Date.now()}`, name: product.name, price: product.price }] })); setAddProductOpen(false); };
-  const handleProductScanned = (product, storeId) => { setStoreLists(prev => ({ ...prev, [storeId]: [...(prev[storeId] || []), { id: `scan-${Date.now()}`, name: product.name, price: product.price }] })); setScannerOpen(false); };
-  const archiveCompra = () => {
-    if (!openCloseCompra) return;
-    const list = storeLists[openCloseCompra.id] || [];
-    const total = list.reduce((s, p) => s + p.price, 0);
-    setHistory(prev => [{ id: `arc-${Date.now()}`, storeId: openCloseCompra.id, date: 'hoy', items: list.length, total, hasTicket: false }, ...prev]);
-    setStoreLists(prev => ({ ...prev, [openCloseCompra.id]: [] }));
-    setOpenCloseCompra(null);
-  };
+  const showToast = useCallback((message, variant = 'success') => {
+    setToast({ message, variant });
+    setTimeout(() => setToast(null), 2500);
+  }, []);
 
-  const renderScreen = () => {
-    if (openTask) return <TaskDetailScreen task={openTask} onBack={closeAll} />;
-    if (openArticle) return <ArticleScreen article={openArticle} onBack={closeAll} />;
-    if (openCloseCompra) return <CloseCompraScreen store={openCloseCompra} list={storeLists[openCloseCompra.id] || []} onBack={() => { setOpenCloseCompra(null); setOpenStore(openCloseCompra); }} onArchive={archiveCompra} />;
-    if (openStore) {
-      const list = storeLists[openStore.id] || [];
-      return <StoreListScreen store={openStore} list={list} onBack={closeAll}
-        onTickProduct={(pid) => tickProduct(openStore.id, pid)}
-        onEditPrice={(p) => setEditPriceProduct({ storeId: openStore.id, product: p })}
-        onDeleteProduct={(pid) => deleteProduct(openStore.id, pid)}
-        onAddManual={() => setAddProductOpen(true)}
-        onCloseCompra={() => { setOpenCloseCompra(openStore); setOpenStore(null); }} />;
-    }
-    switch (section) {
-      case 'home': return <HomeScreen onOpenTask={t => { closeAll(); setOpenTask(t); }} member={member} household={household} />;
-      case 'tasks': return <TasksScreen onOpenTask={t => { closeAll(); setOpenTask(t); }} />;
-      case 'shopping': return <ShoppingScreen stores={stores} storeLists={storeLists} history={history}
-        onOpenStore={s => { closeAll(); setOpenStore(s); }} onOpenHistory={() => {}}
-        onOpenScanner={() => setScannerOpen(true)} householdId={household.id} />;
-      case 'balance': return <BalanceScreen />;
-      case 'library': return <LibraryScreen onOpenArticle={a => { closeAll(); setOpenArticle(a); }} />;
-      case 'profile': return <ProfileScreen session={session} member={member} household={household} onLogout={onLogout} />;
-      default: return <HomeScreen member={member} household={household} />;
-    }
-  };
-  const screenKey = openTask ? `t-${openTask.id}` : openArticle ? `a-${openArticle.id}` : openCloseCompra ? `cc-${openCloseCompra.id}` : openStore ? `s-${openStore.id}` : section;
+  // Compras handlers (sin cambios)
+  const handleTickProduct = (productId) => setStoreLists(prev => ({...prev, [activeStore.id]: prev[activeStore.id].filter(p => p.id !== productId)}));
+  const handleEditPrice = (price) => { if (!editingPrice) return; setStoreLists(prev => ({...prev, [activeStore.id]: prev[activeStore.id].map(p => p.id === editingPrice.id ? {...p, price} : p)})); setEditingPrice(null); };
+  const handleDeleteProduct = (productId) => setStoreLists(prev => ({...prev, [activeStore.id]: prev[activeStore.id].filter(p => p.id !== productId)}));
+  const handleAddProduct = ({ name, price }) => { const newProduct = { id: `p${Date.now()}`, name, price }; setStoreLists(prev => ({...prev, [activeStore.id]: [...(prev[activeStore.id] || []), newProduct]})); setShowAdd(false); };
+  const handleProductScanned = (scannedProduct, storeId) => { const newProduct = { id: `s${Date.now()}`, name: scannedProduct.name, price: scannedProduct.price }; setStoreLists(prev => ({...prev, [storeId]: [...(prev[storeId] || []), newProduct]})); setShowScanner(false); showToast(`✓ Agregado a ${stores.find(s => s.id === storeId)?.name}`); };
+  const handleArchiveCompra = () => { const list = storeLists[activeStore.id], total = list.reduce((s, p) => s + p.price, 0); const newRecord = { id: `arc${Date.now()}`, storeId: activeStore.id, date: 'hoy', items: list.length, total, hasTicket: false }; setHistory(prev => [newRecord, ...prev]); setStoreLists(prev => ({...prev, [activeStore.id]: []})); setShopView('hub'); setActiveStore(null); };
+
+  // Render por sección
+  let content;
+  if (section === 'home' && openTask) content = <TaskDetailScreen task={openTask} onBack={() => setOpenTask(null)} />;
+  else if (section === 'home') content = <HomeScreen onOpenTask={setOpenTask} member={member} household={household} />;
+  else if (section === 'tasks' && openTask) content = <TaskDetailScreen task={openTask} onBack={() => setOpenTask(null)} />;
+  else if (section === 'tasks') content = <TasksScreen onOpenTask={setOpenTask} />;
+  else if (section === 'shopping' && shopView === 'list' && activeStore) content = <StoreListScreen store={activeStore} list={storeLists[activeStore.id] || []} onBack={() => { setShopView('hub'); setActiveStore(null); }} onTickProduct={handleTickProduct} onEditPrice={setEditingPrice} onDeleteProduct={handleDeleteProduct} onAddManual={() => setShowAdd(true)} onCloseCompra={() => setShopView('close')} />;
+  else if (section === 'shopping' && shopView === 'close' && activeStore) content = <CloseCompraScreen store={activeStore} list={storeLists[activeStore.id] || []} onBack={() => setShopView('list')} onArchive={handleArchiveCompra} />;
+  else if (section === 'shopping') content = <ShoppingScreen stores={stores} storeLists={storeLists} history={history} householdId={household?.id} onOpenStore={(s) => { setActiveStore(s); setShopView('list'); }} onOpenHistory={setActiveHistory} onOpenScanner={() => setShowScanner(true)} />;
+  else if (section === 'balance') content = <BalanceScreen />;
+  else if (section === 'library' && openArticle) content = <ArticleScreen article={openArticle} onBack={() => setOpenArticle(null)} />;
+  else if (section === 'library') content = <LibraryScreen onOpenArticle={setOpenArticle} />;
+  else if (section === 'profile') content = <ProfileScreen session={session} member={member} household={household} memberships={memberships} onLogout={onLogout} onShowToast={showToast} onSwitchHousehold={() => memberships.length > 1 ? setShowHouseholdSwitcher(true) : null} />;
 
   return (
     <>
-      <main className="main" key={screenKey}>{renderScreen()}</main>
-      <nav className="nav">
+      <div className="main">{content}</div>
+      <div className="nav">
         {SECTIONS.map(s => (
-          <button key={s.id} className={'nav-item' + (section === s.id && !openTask && !openArticle && !openStore && !openCloseCompra ? ' active' : '')} onClick={() => { setSection(s.id); closeAll(); }}>
+          <button key={s.id} className={'nav-item' + (section === s.id ? ' active' : '')} onClick={() => { setSection(s.id); setOpenTask(null); setOpenArticle(null); setShopView('hub'); setActiveStore(null); }}>
             <span className="icon">{s.icon}</span>
             <span className="label">{s.label}</span>
+            {s.id === 'profile' && pendingCount > 0 && <span className="nav-badge">{pendingCount}</span>}
           </button>
         ))}
-      </nav>
-      {scannerOpen && <ScannerModal stores={stores} onClose={() => setScannerOpen(false)} onProductScanned={handleProductScanned} />}
-      {addProductOpen && openStore && <AddProductModal onClose={() => setAddProductOpen(false)} onAdd={(p) => addManualProduct(openStore.id, p)} />}
-      {editPriceProduct && <EditPriceModal product={editPriceProduct.product} onClose={() => setEditPriceProduct(null)} onSave={(price) => editPrice(editPriceProduct.storeId, editPriceProduct.product.id, price)} />}
+      </div>
+      {showScanner && <ScannerModal stores={stores} onClose={() => setShowScanner(false)} onProductScanned={handleProductScanned} />}
+      {showAdd && activeStore && <AddProductModal onClose={() => setShowAdd(false)} onAdd={handleAddProduct} subtitle={`Para ${activeStore.name}`} />}
+      {editingPrice && <EditPriceModal product={editingPrice} onClose={() => setEditingPrice(null)} onSave={handleEditPrice} />}
+      {showHouseholdSwitcher && <HouseholdSwitcherModal memberships={memberships} activeId={household?.id} onClose={() => setShowHouseholdSwitcher(false)} onSwitch={onSwitchHousehold} />}
+      {toast && <div className={'copied-toast' + (toast.variant === 'danger' ? ' danger' : toast.variant === 'info' ? ' info' : '')}>{toast.message}</div>}
     </>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// ROOT — decide qué mostrar según el estado de auth/onboarding
-// ─────────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// ROOT — orquesta auth, hogares, invitaciones pendientes, onboarding
+// ═══════════════════════════════════════════════════════════════════════════
 function Root() {
   const { session, loading: sessionLoading } = useSession();
-  const { household, member, loading: householdLoading, needsOnboarding, createHousehold } = useHousehold(session);
+  const { memberships, loading: hhLoading, reload: reloadHouseholds } = useHouseholds(session);
+  const { household, member, activeHouseholdId, switchHousehold } = useActiveHousehold(memberships);
+  const { myRequests, loading: reqLoading, cancel: cancelMyRequest, reload: reloadMyRequests } = useMyPendingRequests(session);
 
-  const handleLogout = async () => {
-    await sb.auth.signOut();
+  const [pendingInviteToken, setPendingInviteTokenState] = useState(getPendingInviteToken);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [waitingRequest, setWaitingRequest] = useState(null); // { request_id, household_name, household_id }
+  const [busy, setBusy] = useState(false);
+  const [globalToast, setGlobalToast] = useState(null);
+  const [hideWaitingFor, setHideWaitingFor] = useState(null); // request_id que el usuario eligió "Continuar con mi hogar"
+
+  const showToast = useCallback((message, variant = 'success') => {
+    setGlobalToast({ message, variant });
+    setTimeout(() => setGlobalToast(null), 2500);
+  }, []);
+
+  // Cuando hay sesión Y hay token pendiente Y no estamos ya mostrando modal/waiting
+  useEffect(() => {
+    if (!session) return;
+    if (sessionLoading || hhLoading) return;
+    const token = getPendingInviteToken();
+    if (token && !showInviteModal && !waitingRequest) {
+      setPendingInviteTokenState(token);
+      setShowInviteModal(true);
+    }
+  }, [session, sessionLoading, hhLoading]);
+
+  // Manejador cuando el invitado decide si solicita o no
+  const handleInviteRequested = (result) => {
+    if (result.alreadyMember) {
+      // Ya era miembro: recargar memberships y entrar
+      reloadHouseholds();
+      showToast('✓ Bienvenido de vuelta', 'success');
+      return;
+    }
+    // Se creó la solicitud
+    if (memberships.length === 0) {
+      // No tiene ningún hogar todavía → mostrar pantalla de espera
+      setWaitingRequest({
+        request_id: result.request_id,
+        household_name: result.household_name,
+        household_id: result.household_id,
+      });
+    } else {
+      // Ya tiene hogar(es) → mostrar toast y seguir
+      showToast('✓ Solicitud enviada. Te avisaremos.', 'success');
+      reloadMyRequests();
+    }
   };
 
-  if (sessionLoading) return <FullLoader msg="Cargando…" />;
-  if (!session) return <LoginScreen />;
-  if (householdLoading) return <FullLoader msg="Preparando tu hogar…" />;
-  if (needsOnboarding) return <OnboardingModal session={session} onCreate={createHousehold} />;
-  if (!household) return <FullLoader msg="Cargando…" />;
+  const handleRefreshWaiting = async () => {
+    setBusy(true);
+    await reloadMyRequests();
+    await reloadHouseholds();
+    setBusy(false);
+    // Si la solicitud ya no está pendiente y aparece como aprobada, el hogar habrá aparecido en memberships
+    // El efecto de abajo lo detectará y limpiará waitingRequest
+  };
 
-  return <MainApp session={session} household={household} member={member} onLogout={handleLogout} />;
+  // Si la solicitud se aprobó, el nuevo hogar aparece en memberships → salir de waiting
+  useEffect(() => {
+    if (!waitingRequest) return;
+    const joined = memberships.some(m => m.household_id === waitingRequest.household_id);
+    if (joined) {
+      setActiveHouseholdId(waitingRequest.household_id);
+      switchHousehold(waitingRequest.household_id);
+      setWaitingRequest(null);
+      showToast('🎉 Tu solicitud fue aprobada', 'success');
+    }
+  }, [memberships, waitingRequest]);
+
+  const handleCancelWaiting = async () => {
+    if (!waitingRequest) return;
+    if (!confirm('¿Cancelar tu solicitud?')) return;
+    setBusy(true);
+    const res = await cancelMyRequest(waitingRequest.request_id);
+    setBusy(false);
+    if (res.error) { showToast('✗ ' + res.error, 'danger'); return; }
+    setWaitingRequest(null);
+    showToast('Solicitud cancelada', 'info');
+  };
+
+  const handleContinueFromWaiting = () => {
+    // El usuario tiene hogares previos y quiere ignorar el waiting por ahora
+    if (waitingRequest) setHideWaitingFor(waitingRequest.request_id);
+    setWaitingRequest(null);
+  };
+
+  const { create: createHousehold } = useCreateHousehold(session, (newId) => {
+    setActiveHouseholdId(newId);
+    switchHousehold(newId);
+    reloadHouseholds();
+  });
+
+  const handleLogout = () => {
+    clearActiveHouseholdId();
+    clearPendingInviteToken();
+    setPendingInviteTokenState(null);
+    setWaitingRequest(null);
+    setShowInviteModal(false);
+  };
+
+  // ─── ESTADOS DE RENDERIZADO ──────────────────────────────────────────────
+
+  // 1) Cargando sesión
+  if (sessionLoading) return <FullLoader msg="Iniciando…" />;
+
+  // 2) Sin sesión → Login (mostrar banner si hay invite pendiente)
+  if (!session) return <LoginScreen pendingInvite={pendingInviteToken} />;
+
+  // 3) Sesión cargada pero memberships aún cargando
+  if (hhLoading || reqLoading) return <FullLoader msg="Cargando tu hogar…" />;
+
+  // 4) Si hay modal de invite por mostrar → mostrarlo primero (sobre el resto)
+  if (showInviteModal && pendingInviteToken) {
+    return (
+      <>
+        {/* Renderizar un fondo: si tiene hogares, mostrar MainApp detrás; si no, mostrar nada */}
+        {memberships.length > 0 && household ? (
+          <MainApp session={session} member={member} household={household} memberships={memberships} onLogout={handleLogout} onSwitchHousehold={switchHousehold} />
+        ) : (
+          <div className="full-loader"><div className="msg">Procesando invitación…</div></div>
+        )}
+        <InviteIncomingModal
+          token={pendingInviteToken}
+          onClose={() => { setShowInviteModal(false); setPendingInviteTokenState(null); }}
+          onRequested={handleInviteRequested}
+          onShowToast={showToast}
+        />
+        {globalToast && <div className={'copied-toast' + (globalToast.variant === 'danger' ? ' danger' : globalToast.variant === 'info' ? ' info' : '')}>{globalToast.message}</div>}
+      </>
+    );
+  }
+
+  // 5) Pantalla de espera (cuando la persona solo tiene una solicitud pendiente, sin hogar)
+  if (waitingRequest && memberships.length === 0) {
+    return (
+      <>
+        <WaitingApprovalScreen
+          request={waitingRequest}
+          onRefresh={handleRefreshWaiting}
+          onCancel={handleCancelWaiting}
+          onContinue={null}
+          busy={busy}
+        />
+        {globalToast && <div className={'copied-toast' + (globalToast.variant === 'danger' ? ' danger' : globalToast.variant === 'info' ? ' info' : '')}>{globalToast.message}</div>}
+      </>
+    );
+  }
+
+  // 6) Sin hogares Y sin solicitud pendiente → Onboarding
+  if (memberships.length === 0) {
+    // Pero: ¿tiene una solicitud pendiente automática que aún no procesamos?
+    const autoPending = myRequests.find(r => r.id !== hideWaitingFor);
+    if (autoPending) {
+      // Mostrar waiting con la solicitud que ya tenía
+      return (
+        <>
+          <WaitingApprovalScreen
+            request={{ request_id: autoPending.id, household_name: autoPending.households?.name, household_id: autoPending.household_id }}
+            onRefresh={handleRefreshWaiting}
+            onCancel={async () => {
+              if (!confirm('¿Cancelar tu solicitud?')) return;
+              setBusy(true);
+              const res = await cancelMyRequest(autoPending.id);
+              setBusy(false);
+              if (res.error) showToast('✗ ' + res.error, 'danger');
+            }}
+            onContinue={null}
+            busy={busy}
+          />
+          {globalToast && <div className={'copied-toast' + (globalToast.variant === 'danger' ? ' danger' : globalToast.variant === 'info' ? ' info' : '')}>{globalToast.message}</div>}
+        </>
+      );
+    }
+    return (
+      <>
+        <OnboardingModal session={session} onCreate={createHousehold} />
+        {globalToast && <div className={'copied-toast' + (globalToast.variant === 'danger' ? ' danger' : globalToast.variant === 'info' ? ' info' : '')}>{globalToast.message}</div>}
+      </>
+    );
+  }
+
+  // 7) Caso normal: tiene hogar(es) → MainApp
+  if (!household || !member) return <FullLoader msg="Preparando tu hogar…" />;
+
+  return (
+    <>
+      <MainApp
+        session={session}
+        member={member}
+        household={household}
+        memberships={memberships}
+        onLogout={handleLogout}
+        onSwitchHousehold={switchHousehold}
+      />
+      {globalToast && <div className={'copied-toast' + (globalToast.variant === 'danger' ? ' danger' : globalToast.variant === 'info' ? ' info' : '')}>{globalToast.message}</div>}
+    </>
+  );
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// MOUNT
+// ═══════════════════════════════════════════════════════════════════════════
 ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
 </script>
+
 <script>
+// Service Worker para PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
   });
 }
 </script>
+
 </body>
 </html>
