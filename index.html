@@ -776,6 +776,8 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .full-loader .msg { font-family: var(--font-display); font-style: italic; color: var(--text-soft); font-size: 14px; }
 .pantry-fab { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); right: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-dark); color: white; border: none; box-shadow: 0 6px 20px rgba(21,101,192,0.4); cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; transition: transform 0.15s; }
 .pantry-fab:active { transform: scale(0.92); }
+.pantry-fab-scan { right: 84px; background: white; color: var(--primary-dark); border: 1px solid var(--border); font-size: 22px; box-shadow: 0 6px 20px rgba(26,43,60,0.12); }
+.pantry-fab-scan:active { transform: scale(0.92); }
 .saving-toast { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); left: 50%; transform: translateX(-50%); background: rgba(26,43,60,0.92); color: white; padding: 10px 18px; border-radius: 100px; font-size: 12.5px; font-weight: 500; z-index: 60; animation: fadeIn 0.2s; }
 </style>
 
@@ -2013,10 +2015,17 @@ function StoreSelectorModal({ stores, scannedProduct, onClose, onChoose, onCreat
   );
 }
 
-function ScannerModal({ stores, onClose, onProductScanned }) {
+function ScannerModal({ stores, onClose, onProductScanned, pantryMode = false }) {
   const [scanned, setScanned] = useState(null);
-  const simulateScan = (product) => setScanned(product);
-  if (scanned) {
+  const simulateScan = (product) => {
+    if (pantryMode) {
+      // En modo pantry NO se pide tienda — entrada directa al inventario del hogar
+      onProductScanned(product);
+    } else {
+      setScanned(product);
+    }
+  };
+  if (scanned && !pantryMode) {
     return (
       <StoreSelectorModal stores={stores} scannedProduct={scanned} onClose={onClose}
         onChoose={(storeId) => onProductScanned(scanned, storeId)}
@@ -2028,7 +2037,10 @@ function ScannerModal({ stores, onClose, onProductScanned }) {
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head"><h2>📷 Escanear producto</h2><div className="sub">Apunta al código de barras o QR</div></div>
+        <div className="modal-head">
+          <h2>📷 Escanear producto</h2>
+          <div className="sub">{pantryMode ? 'Lo que escanees se suma a tu despensa' : 'Apunta al código de barras o QR'}</div>
+        </div>
         <div style={{margin: '0 16px 18px', background: '#1A2B3C', borderRadius: 16, padding: '40px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: 14}}>
           <div style={{width: 200, height: 110, margin: '0 auto 14px', border: '2px solid #64B5F6', borderRadius: 8, position: 'relative', background: 'rgba(100,181,246,0.05)'}}>
             <div style={{position: 'absolute', top: '50%', left: 8, right: 8, height: 2, background: '#FF5252', boxShadow: '0 0 10px #FF5252', animation: 'scan 2s ease-in-out infinite'}}></div>
@@ -2076,6 +2088,29 @@ function PantryTab({ householdId }) {
   const [openItem, setOpenItem] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
   const [activeCat, setActiveCat] = useState('all'); // 'all' o id de categoría
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanPrefill, setScanPrefill] = useState(null); // { name } cuando hay producto pre-llenado del escáner
+  const [pantryToast, setPantryToast] = useState(null); // mensaje breve "+1 en reserva: X"
+
+  // Producto escaneado entra al pantry:
+  // - si ya existe (match por nombre) → suma 1 a in_stock
+  // - si no existe → abre modal "Nuevo producto" con nombre pre-llenado
+  const handleScannedProduct = async (scannedProduct) => {
+    setScannerOpen(false);
+    const needle = scannedProduct.name.toLowerCase();
+    const existing = items.find(i => {
+      const n = (i.name || '').toLowerCase();
+      return n === needle || n.includes(needle) || needle.includes(n);
+    });
+    if (existing) {
+      const newStock = (existing.quantity_in_stock ?? 0) + 1;
+      await updateQuantities(existing.id, existing.quantity_in_use ?? 0, newStock);
+      setPantryToast(`+1 en reserva · ${existing.name}`);
+      setTimeout(() => setPantryToast(null), 2200);
+    } else {
+      setScanPrefill({ name: scannedProduct.name });
+    }
+  };
 
   // Tap rápido en el círculo: cicla estado conceptual (have→low→out→have)
   const cycleState = (id, currentState, e) => {
@@ -2186,14 +2221,25 @@ function PantryTab({ householdId }) {
         </div>
       )}
       <div className="tagline">El orden es elegante</div>
-      <button className="pantry-fab" onClick={() => setAddOpen(true)}>+</button>
+      <button className="pantry-fab pantry-fab-scan" onClick={() => setScannerOpen(true)} aria-label="Escanear producto">📷</button>
+      <button className="pantry-fab" onClick={() => setAddOpen(true)} aria-label="Agregar producto manualmente">+</button>
       {saving && <div className="saving-toast">Guardando…</div>}
-      {addOpen && (
+      {pantryToast && <div className="saving-toast" style={{background:'var(--state-active-bg)', color:'var(--state-active-text)'}}>{pantryToast}</div>}
+      {scannerOpen && (
+        <ScannerModal
+          pantryMode={true}
+          stores={[]}
+          onClose={() => setScannerOpen(false)}
+          onProductScanned={handleScannedProduct} />
+      )}
+      {(addOpen || scanPrefill) && (
         <NewPantryItemModal
-          onClose={() => setAddOpen(false)}
+          initialName={scanPrefill?.name || ''}
+          onClose={() => { setAddOpen(false); setScanPrefill(null); }}
           onAdd={async (payload) => {
             await addItem(payload);
             setAddOpen(false);
+            setScanPrefill(null);
           }} />
       )}
       {openItem && (
@@ -2214,8 +2260,8 @@ function PantryTab({ householdId }) {
 // Modal "Nuevo producto" (Opción 3A: completo).
 // Pide nombre + categoría + estado inicial. Las cantidades se derivan del estado;
 // si el usuario quiere ajustarlas, lo hace después desde el modal de detalle.
-function NewPantryItemModal({ onClose, onAdd }) {
-  const [name, setName] = useState('');
+function NewPantryItemModal({ onClose, onAdd, initialName = '' }) {
+  const [name, setName] = useState(initialName);
   const [category, setCategory] = useState('abarrotes');
   const [state, setState] = useState('have');
   const STATES = [
