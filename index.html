@@ -360,6 +360,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .scanner-status { position: absolute; inset: auto 16px 12px 16px; padding: 10px 14px; background: rgba(0,0,0,0.65); color: white; font-size: 13px; text-align: center; border-radius: 8px; backdrop-filter: blur(4px); }
 .scanner-status.error { background: rgba(198,40,40,0.85); }
 .scanner-status.searching { background: rgba(21,101,192,0.85); }
+.scanner-status.reading { background: rgba(245,158,11,0.92); }
 .scanner-status.detected { background: rgba(46,125,50,0.85); }
 .scan-preview { display: flex; gap: 12px; align-items: center; margin: 0 16px 14px; padding: 12px; background: var(--primary-faint); border-radius: 12px; }
 .scan-preview-img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: white; }
@@ -820,6 +821,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .pantry-fab:active { transform: scale(0.92); }
 .pantry-fab-scan { right: 84px; background: white; color: var(--primary-dark); border: 1px solid var(--border); font-size: 22px; box-shadow: 0 6px 20px rgba(26,43,60,0.12); }
 .pantry-fab-scan:active { transform: scale(0.92); }
+.cart-scan-fab { right: 16px; bottom: calc(var(--nav-height) + var(--safe-bottom) + 100px); background: var(--primary-dark); color: white; font-size: 26px; box-shadow: 0 6px 22px rgba(21,101,192,0.45); border: none; }
 .saving-toast { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); left: 50%; transform: translateX(-50%); background: rgba(26,43,60,0.92); color: white; padding: 10px 18px; border-radius: 100px; font-size: 12.5px; font-weight: 500; z-index: 60; animation: fadeIn 0.2s; }
 </style>
 
@@ -2202,6 +2204,14 @@ function CartView({ householdId, userId, store, onBack }) {
   const [showClose, setShowClose] = useState(false);
   const [editItem, setEditItem] = useState(null); // cart_item bajo edición
   const [showAddDirect, setShowAddDirect] = useState(false); // modal "+ item extra al carrito"
+  const [cartScannerOpen, setCartScannerOpen] = useState(false);
+  const [scanPrefill, setScanPrefill] = useState(null); // datos del escaneo para abrir AddDirectCartItemModal si OFF no encontró nombre
+  const [cartToast, setCartToast] = useState(null);
+
+  const showCartToast = (msg) => {
+    setCartToast(msg);
+    setTimeout(() => setCartToast(null), 2200);
+  };
 
   // Items pendientes del pantry: low/out QUE NO estén ya en el carrito
   const inCartPantryIds = new Set(cartItems.map(i => i.pantry_item_id).filter(Boolean));
@@ -2209,6 +2219,51 @@ function CartView({ householdId, userId, store, onBack }) {
 
   const addPantryItemToCart = (p) => {
     addCartItem({ pantry_item_id: p.id, product_name: p.name, quantity: 1 });
+  };
+
+  // Handler del escáner desde CartView (frente al anaquel)
+  // - Si el producto matchea pantry (por product_id o nombre laxo) → al carrito vinculado
+  // - Si OFF tiene el nombre pero no está en pantry → al carrito como item directo (trigger creará pantry al cerrar)
+  // - Si OFF no tiene nombre tampoco → abrir AddDirectCartItemModal pre-llenado con barcode
+  const handleCartScan = async (scannedProduct) => {
+    setCartScannerOpen(false);
+    const { barcode, product_id, name, brand, image_url } = scannedProduct;
+
+    // Match 1: por product_id
+    let existing = product_id ? pantryItems.find(i => i.product_id === product_id) : null;
+    // Match 2 (fallback): por nombre laxo
+    if (!existing && name) {
+      const needle = name.toLowerCase();
+      existing = pantryItems.find(i => {
+        const n = (i.name || '').toLowerCase();
+        return n === needle || n.includes(needle) || needle.includes(n);
+      });
+    }
+
+    if (existing) {
+      // ¿Ya está en el carrito de esta tienda?
+      const already = cartItems.find(c => c.pantry_item_id === existing.id);
+      if (already) {
+        // +1 a la cantidad ya en carrito
+        await updateCartItem(already.id, { quantity: (already.quantity || 1) + 1 });
+        showCartToast(`+1 · ${existing.name} (${already.quantity + 1})`);
+        return;
+      }
+      await addCartItem({ pantry_item_id: existing.id, product_name: existing.name, quantity: 1 });
+      showCartToast(`+ ${existing.name} al carrito`);
+      return;
+    }
+
+    if (name) {
+      // No está en pantry pero OFF lo identificó → al carrito como item directo
+      await addCartItem({ pantry_item_id: null, product_name: name, quantity: 1 });
+      showCartToast(`+ ${name} (nuevo) al carrito`);
+      return;
+    }
+
+    // OFF no encontró nombre: abrir modal con barcode pre-llenado para que Roy escriba el nombre
+    setScanPrefill({ barcode, name: '' });
+    setShowAddDirect(true);
   };
 
   const total = cartItems.reduce((s, it) => s + parseFloat(it.total_price || 0), 0);
@@ -2305,11 +2360,25 @@ function CartView({ householdId, userId, store, onBack }) {
         </div>
       )}
 
+      {/* FAB del escáner — frente al anaquel: escaneo va directo al carrito */}
+      <button className="pantry-fab pantry-fab-scan cart-scan-fab" onClick={() => setCartScannerOpen(true)} aria-label="Escanear producto al carrito">📷</button>
+
       {saving && <div className="saving-toast">Guardando…</div>}
+      {cartToast && <div className="saving-toast" style={{background:'var(--state-active-bg, #E8F5E9)', color:'var(--state-active-text, #2E7D32)', fontWeight:600}}>{cartToast}</div>}
+
+      {cartScannerOpen && (
+        <ScannerModal
+          pantryMode={true}
+          stores={[]}
+          onClose={() => setCartScannerOpen(false)}
+          onProductScanned={handleCartScan} />
+      )}
 
       {showAddDirect && (
         <AddDirectCartItemModal
-          onClose={() => setShowAddDirect(false)}
+          initialName={scanPrefill?.name || ''}
+          initialBarcode={scanPrefill?.barcode || null}
+          onClose={() => { setShowAddDirect(false); setScanPrefill(null); }}
           onAdd={async ({ name, quantity, unit_price }) => {
             await addCartItem({
               pantry_item_id: null,
@@ -2318,6 +2387,7 @@ function CartView({ householdId, userId, store, onBack }) {
               unit_price
             });
             setShowAddDirect(false);
+            setScanPrefill(null);
           }} />
       )}
 
@@ -2393,11 +2463,12 @@ function CartItemEditor({ item, onClose, onSave, onRemove }) {
 
 // Modal para agregar item directo al carrito (sin pasar por pantry).
 // Al cerrar carrito, el trigger SQL crea automáticamente la entry en pantry_inventory.
-function AddDirectCartItemModal({ onClose, onAdd }) {
-  const [name, setName] = useState('');
+function AddDirectCartItemModal({ onClose, onAdd, initialName = '', initialBarcode = null }) {
+  const [name, setName] = useState(initialName);
   const [qty, setQty] = useState(1);
   const [price, setPrice] = useState('');
   const canSave = name.trim().length > 0;
+  const fromScan = !!initialBarcode;
   const handleAdd = () => {
     if (!canSave) return;
     const p = parseFloat(price);
@@ -2413,9 +2484,17 @@ function AddDirectCartItemModal({ onClose, onAdd }) {
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
         <div className="modal-head">
-          <h2>Item extra al carrito</h2>
-          <div className="sub">Para algo que no tenés en el pantry todavía</div>
+          <h2>{fromScan ? 'Producto escaneado' : 'Item extra al carrito'}</h2>
+          <div className="sub">{fromScan ? 'No encontré el nombre, escríbelo abajo' : 'Para algo que no tenés en el pantry todavía'}</div>
         </div>
+        {fromScan && (
+          <div className="scan-preview">
+            <div className="scan-preview-body" style={{flex:1}}>
+              <div className="scan-preview-bc">Código: {initialBarcode}</div>
+              <div className="scan-preview-hint">Va directo al carrito de esta tienda</div>
+            </div>
+          </div>
+        )}
         <div className="input-block">
           <div className="input-label">Nombre</div>
           <input type="text" className="text-input" placeholder="ej. Vino tinto, chocolate, manzanas" value={name} onChange={e => setName(e.target.value)} autoFocus />
@@ -2590,6 +2669,38 @@ function StoreSelectorModal({ stores, scannedProduct, onClose, onChoose, onCreat
   );
 }
 
+// Validación de checksum para descartar lecturas corruptas del BarcodeDetector.
+// Los formatos EAN/UPC tienen dígito verificador. Si el detector lee mal, casi
+// siempre el checksum no coincide → descartamos antes de confirmar.
+function _ean13Check(code) {
+  if (!/^\d{13}$/.test(code)) return false;
+  const d = code.split('').map(Number);
+  const sum = d.slice(0, 12).reduce((acc, x, i) => acc + x * (i % 2 === 0 ? 1 : 3), 0);
+  return ((10 - (sum % 10)) % 10) === d[12];
+}
+function _ean8Check(code) {
+  if (!/^\d{8}$/.test(code)) return false;
+  const d = code.split('').map(Number);
+  const sum = d.slice(0, 7).reduce((acc, x, i) => acc + x * (i % 2 === 0 ? 3 : 1), 0);
+  return ((10 - (sum % 10)) % 10) === d[7];
+}
+function _upcaCheck(code) {
+  if (!/^\d{12}$/.test(code)) return false;
+  const d = code.split('').map(Number);
+  const sum = d.slice(0, 11).reduce((acc, x, i) => acc + x * (i % 2 === 0 ? 3 : 1), 0);
+  return ((10 - (sum % 10)) % 10) === d[11];
+}
+function isLikelyValidBarcode(code) {
+  if (!code) return false;
+  // Solo validamos formatos comunes con checksum estricto. Para QR/Code128 confiamos
+  // en la detección porque tienen su propia validación interna.
+  if (/^\d{13}$/.test(code)) return _ean13Check(code);
+  if (/^\d{12}$/.test(code)) return _upcaCheck(code);
+  if (/^\d{8}$/.test(code))  return _ean8Check(code);
+  // Otros formatos (QR, code_128) pasan
+  return code.length >= 4;
+}
+
 // Escáner real con BarcodeDetector API (S25 + Chrome Android lo soporta nativamente).
 // Si no hay soporte o el usuario deniega cámara, fallback a input manual.
 // Al detectar, consulta lookupProductByBarcode (cache local → Open Food Facts) y
@@ -2599,13 +2710,16 @@ function ScannerModal({ stores, onClose, onProductScanned, pantryMode = false })
   const detectorRef = useRef(null);
   const streamRef = useRef(null);
   const detectedRef = useRef(false); // evita disparar dos veces el mismo escaneo
+  const bufferRef = useRef([]); // últimas N detecciones para confirmar (anti-falsos positivos)
   const [cameraState, setCameraState] = useState('idle'); // idle | requesting | active | denied
   const [manualMode, setManualMode] = useState(false);
   const [manualBarcode, setManualBarcode] = useState('');
   const [manualName, setManualName] = useState('');
   const [lookingUp, setLookingUp] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [readProgress, setReadProgress] = useState(null); // { code, count, total } feedback al usuario
 
+  const CONFIRM_COUNT = 3; // mismo código N veces seguidas antes de aceptar
   const supported = typeof window !== 'undefined' && 'BarcodeDetector' in window;
 
   const cleanup = () => {
@@ -2641,14 +2755,37 @@ function ScannerModal({ stores, onClose, onProductScanned, pantryMode = false })
         }
         setCameraState('active');
 
-        // Loop de detección a ~5fps
+        // Loop de detección a ~5fps con CONFIRMACIÓN MÚLTIPLE.
+        // El BarcodeDetector a veces lee mal en frames borrosos/con reflejos.
+        // Para evitar leer un código incorrecto y darlo por bueno, exigimos:
+        //   1) checksum válido (EAN-13/EAN-8/UPC-A)
+        //   2) el mismo código leído CONFIRM_COUNT veces consecutivas
         intervalId = setInterval(async () => {
           if (cancelled || detectedRef.current || !videoRef.current || !detectorRef.current) return;
           try {
             const codes = await detectorRef.current.detect(videoRef.current);
-            if (codes && codes.length > 0 && codes[0].rawValue) {
+            if (!codes || codes.length === 0 || !codes[0].rawValue) return;
+            const barcode = codes[0].rawValue;
+
+            // 1. Descartar lecturas con checksum inválido (corruptas)
+            if (!isLikelyValidBarcode(barcode)) {
+              bufferRef.current = []; // reset
+              setReadProgress(null);
+              return;
+            }
+
+            // 2. Agregar al buffer y conservar solo las últimas N
+            bufferRef.current.push(barcode);
+            if (bufferRef.current.length > CONFIRM_COUNT) bufferRef.current.shift();
+
+            // 3. Contar cuántas detecciones recientes coinciden con la actual
+            const matching = bufferRef.current.filter(b => b === barcode).length;
+            setReadProgress({ code: barcode, count: matching, total: CONFIRM_COUNT });
+
+            // 4. Confirmar solo si TODAS las últimas N son iguales
+            if (bufferRef.current.length === CONFIRM_COUNT &&
+                bufferRef.current.every(b => b === barcode)) {
               detectedRef.current = true;
-              const barcode = codes[0].rawValue;
               if (navigator.vibrate) navigator.vibrate(80);
               handleBarcodeFound(barcode);
             }
@@ -2735,6 +2872,9 @@ function ScannerModal({ stores, onClose, onProductScanned, pantryMode = false })
               )}
               {lookingUp && (
                 <div className="scanner-status searching">Buscando producto…</div>
+              )}
+              {!lookingUp && cameraState === 'active' && readProgress && readProgress.count > 0 && readProgress.count < readProgress.total && (
+                <div className="scanner-status reading">Leyendo… {readProgress.count}/{readProgress.total}</div>
               )}
             </div>
             <button className="btn-secondary" onClick={switchToManual} style={{margin:'10px 16px'}}>
