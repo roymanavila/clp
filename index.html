@@ -349,6 +349,30 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .cat-option { padding: 7px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; background: #FAFAF7; border: 1.5px solid var(--border); color: var(--text-soft); cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
 .cat-option:active { transform: scale(0.97); }
 .cat-option.selected { background: var(--primary-faint); border-color: var(--primary); color: var(--primary-dark); font-weight: 600; }
+/* BEST STORE — banner de sugerencia + tarjeta de mejor tienda actual + histórico de precios */
+.suggest-banner { margin: 0 16px 12px; background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border: 1px solid #FBC02D; border-radius: 14px; padding: 14px; }
+.suggest-banner .sb-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
+.suggest-banner .sb-emoji { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.suggest-banner .sb-body { flex: 1; min-width: 0; }
+.suggest-banner .sb-title { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.35; }
+.suggest-banner .sb-sub { font-size: 12px; color: var(--text-soft); margin-top: 3px; }
+.suggest-banner .sb-actions { display: flex; gap: 8px; }
+.suggest-banner .sb-actions .btn-secondary, .suggest-banner .sb-actions .btn-primary-modal { flex: 1; padding: 9px 12px; font-size: 13px; }
+.best-store-card { margin: 0 16px 12px; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+.best-store-card .bsc-body { flex: 1; min-width: 0; }
+.best-store-card .bsc-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-soft); font-weight: 600; }
+.best-store-card .bsc-name { font-size: 15px; font-weight: 600; color: var(--text); margin-top: 2px; }
+.best-store-card .bsc-price { text-align: right; flex-shrink: 0; }
+.best-store-card .bsc-amount { font-family: var(--font-tech); font-size: 18px; font-weight: 700; color: var(--have-text, #2E7D32); }
+.best-store-card .bsc-when { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
+.price-history-block { margin: 0 16px 12px; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; }
+.price-history-block .phb-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; margin-bottom: 10px; }
+.price-history-block .phb-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(26,43,60,0.05); }
+.price-history-block .phb-row:last-child { border-bottom: none; }
+.price-history-block .store-logo.small { width: 26px; height: 26px; font-size: 12px; flex-shrink: 0; }
+.price-history-block .phb-store { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.price-history-block .phb-price { font-family: var(--font-tech); font-size: 14px; font-weight: 600; color: var(--text); }
+.price-history-block .phb-when { font-size: 10px; color: var(--text-soft); min-width: 60px; text-align: right; }
 
 .scanner-fab { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); right: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-dark); color: white; border: none; box-shadow: 0 6px 20px rgba(21,101,192,0.4); cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.15s; }
 .scanner-fab:active { transform: scale(0.92); }
@@ -1264,7 +1288,8 @@ function usePantry(householdId) {
     if (!householdId) { setLoading(false); return; }
     setLoading(true);
     const { data, error } = await sb
-      .from('pantry_inventory').select('*')
+      .from('pantry_inventory')
+      .select('*, best_store:best_store_id(id, name, initial, logo_class), suggested_store:suggested_store_id(id, name, initial, logo_class)')
       .eq('household_id', householdId)
       .order('created_at', { ascending: true });
     if (error) console.error('[usePantry] load:', error);
@@ -1364,7 +1389,46 @@ function usePantry(householdId) {
     if (error) { console.error('[usePantry] delete:', error); setItems(prevItems); alert('No pude eliminar: ' + error.message); }
   };
 
-  return { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem };
+  // Acepta la sugerencia de cambio de mejor tienda
+  const acceptSuggestion = async (id) => {
+    setSaving(true);
+    const { data, error } = await sb.rpc('accept_best_store_suggestion', { p_pantry_item_id: id });
+    setSaving(false);
+    if (error || !data?.success) {
+      console.error('[usePantry] acceptSuggestion:', error || data);
+      alert('No pude aceptar la sugerencia: ' + (error?.message || data?.error || 'error desconocido'));
+      return;
+    }
+    await load(); // refresca para obtener best_store actualizado + nombre de tienda
+  };
+
+  // Rechaza la sugerencia (no vuelve a aparecer por 60 días)
+  const dismissSuggestion = async (id) => {
+    setSaving(true);
+    const { data, error } = await sb.rpc('dismiss_best_store_suggestion', { p_pantry_item_id: id });
+    setSaving(false);
+    if (error || !data?.success) {
+      console.error('[usePantry] dismissSuggestion:', error || data);
+      alert('No pude rechazar la sugerencia: ' + (error?.message || data?.error || 'error desconocido'));
+      return;
+    }
+    // Actualizar local: limpiar suggested_store + marcar dismissal
+    setItems(prev => prev.map(i => i.id === id ? { ...i, suggested_store_id: null, suggested_store: null, suggestion_dismissed_at: new Date().toISOString() } : i));
+  };
+
+  // Fetch del histórico de precios (últimos 5 por defecto) de UN pantry item
+  const fetchPriceHistory = async (pantryItemId, limit = 5) => {
+    const { data, error } = await sb
+      .from('price_history')
+      .select('*, store:store_id(id, name, initial, logo_class)')
+      .eq('pantry_item_id', pantryItemId)
+      .order('recorded_at', { ascending: false })
+      .limit(limit);
+    if (error) { console.error('[usePantry] fetchPriceHistory:', error); return []; }
+    return data || [];
+  };
+
+  return { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem, acceptSuggestion, dismissSuggestion, fetchPriceHistory };
 }
 
 // ─── useStores ────────────────────────────────────────────────────────────
@@ -2543,7 +2607,7 @@ const PANTRY_CATEGORIES = [
 const PANTRY_CAT_LABEL = Object.fromEntries(PANTRY_CATEGORIES.map(c => [c.id, c.label]));
 
 function PantryTab({ householdId }) {
-  const { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem } = usePantry(householdId);
+  const { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem, acceptSuggestion, dismissSuggestion, fetchPriceHistory } = usePantry(householdId);
   const [openItem, setOpenItem] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
   const [activeCat, setActiveCat] = useState('all'); // 'all' o id de categoría
@@ -2710,7 +2774,16 @@ function PantryTab({ householdId }) {
           onUpdateMeta={(text) => {
             updateMeta(openItem.id, text);
             setOpenItem(prev => prev ? { ...prev, meta_text: text } : prev);
-          }} />
+          }}
+          onAcceptSuggestion={async () => {
+            await acceptSuggestion(openItem.id);
+            setOpenItem(null);
+          }}
+          onDismissSuggestion={async () => {
+            await dismissSuggestion(openItem.id);
+            setOpenItem(prev => prev ? { ...prev, suggested_store_id: null, suggested_store: null } : prev);
+          }}
+          fetchPriceHistory={fetchPriceHistory} />
       )}
     </>
   );
@@ -2773,13 +2846,35 @@ function NewPantryItemModal({ onClose, onAdd, initialName = '' }) {
   );
 }
 
-function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onChangeCategory, onRemove, onUpdateMeta }) {
+function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onChangeCategory, onRemove, onUpdateMeta, onAcceptSuggestion, onDismissSuggestion, fetchPriceHistory }) {
   const STATES = [{ id: 'have', label: 'Tienes' }, { id: 'low', label: 'Por acabarse' }, { id: 'out', label: 'Se acabó' }];
   const [editingMeta, setEditingMeta] = useState(false);
   const [metaDraft, setMetaDraft] = useState(item.meta_text || '');
+  const [history, setHistory] = useState(null); // null = no cargado, [] = vacío
   const inUse = item.quantity_in_use ?? 0;
   const inStock = item.quantity_in_stock ?? 0;
   const category = item.category || null;
+  const best = item.best_store;       // {id, name, initial, logo_class} o null (FK embed)
+  const suggested = item.suggested_store;
+  const bestPrice = item.best_price;
+  const bestDate = item.best_price_date;
+
+  // Carga lazy del histórico al abrir el modal
+  useEffect(() => {
+    if (!fetchPriceHistory) return;
+    fetchPriceHistory(item.id, 5).then(setHistory);
+  }, [item.id]);
+
+  const fmtDate = (d) => {
+    if (!d) return '';
+    const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+    if (days === 0) return 'hoy';
+    if (days === 1) return 'ayer';
+    if (days < 30) return `hace ${days} días`;
+    if (days < 365) return `hace ${Math.floor(days/30)} ${Math.floor(days/30) === 1 ? 'mes' : 'meses'}`;
+    return `hace ${Math.floor(days/365)} ${Math.floor(days/365) === 1 ? 'año' : 'años'}`;
+  };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
@@ -2799,6 +2894,39 @@ function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onC
             </div>
           )}
         </div>
+
+        {/* Banner de sugerencia (solo si hay suggested_store_id diferente del best actual) */}
+        {suggested && suggested.id !== best?.id && (
+          <div className="suggest-banner">
+            <div className="sb-head">
+              <span className="sb-emoji">💡</span>
+              <div className="sb-body">
+                <div className="sb-title">Mejor precio detectado en <strong>{suggested.name}</strong></div>
+                <div className="sb-sub">¿Cambiar la "mejor tienda" para este producto?</div>
+              </div>
+            </div>
+            <div className="sb-actions">
+              <button className="btn-secondary" onClick={onDismissSuggestion}>No mover</button>
+              <button className="btn-primary-modal" onClick={onAcceptSuggestion}>Sí, cambiar</button>
+            </div>
+          </div>
+        )}
+
+        {/* Badge de mejor tienda actual */}
+        {best && bestPrice != null && (
+          <div className="best-store-card">
+            <div className={'store-logo ' + (best.logo_class || 'logo-default')}>{best.initial || best.name.charAt(0).toUpperCase()}</div>
+            <div className="bsc-body">
+              <div className="bsc-eyebrow">Mejor precio en</div>
+              <div className="bsc-name">{best.name}</div>
+            </div>
+            <div className="bsc-price">
+              <div className="bsc-amount">${parseFloat(bestPrice).toFixed(2)}</div>
+              <div className="bsc-when">{fmtDate(bestDate)}</div>
+            </div>
+          </div>
+        )}
+
         <div className="qty-stepper-block">
           <div className="qsb-label">Cantidades</div>
           <div className="qty-steppers">
@@ -2841,6 +2969,22 @@ function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onC
             ))}
           </div>
         </div>
+
+        {/* Histórico de precios */}
+        {history && history.length > 0 && (
+          <div className="price-history-block">
+            <div className="phb-label">Precios recientes</div>
+            {history.map(h => (
+              <div key={h.id} className="phb-row">
+                <div className={'store-logo small ' + (h.store?.logo_class || 'logo-default')}>{h.store?.initial || '?'}</div>
+                <div className="phb-store">{h.store?.name || 'Tienda eliminada'}</div>
+                <div className="phb-price">${parseFloat(h.unit_price).toFixed(2)}</div>
+                <div className="phb-when">{fmtDate(h.recorded_at)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div style={{padding: '0 16px'}}>
           <button className="scan-btn" onClick={onRemove} style={{color: 'var(--danger)'}}>
             <span className="ic" style={{background: '#FFEBEE', color: 'var(--danger)'}}>🗑️</span>
