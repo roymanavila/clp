@@ -389,6 +389,14 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .scan-result-notfound { margin: 0 16px 14px; padding: 14px; background: var(--bg); border: 1px dashed var(--text-soft); border-radius: 14px; }
 .scan-result-notfound .srnf-head { font-size: 14px; font-weight: 600; color: var(--text); }
 .scan-result-notfound .srnf-sub { font-size: 12px; color: var(--text-soft); margin: 8px 0 14px; line-height: 1.45; }
+/* AddStoreModal — grilla de presets de tiendas */
+.store-presets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 16px 14px; }
+.store-preset { background: white; border: 1.5px solid var(--border); border-radius: 12px; padding: 10px 6px; cursor: pointer; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 86px; }
+.store-preset:hover { border-color: var(--text-soft); }
+.store-preset.selected { border-color: var(--primary); background: var(--primary-faint); box-shadow: 0 0 0 3px rgba(33,150,243,0.15); }
+.store-preset.custom { border-style: dashed; }
+.store-preset .sp-name { font-size: 11px; font-weight: 600; text-align: center; color: var(--text); line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.store-preset-add { width: 52px; height: 52px; border-radius: 14px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--text-soft); font-weight: 300; }
 /* BEST STORE — banner de sugerencia + tarjeta de mejor tienda actual + histórico de precios */
 .suggest-banner { margin: 0 16px 12px; background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border: 1px solid #FBC02D; border-radius: 14px; padding: 14px; }
 .suggest-banner .sb-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
@@ -1557,13 +1565,15 @@ function useStores(householdId) {
 
   useEffect(() => { load(); }, [load]);
 
-  const addStore = async ({ name, address = null }) => {
+  const addStore = async ({ name, address = null, logo_class = null }) => {
     if (!householdId || !name.trim()) return null;
     setSaving(true);
-    const initial = name.trim().charAt(0).toUpperCase();
+    // Si hay preset, usar su initial. Si no, primera letra del nombre.
+    const preset = logo_class ? STORE_PRESET_BY_KEY[logo_class] : null;
+    const initial = preset?.initial || name.trim().charAt(0).toUpperCase();
     const { data, error } = await sb.from('stores').insert({
       household_id: householdId, name: name.trim(), initial,
-      logo_class: 'logo-default', address, sort_order: stores.length, active: true
+      logo_class: logo_class || 'logo-default', address, sort_order: stores.length, active: true
     }).select().single();
     setSaving(false);
     if (error) { console.error('[useStores] add:', error); alert('No pude crear la tienda: ' + error.message); return null; }
@@ -2167,8 +2177,8 @@ function ShoppingScreen({ householdId, userId, activeStore, onOpenStore, onBack 
       {tab === 'pantry' && <PantryTab householdId={householdId} />}
       {showAddStore && (
         <AddStoreModal onClose={() => setShowAddStore(false)}
-          onAdd={async ({ name }) => {
-            const created = await addStore({ name });
+          onAdd={async ({ name, logo_class }) => {
+            const created = await addStore({ name, logo_class });
             setShowAddStore(false);
             return created;
           }} />
@@ -2201,7 +2211,7 @@ function StoresTab({ stores, byStore, onOpenStore, onAddStore, onReload }) {
         const hasCart = c && c.itemCount > 0;
         return (
           <div key={store.id} className={'store-card' + (hasCart ? ' has-items' : '')} onClick={() => onOpenStore(store)}>
-            <div className={'store-logo ' + (store.logo_class || 'logo-default')}>{store.initial || store.name.charAt(0).toUpperCase()}</div>
+            <StoreLogo store={store} size={44} />
             <div className="store-body">
               <div className="store-name">{store.name}</div>
               <div className={'store-meta' + (hasCart ? '' : ' empty-meta')}>
@@ -2235,7 +2245,7 @@ function HistoryTab({ householdId, stores }) {
         if (!store) return null;
         return (
           <div key={rec.id} className="history-card">
-            <div className={'store-logo ' + (store.logo_class || 'logo-default')}>{store.initial || store.name.charAt(0).toUpperCase()}</div>
+            <StoreLogo store={store} size={44} />
             <div className="h-body"><div className="h-title">{store.name}</div><div className="h-meta">{fmt(rec.closed_at)}</div></div>
             <div className="h-total">${parseFloat(rec.total_amount || 0).toFixed(2)}</div>
           </div>
@@ -2614,21 +2624,65 @@ function CloseCartConfirm({ cartItems, total, storeName, onClose, onConfirm }) {
 
 function AddStoreModal({ onClose, onAdd }) {
   const [name, setName] = useState('');
+  const [logoClass, setLogoClass] = useState(null); // null = custom, o un key de STORE_PRESETS
+  const [mode, setMode] = useState('preset'); // 'preset' | 'custom'
   const canSave = name.trim().length > 0;
+
+  const pickPreset = (p) => {
+    setName(p.name);
+    setLogoClass(p.key);
+    setMode('preset');
+  };
+
+  const goCustom = () => {
+    setName('');
+    setLogoClass(null);
+    setMode('custom');
+  };
+
   const handleAdd = async () => {
     if (!canSave) return;
-    await onAdd({ name: name.trim() });
+    await onAdd({ name: name.trim(), logo_class: logoClass });
   };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head"><h2>Nueva tienda</h2><div className="sub">Donde compras habitualmente</div></div>
-        <div className="input-block">
-          <div className="input-label">Nombre</div>
-          <input type="text" className="text-input" placeholder="ej. Coles, IGA, Asian Grocer Adelaide" value={name} onChange={e => setName(e.target.value)} autoFocus />
+        <div className="modal-head"><h2>Nueva tienda</h2><div className="sub">Tocá una conocida o crea personalizada</div></div>
+
+        {/* Grilla de presets */}
+        <div className="store-presets-grid">
+          {STORE_PRESETS.map(p => (
+            <button key={p.key} type="button" className={'store-preset' + (logoClass === p.key ? ' selected' : '')} onClick={() => pickPreset(p)}>
+              <StoreLogo store={{ logo_class: p.key, name: p.name }} size={52} />
+              <div className="sp-name">{p.name}</div>
+            </button>
+          ))}
+          <button type="button" className={'store-preset custom' + (mode === 'custom' ? ' selected' : '')} onClick={goCustom}>
+            <div className="store-preset-add">+</div>
+            <div className="sp-name">Personalizada</div>
+          </button>
         </div>
+
+        {/* Input que se ajusta al modo */}
+        {mode === 'custom' && (
+          <div className="input-block">
+            <div className="input-label">Nombre</div>
+            <input type="text" className="text-input" placeholder="ej. Gaganis, Asian Grocer, mercadito local" value={name} onChange={e => setName(e.target.value)} autoFocus />
+          </div>
+        )}
+        {mode === 'preset' && logoClass && (
+          <div style={{margin: '0 16px 14px', padding: '12px', background: 'var(--primary-faint)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12}}>
+            <StoreLogo store={{ logo_class: logoClass, name }} size={40} />
+            <div style={{flex: 1}}>
+              <div style={{fontWeight: 600, fontSize: 14}}>{name}</div>
+              <div style={{fontSize: 11, color: 'var(--text-soft)'}}>Listo para crear</div>
+            </div>
+          </div>
+        )}
+
         <div className="modal-actions">
           <button className="btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn-primary-modal" onClick={handleAdd} disabled={!canSave}>Crear tienda</button>
@@ -2707,7 +2761,7 @@ function StoreSelectorModal({ stores, scannedProduct, onClose, onChoose, onCreat
         <div className="store-selector">
           {stores.map(s => (
             <div key={s.id} className="ss-row" onClick={() => onChoose(s.id)}>
-              <div className={'store-logo ' + s.logoClass}>{s.initial}</div>
+              <StoreLogo store={{...s, logo_class: s.logoClass}} size={44} />
               <div style={{flex: 1, fontWeight: 600, fontSize: 14}}>{s.name}</div>
               <span style={{color: '#C4C0B5', fontSize: 20}}>›</span>
             </div>
@@ -2981,6 +3035,76 @@ const PANTRY_CATEGORIES = [
   { id: 'otros', label: 'Otros' },
 ];
 const PANTRY_CAT_LABEL = Object.fromEntries(PANTRY_CATEGORIES.map(c => [c.id, c.label]));
+
+// ───────────────────────────────────────────────────────────────────────
+// STORE_PRESETS — tiendas australianas comunes con su identidad visual.
+// Los logos son representaciones estilizadas (NO copias exactas de los
+// logos registrados): colores de marca + tipografía + letra(s) icónica(s).
+// Para una PWA familiar el uso descriptivo es razonable; si CLP se
+// volviera producto comercial, considerar pedir permisos o re-estilizar.
+// ───────────────────────────────────────────────────────────────────────
+const STORE_PRESETS = [
+  { key: 'preset-coles', name: 'Coles', initial: 'C', bg: '#E01818', fg: 'white', label: 'coles', font: 'var(--font-display)', fontStyle: 'italic', fontWeight: 600 },
+  { key: 'preset-woolworths', name: 'Woolworths', initial: 'W', bg: '#178A33', fg: 'white', label: 'W', fontWeight: 900 },
+  { key: 'preset-aldi', name: 'ALDI', initial: 'A', bg: '#00549F', fg: 'white', label: 'ALDI', fontWeight: 800, letterSpacing: '-0.5px', fontSize: 0.26 },
+  { key: 'preset-iga', name: 'IGA', initial: 'I', bg: '#C8102E', fg: 'white', label: 'IGA', fontWeight: 800, fontSize: 0.34 },
+  { key: 'preset-chemist-warehouse', name: 'Chemist Warehouse', initial: 'CW', bg: '#FFC000', fg: '#003366', label: 'CW', fontWeight: 900, fontSize: 0.34 },
+  { key: 'preset-costco', name: 'Costco', initial: 'C', bg: '#005DAA', fg: 'white', label: 'C', fontWeight: 900, accent: '#E31837' },
+  { key: 'preset-bunnings', name: 'Bunnings', initial: 'B', bg: '#00853F', fg: 'white', label: 'B', fontWeight: 900 },
+  { key: 'preset-officeworks', name: 'Officeworks', initial: 'OW', bg: '#005CB9', fg: 'white', label: 'OW', fontWeight: 800, fontSize: 0.32 },
+];
+const STORE_PRESET_BY_KEY = Object.fromEntries(STORE_PRESETS.map(p => [p.key, p]));
+const STORE_PRESET_BY_NAME = Object.fromEntries(STORE_PRESETS.map(p => [p.name.toLowerCase(), p]));
+
+// Resuelve qué preset corresponde a una tienda dada. Retrocompatible:
+// si una tienda vieja tiene logo_class='logo-default' pero su name matchea
+// con un preset, igual muestra el logo correcto (sin tocar BD).
+function resolveStorePreset(store) {
+  if (!store) return null;
+  if (store.logo_class && STORE_PRESET_BY_KEY[store.logo_class]) return STORE_PRESET_BY_KEY[store.logo_class];
+  if (store.name) {
+    const n = store.name.toLowerCase().trim();
+    // Match exacto primero
+    if (STORE_PRESET_BY_NAME[n]) return STORE_PRESET_BY_NAME[n];
+    // Match laxo: "costco" matchea "cosco" (typo común)
+    if (n === 'cosco') return STORE_PRESET_BY_NAME['costco'];
+  }
+  return null;
+}
+
+// Componente unificado para renderizar el logo de una tienda
+function StoreLogo({ store, size = 44 }) {
+  const preset = resolveStorePreset(store);
+  if (preset) {
+    const fontSize = (preset.fontSize ?? 0.4) * size;
+    return (
+      <div style={{
+        width: size, height: size, borderRadius: size * 0.27,
+        background: preset.bg, color: preset.fg,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: preset.font || 'var(--font-tech)',
+        fontWeight: preset.fontWeight || 700,
+        fontStyle: preset.fontStyle || 'normal',
+        fontSize: fontSize,
+        letterSpacing: preset.letterSpacing || 'normal',
+        flexShrink: 0,
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
+      }}>
+        {preset.label}
+        {preset.accent && <div style={{position:'absolute', bottom:0, left:0, right:0, height: size*0.12, background: preset.accent}}></div>}
+      </div>
+    );
+  }
+  // Fallback genérico
+  const initial = store?.initial || (store?.name || '?').charAt(0).toUpperCase();
+  return (
+    <div className={'store-logo ' + (store?.logo_class || 'logo-default')} style={{width: size, height: size, fontSize: size * 0.4}}>
+      {initial}
+    </div>
+  );
+}
 
 function PantryTab({ householdId }) {
   const { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, updateName, removeItem, acceptSuggestion, dismissSuggestion, fetchPriceHistory } = usePantry(householdId);
@@ -3436,7 +3560,7 @@ function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onC
         {/* Badge de mejor tienda actual */}
         {best && bestPrice != null && (
           <div className="best-store-card">
-            <div className={'store-logo ' + (best.logo_class || 'logo-default')}>{best.initial || best.name.charAt(0).toUpperCase()}</div>
+            <StoreLogo store={best} size={44} />
             <div className="bsc-body">
               <div className="bsc-eyebrow">Mejor precio en</div>
               <div className="bsc-name">{best.name}</div>
@@ -3497,7 +3621,7 @@ function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onC
             <div className="phb-label">Precios recientes</div>
             {history.map(h => (
               <div key={h.id} className="phb-row">
-                <div className={'store-logo small ' + (h.store?.logo_class || 'logo-default')}>{h.store?.initial || '?'}</div>
+                <StoreLogo store={h.store} size={26} />
                 <div className="phb-store">{h.store?.name || 'Tienda eliminada'}</div>
                 <div className="phb-price">${parseFloat(h.unit_price).toFixed(2)}</div>
                 <div className="phb-when">{fmtDate(h.recorded_at)}</div>
