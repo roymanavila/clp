@@ -323,6 +323,32 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .pantry-row .pantry-name { flex: 1; min-width: 0; color: var(--text); line-height: 1.25; }
 .pantry-row.out .pantry-name { color: var(--state-overdue-text); font-weight: 600; }
 .pantry-row .pantry-meta { font-size: 11px; color: var(--text-soft); text-align: right; flex-shrink: 0; margin-left: 8px; }
+/* PANTRY EXTENDIDO — línea compacta in_use vs in_stock, chips, steppers, selector de categoría */
+.pantry-row .pantry-body { flex: 1; min-width: 0; }
+.pantry-row .pantry-compact { font-size: 11.5px; color: var(--text-soft); margin-top: 2px; line-height: 1.2; }
+.pantry-row .pantry-compact .num { font-family: var(--font-tech); font-weight: 600; color: var(--text); }
+.pantry-row.out .pantry-compact .num { color: var(--state-overdue-text); }
+.pantry-chips { display: flex; gap: 6px; padding: 12px 16px 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.pantry-chips::-webkit-scrollbar { display: none; }
+.pantry-chip { padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 500; white-space: nowrap; background: white; border: 1px solid var(--border); color: var(--text-soft); cursor: pointer; flex-shrink: 0; font-family: var(--font-body); transition: all 0.15s; }
+.pantry-chip:active { transform: scale(0.97); }
+.pantry-chip.active { background: var(--primary-dark); color: white; border-color: var(--primary-dark); font-weight: 600; }
+.qty-stepper-block { background: white; border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; margin: 0 16px 12px; }
+.qty-stepper-block .qsb-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; margin-bottom: 10px; }
+.qty-steppers { display: flex; gap: 14px; }
+.qty-stepper { flex: 1; text-align: center; background: #FAFAF7; border-radius: 10px; padding: 10px 6px; }
+.qty-stepper-label { font-size: 10px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; font-weight: 500; }
+.qty-stepper-controls { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.qty-stepper-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: white; color: var(--primary-dark); font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; font-family: var(--font-body); }
+.qty-stepper-btn:active { transform: scale(0.9); background: var(--primary-faint); }
+.qty-stepper-btn:disabled { color: #C4C0B5; cursor: not-allowed; }
+.qty-stepper-val { font-family: var(--font-tech); font-weight: 700; font-size: 20px; min-width: 26px; color: var(--text); }
+.cat-selector-block { background: white; border-radius: 14px; border: 1px solid var(--border); padding: 14px 16px; margin: 0 16px 12px; }
+.cat-selector-block .csb-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--text-soft); text-transform: uppercase; margin-bottom: 10px; }
+.cat-options { display: flex; gap: 6px; flex-wrap: wrap; }
+.cat-option { padding: 7px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; background: #FAFAF7; border: 1.5px solid var(--border); color: var(--text-soft); cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
+.cat-option:active { transform: scale(0.97); }
+.cat-option.selected { background: var(--primary-faint); border-color: var(--primary); color: var(--primary-dark); font-weight: 600; }
 
 .scanner-fab { position: fixed; bottom: calc(var(--nav-height) + var(--safe-bottom) + 16px); right: 16px; width: 56px; height: 56px; border-radius: 50%; background: var(--primary-dark); color: white; border: none; box-shadow: 0 6px 20px rgba(21,101,192,0.4); cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: transform 0.15s; }
 .scanner-fab:active { transform: scale(0.92); }
@@ -1224,6 +1250,9 @@ function useMyPendingRequests(session) {
 }
 
 // ─── usePantry ─────────────────────────────────────────────────────────────
+// Conectado al schema extendido (sesión 15, 24 mayo): quantity_in_use, quantity_in_stock,
+// category, best_store_id, best_price, best_price_date. El campo `state` queda
+// almacenado pero ES DERIVADO por trigger BEFORE en BD basado en in_use/in_stock.
 function usePantry(householdId) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1243,12 +1272,37 @@ function usePantry(householdId) {
 
   useEffect(() => { load(); }, [load]);
 
-  const addItem = async ({ name, state = 'have', meta_text = '' }) => {
+  // Deriva in_use/in_stock a partir de un estado conceptual (para inserciones
+  // simples sin cantidades explícitas)
+  const deriveQuantitiesFromState = (state) => {
+    if (state === 'have') return { quantity_in_use: 1, quantity_in_stock: 1 };
+    if (state === 'low')  return { quantity_in_use: 1, quantity_in_stock: 0 };
+    return { quantity_in_use: 0, quantity_in_stock: 0 }; // out
+  };
+
+  const addItem = async ({ name, state = 'have', quantity_in_use, quantity_in_stock, category = null, meta_text = '' }) => {
     if (!householdId || !name.trim()) return;
+    // Si vienen explícitas, las uso. Si no, las derivo del state.
+    const qty = (typeof quantity_in_use === 'number' && typeof quantity_in_stock === 'number')
+      ? { quantity_in_use, quantity_in_stock }
+      : deriveQuantitiesFromState(state);
     setSaving(true);
-    const optimistic = { id: 'temp-' + Date.now(), household_id: householdId, name: name.trim(), state, meta_text, created_at: new Date().toISOString() };
+    const optimistic = {
+      id: 'temp-' + Date.now(), household_id: householdId,
+      name: name.trim(), state, meta_text, category,
+      quantity_in_use: qty.quantity_in_use, quantity_in_stock: qty.quantity_in_stock,
+      created_at: new Date().toISOString()
+    };
     setItems(prev => [...prev, optimistic]);
-    const { data, error } = await sb.from('pantry_inventory').insert({ household_id: householdId, name: name.trim(), state, meta_text }).select().single();
+    const { data, error } = await sb.from('pantry_inventory').insert({
+      household_id: householdId,
+      name: name.trim(),
+      meta_text,
+      category,
+      quantity_in_use: qty.quantity_in_use,
+      quantity_in_stock: qty.quantity_in_stock
+      // NO mando `state`: el trigger BEFORE INSERT lo calcula
+    }).select().single();
     setSaving(false);
     if (error) {
       console.error('[usePantry] add:', error);
@@ -1259,13 +1313,35 @@ function usePantry(householdId) {
     setItems(prev => prev.map(i => i.id === optimistic.id ? data : i));
   };
 
-  const updateState = async (id, newState) => {
+  // Actualiza cantidades reales. El trigger recalcula `state` solo.
+  const updateQuantities = async (id, quantity_in_use, quantity_in_stock) => {
+    const safeUse = Math.max(0, quantity_in_use|0);
+    const safeStock = Math.max(0, quantity_in_stock|0);
+    const newState = safeUse === 0 && safeStock === 0 ? 'out'
+      : safeUse > 0 && safeStock === 0 ? 'low' : 'have';
     const prevItems = items;
-    setItems(prev => prev.map(i => i.id === id ? { ...i, state: newState } : i));
+    setItems(prev => prev.map(i => i.id === id ? { ...i, quantity_in_use: safeUse, quantity_in_stock: safeStock, state: newState } : i));
     setSaving(true);
-    const { error } = await sb.from('pantry_inventory').update({ state: newState, last_updated_at: new Date().toISOString() }).eq('id', id);
+    const { error } = await sb.from('pantry_inventory')
+      .update({ quantity_in_use: safeUse, quantity_in_stock: safeStock })
+      .eq('id', id);
     setSaving(false);
-    if (error) { console.error('[usePantry] updateState:', error); setItems(prevItems); alert('No pude actualizar el estado: ' + error.message); }
+    if (error) { console.error('[usePantry] updateQuantities:', error); setItems(prevItems); alert('No pude actualizar cantidades: ' + error.message); }
+  };
+
+  // updateState ahora traduce el estado conceptual a cantidades y deja que el trigger recalcule
+  const updateState = async (id, newState) => {
+    const qty = deriveQuantitiesFromState(newState);
+    return updateQuantities(id, qty.quantity_in_use, qty.quantity_in_stock);
+  };
+
+  const updateCategory = async (id, newCategory) => {
+    const prevItems = items;
+    setItems(prev => prev.map(i => i.id === id ? { ...i, category: newCategory } : i));
+    setSaving(true);
+    const { error } = await sb.from('pantry_inventory').update({ category: newCategory }).eq('id', id);
+    setSaving(false);
+    if (error) { console.error('[usePantry] updateCategory:', error); setItems(prevItems); alert('No pude cambiar la categoría: ' + error.message); }
   };
 
   const updateMeta = async (id, newMeta) => {
@@ -1286,7 +1362,7 @@ function usePantry(householdId) {
     if (error) { console.error('[usePantry] delete:', error); setItems(prevItems); alert('No pude eliminar: ' + error.message); }
   };
 
-  return { items, loading, saving, addItem, updateState, updateMeta, removeItem };
+  return { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1980,11 +2056,28 @@ function ScannerModal({ stores, onClose, onProductScanned }) {
 // ═══════════════════════════════════════════════════════════════════════════
 // PANTRY
 // ═══════════════════════════════════════════════════════════════════════════
+
+// Categorías canónicas (matchea el CHECK constraint en BD)
+const PANTRY_CATEGORIES = [
+  { id: 'abarrotes', label: 'Abarrotes' },
+  { id: 'fresco', label: 'Fresco' },
+  { id: 'congelado', label: 'Congelado' },
+  { id: 'limpieza', label: 'Limpieza' },
+  { id: 'higiene', label: 'Higiene' },
+  { id: 'mascotas', label: 'Mascotas' },
+  { id: 'delicatesse', label: 'Delicatesse' },
+  { id: 'no_consumibles', label: 'No consumibles' },
+  { id: 'otros', label: 'Otros' },
+];
+const PANTRY_CAT_LABEL = Object.fromEntries(PANTRY_CATEGORIES.map(c => [c.id, c.label]));
+
 function PantryTab({ householdId }) {
-  const { items, loading, saving, addItem, updateState, updateMeta, removeItem } = usePantry(householdId);
+  const { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem } = usePantry(householdId);
   const [openItem, setOpenItem] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [activeCat, setActiveCat] = useState('all'); // 'all' o id de categoría
 
+  // Tap rápido en el círculo: cicla estado conceptual (have→low→out→have)
   const cycleState = (id, currentState, e) => {
     e.stopPropagation();
     const order = ['have', 'low', 'out'];
@@ -1995,19 +2088,51 @@ function PantryTab({ householdId }) {
     updateState(id, newState);
     setOpenItem(prev => prev && prev.id === id ? { ...prev, state: newState } : prev);
   };
+  const handleQuantities = (id, in_use, in_stock) => {
+    updateQuantities(id, in_use, in_stock);
+    const newState = in_use === 0 && in_stock === 0 ? 'out'
+      : in_use > 0 && in_stock === 0 ? 'low' : 'have';
+    setOpenItem(prev => prev && prev.id === id ? { ...prev, quantity_in_use: in_use, quantity_in_stock: in_stock, state: newState } : prev);
+  };
+  const handleCategory = (id, cat) => {
+    updateCategory(id, cat);
+    setOpenItem(prev => prev && prev.id === id ? { ...prev, category: cat } : prev);
+  };
   const handleRemove = (id) => { removeItem(id); setOpenItem(null); };
 
-  const lowItems = items.filter(p => p.state === 'low');
-  const outItems = items.filter(p => p.state === 'out');
-  const haveItems = items.filter(p => p.state === 'have');
+  // Chips dinámicos: solo muestro categorías que tienen items
+  const usedCats = useMemo(() => {
+    const set = new Set();
+    items.forEach(i => { if (i.category) set.add(i.category); });
+    return PANTRY_CATEGORIES.filter(c => set.has(c.id));
+  }, [items]);
+
+  // Filtrado por chip activa
+  const visible = activeCat === 'all' ? items : items.filter(i => i.category === activeCat);
+  const lowItems  = visible.filter(p => p.state === 'low');
+  const outItems  = visible.filter(p => p.state === 'out');
+  const haveItems = visible.filter(p => p.state === 'have');
+
+  // Línea compacta: "1 abierto · 2 en reserva"
+  const compactLine = (item) => {
+    const u = item.quantity_in_use ?? 0;
+    const s = item.quantity_in_stock ?? 0;
+    return (
+      <div className="pantry-compact">
+        <span className="num">{u}</span> {u === 1 ? 'abierto' : 'abiertos'} · <span className="num">{s}</span> en reserva
+      </div>
+    );
+  };
 
   const renderRow = (item) => (
     <div key={item.id} className={`pantry-row ${item.state}`} onClick={() => setOpenItem(item)}>
       <button className="pantry-indicator-btn" onClick={e => cycleState(item.id, item.state, e)}>
         <span className="dot"></span>
       </button>
-      <span className="pantry-name">{item.name}</span>
-      <span className="pantry-meta">{item.meta_text || ''}</span>
+      <div className="pantry-body">
+        <span className="pantry-name">{item.name}</span>
+        {compactLine(item)}
+      </div>
     </div>
   );
 
@@ -2019,7 +2144,17 @@ function PantryTab({ householdId }) {
         <div className="ph-card">
           <span className="emoji">📦</span>
           <div className="title">Tu despensa está vacía</div>
-          <div className="body">Agrega los productos que sueles tener en casa. Marca cada uno como <strong>Tienes</strong>, <strong>Por acabarse</strong> o <strong>Se acabó</strong>.</div>
+          <div className="body">Agrega los productos que sueles tener en casa. Marca cuántas unidades tienes <strong>abiertas</strong> y cuántas <strong>en reserva</strong>.</div>
+        </div>
+      )}
+      {usedCats.length > 0 && (
+        <div className="pantry-chips">
+          <button className={'pantry-chip' + (activeCat === 'all' ? ' active' : '')} onClick={() => setActiveCat('all')}>Todos</button>
+          {usedCats.map(c => (
+            <button key={c.id} className={'pantry-chip' + (activeCat === c.id ? ' active' : '')} onClick={() => setActiveCat(c.id)}>
+              {c.label}
+            </button>
+          ))}
         </div>
       )}
       {outItems.length > 0 && (
@@ -2040,26 +2175,32 @@ function PantryTab({ householdId }) {
           {haveItems.map(renderRow)}
         </div>
       )}
+      {visible.length === 0 && items.length > 0 && (
+        <div className="empty" style={{padding:'40px 22px'}}>
+          No hay productos en esta categoría.
+        </div>
+      )}
       {items.length > 0 && (
         <div style={{padding: '14px 22px 8px', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 12, color: 'var(--text-soft)', textAlign: 'center'}}>
-          Toca el círculo para cambiar estado · toca el producto para más opciones
+          Toca el círculo para cambiar estado · toca el producto para gestionar cantidades
         </div>
       )}
       <div className="tagline">El orden es elegante</div>
       <button className="pantry-fab" onClick={() => setAddOpen(true)}>+</button>
       {saving && <div className="saving-toast">Guardando…</div>}
       {addOpen && (
-        <AddProductModal title="Agregar al pantry" subtitle="Un producto que sueles tener en casa"
-          namePlaceholder="ej. Aceite de oliva 500ml" priceLabel="Cantidad o nota (opcional)" hidePrice={false}
+        <NewPantryItemModal
           onClose={() => setAddOpen(false)}
-          onAdd={async ({ name, price }) => {
-            await addItem({ name, state: 'have', meta_text: '' });
+          onAdd={async (payload) => {
+            await addItem(payload);
             setAddOpen(false);
           }} />
       )}
       {openItem && (
         <PantryItemModal item={openItem} onClose={() => setOpenItem(null)}
           onChangeState={s => handleChangeState(openItem.id, s)}
+          onChangeQuantities={(u, s) => handleQuantities(openItem.id, u, s)}
+          onChangeCategory={(c) => handleCategory(openItem.id, c)}
           onRemove={() => handleRemove(openItem.id)}
           onUpdateMeta={(text) => {
             updateMeta(openItem.id, text);
@@ -2070,20 +2211,80 @@ function PantryTab({ householdId }) {
   );
 }
 
-function PantryItemModal({ item, onClose, onChangeState, onRemove, onUpdateMeta }) {
-  const STATES = [{ id: 'have', label: 'Tienes' }, { id: 'low', label: 'Por acabarse' }, { id: 'out', label: 'Se acabó' }];
-  const [editingMeta, setEditingMeta] = useState(false);
-  const [metaDraft, setMetaDraft] = useState(item.meta_text || '');
+// Modal "Nuevo producto" (Opción 3A: completo).
+// Pide nombre + categoría + estado inicial. Las cantidades se derivan del estado;
+// si el usuario quiere ajustarlas, lo hace después desde el modal de detalle.
+function NewPantryItemModal({ onClose, onAdd }) {
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('abarrotes');
+  const [state, setState] = useState('have');
+  const STATES = [
+    { id: 'have', label: 'Tengo', dotClass: 'have' },
+    { id: 'low',  label: 'Por acabarse', dotClass: 'low' },
+    { id: 'out',  label: 'Se acabó', dotClass: 'out' },
+  ];
+  const canSave = name.trim().length > 0;
+  const handleAdd = () => {
+    if (!canSave) return;
+    onAdd({ name: name.trim(), state, category });
+  };
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head"><h2>Producto del pantry</h2><div className="sub">Cambia estado o gestiona</div></div>
+        <div className="modal-head"><h2>Nuevo producto</h2><div className="sub">Algo que sueles tener en casa</div></div>
+        <div className="input-block">
+          <div className="input-label">Nombre</div>
+          <input type="text" className="text-input" placeholder="ej. Aceite de oliva 500ml" value={name} onChange={e => setName(e.target.value)} autoFocus />
+        </div>
+        <div className="cat-selector-block">
+          <div className="csb-label">Categoría</div>
+          <div className="cat-options">
+            {PANTRY_CATEGORIES.map(c => (
+              <div key={c.id} className={'cat-option' + (category === c.id ? ' selected' : '')} onClick={() => setCategory(c.id)}>
+                {c.label}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="state-selector">
+          <div className="label">Estado inicial</div>
+          <div className="state-options">
+            {STATES.map(s => (
+              <div key={s.id} className={`state-opt ${s.dotClass}` + (state === s.id ? ' selected' : '')} onClick={() => setState(s.id)}>
+                <div className="so-dot"></div>
+                <div className="so-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="modal-actions">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary-modal" onClick={handleAdd} disabled={!canSave}>Guardar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onChangeCategory, onRemove, onUpdateMeta }) {
+  const STATES = [{ id: 'have', label: 'Tienes' }, { id: 'low', label: 'Por acabarse' }, { id: 'out', label: 'Se acabó' }];
+  const [editingMeta, setEditingMeta] = useState(false);
+  const [metaDraft, setMetaDraft] = useState(item.meta_text || '');
+  const inUse = item.quantity_in_use ?? 0;
+  const inStock = item.quantity_in_stock ?? 0;
+  const category = item.category || null;
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head"><h2>Producto del pantry</h2><div className="sub">Cantidades, categoría y estado</div></div>
         <div className="product-modal-hero">
           <div className="pname">{item.name}</div>
           {!editingMeta ? (
-            <div className="pmeta" onClick={() => setEditingMeta(true)} style={{cursor:'pointer', textDecoration:'underline dotted', textUnderlineOffset:3}}>
+            <div className="pmeta" onClick={() => setEditingMeta(true)} style={{cursor:'pointer', textDecoration:'underline dotted', textUnderlineOffset:3, fontSize:12, color:'var(--text-soft)'}}>
               {item.meta_text || 'agregar nota'}
             </div>
           ) : (
@@ -2093,8 +2294,39 @@ function PantryItemModal({ item, onClose, onChangeState, onRemove, onUpdateMeta 
             </div>
           )}
         </div>
+        <div className="qty-stepper-block">
+          <div className="qsb-label">Cantidades</div>
+          <div className="qty-steppers">
+            <div className="qty-stepper">
+              <div className="qty-stepper-label">En uso</div>
+              <div className="qty-stepper-controls">
+                <button className="qty-stepper-btn" onClick={() => onChangeQuantities(Math.max(0, inUse - 1), inStock)} disabled={inUse === 0}>−</button>
+                <div className="qty-stepper-val">{inUse}</div>
+                <button className="qty-stepper-btn" onClick={() => onChangeQuantities(inUse + 1, inStock)}>+</button>
+              </div>
+            </div>
+            <div className="qty-stepper">
+              <div className="qty-stepper-label">En reserva</div>
+              <div className="qty-stepper-controls">
+                <button className="qty-stepper-btn" onClick={() => onChangeQuantities(inUse, Math.max(0, inStock - 1))} disabled={inStock === 0}>−</button>
+                <div className="qty-stepper-val">{inStock}</div>
+                <button className="qty-stepper-btn" onClick={() => onChangeQuantities(inUse, inStock + 1)}>+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="cat-selector-block">
+          <div className="csb-label">Categoría</div>
+          <div className="cat-options">
+            {PANTRY_CATEGORIES.map(c => (
+              <div key={c.id} className={'cat-option' + (category === c.id ? ' selected' : '')} onClick={() => onChangeCategory(c.id)}>
+                {c.label}
+              </div>
+            ))}
+          </div>
+        </div>
         <div className="state-selector">
-          <div className="label">Estado actual</div>
+          <div className="label">Estado actual (derivado)</div>
           <div className="state-options">
             {STATES.map(s => (
               <div key={s.id} className={`state-opt ${s.id}` + (item.state === s.id ? ' selected' : '')} onClick={() => onChangeState(s.id)}>
