@@ -966,36 +966,54 @@ const INITIAL_HISTORY = [
 // ───────────────────────────────────────────────────────────────────────
 // Estrategia de cascada:
 //   1) products table (cache global del proyecto)
-//   2) Open Food Facts API (v2, abierta, sin API key)
-//   3) Si OFF no tiene → null (el user llena nombre manualmente)
-// Cualquier hit de OFF se guarda en products para futuras consultas.
-async function lookupProductByBarcode(barcode) {
-  if (!barcode) return null;
-  // 1. Cache local (tabla products)
-  const { data: cached } = await sb.from('products').select('*').eq('barcode', barcode).maybeSingle();
-  if (cached) return { ...cached, source: 'cache' };
-  // 2. Open Food Facts
+//   2) Open Food Facts (alimentos)
+//   3) Open Beauty Facts (cosméticos, higiene, belleza)
+//   4) Open Products Facts (productos no-alimentarios generales)
+//   5) Si ninguno tiene → null (el user llena nombre manualmente)
+// Cualquier hit se guarda en products para futuras consultas.
+// Las 3 APIs son de la misma red Open Facts: mismo formato JSON, mismos campos.
+async function _fetchOpenFacts(host, barcode) {
   try {
-    const resp = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`);
+    const resp = await fetch(`https://${host}/api/v2/product/${encodeURIComponent(barcode)}.json`);
     const json = await resp.json();
     if (json.status !== 1 || !json.product) return null;
     const p = json.product;
     const name = p.product_name_es || p.product_name_en || p.product_name || null;
     if (!name) return null;
-    const productData = {
-      barcode,
+    return {
       name: name.trim(),
       brand: (p.brands || '').split(',')[0]?.trim() || null,
-      category: null, // OFF tiene taxonomía propia, dejamos NULL para que user elija
       image_url: p.image_front_url || p.image_url || null,
     };
-    // Cachear en products (INSERT, sin esperar)
-    const { data: inserted } = await sb.from('products').insert(productData).select().single();
-    return { ...(inserted || productData), source: 'openfoodfacts' };
   } catch (err) {
-    console.error('[lookupProductByBarcode] OFF fetch:', err);
+    console.warn('[_fetchOpenFacts] '+host+':', err?.message || err);
     return null;
   }
+}
+
+async function lookupProductByBarcode(barcode) {
+  if (!barcode) return null;
+  // 1. Cache local (tabla products)
+  const { data: cached } = await sb.from('products').select('*').eq('barcode', barcode).maybeSingle();
+  if (cached) return { ...cached, source: 'cache' };
+
+  // 2-4. Cascada Open Facts: food → beauty → products
+  const sources = [
+    { host: 'world.openfoodfacts.org', tag: 'openfoodfacts' },
+    { host: 'world.openbeautyfacts.org', tag: 'openbeautyfacts' },
+    { host: 'world.openproductsfacts.org', tag: 'openproductsfacts' },
+  ];
+  for (const s of sources) {
+    const hit = await _fetchOpenFacts(s.host, barcode);
+    if (hit) {
+      const productData = { barcode, name: hit.name, brand: hit.brand, category: null, image_url: hit.image_url };
+      // Cachear en products. Ignoramos error si otra petición concurrente ya insertó este barcode (UNIQUE).
+      const { data: inserted } = await sb.from('products').insert(productData).select().single();
+      return { ...(inserted || productData), source: s.tag };
+    }
+  }
+
+  return null;
 }
 
 const TASK_DETAILS = {
