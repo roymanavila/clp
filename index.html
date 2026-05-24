@@ -1452,6 +1452,17 @@ function usePantry(householdId) {
     if (error) { console.error('[usePantry] updateMeta:', error); setItems(prevItems); }
   };
 
+  const updateName = async (id, newName) => {
+    const trimmed = (newName || '').trim();
+    if (!trimmed) return;
+    const prevItems = items;
+    setItems(prev => prev.map(i => i.id === id ? { ...i, name: trimmed } : i));
+    setSaving(true);
+    const { error } = await sb.from('pantry_inventory').update({ name: trimmed, last_updated_at: new Date().toISOString() }).eq('id', id);
+    setSaving(false);
+    if (error) { console.error('[usePantry] updateName:', error); setItems(prevItems); alert('No pude cambiar el nombre: ' + error.message); }
+  };
+
   const removeItem = async (id) => {
     const prevItems = items;
     setItems(prev => prev.filter(i => i.id !== id));
@@ -1500,7 +1511,7 @@ function usePantry(householdId) {
     return data || [];
   };
 
-  return { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem, acceptSuggestion, dismissSuggestion, fetchPriceHistory };
+  return { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, updateName, removeItem, acceptSuggestion, dismissSuggestion, fetchPriceHistory };
 }
 
 // ─── useStores ────────────────────────────────────────────────────────────
@@ -2951,7 +2962,7 @@ const PANTRY_CATEGORIES = [
 const PANTRY_CAT_LABEL = Object.fromEntries(PANTRY_CATEGORIES.map(c => [c.id, c.label]));
 
 function PantryTab({ householdId }) {
-  const { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, removeItem, acceptSuggestion, dismissSuggestion, fetchPriceHistory } = usePantry(householdId);
+  const { items, loading, saving, addItem, updateState, updateQuantities, updateCategory, updateMeta, updateName, removeItem, acceptSuggestion, dismissSuggestion, fetchPriceHistory } = usePantry(householdId);
   const [openItem, setOpenItem] = useState(null);
   const [addOpen, setAddOpen] = useState(false);
   const [activeCat, setActiveCat] = useState('all'); // 'all' o id de categoría
@@ -3140,6 +3151,10 @@ function PantryTab({ householdId }) {
             updateMeta(openItem.id, text);
             setOpenItem(prev => prev ? { ...prev, meta_text: text } : prev);
           }}
+          onUpdateName={(text) => {
+            updateName(openItem.id, text);
+            setOpenItem(prev => prev ? { ...prev, name: text.trim() } : prev);
+          }}
           onAcceptSuggestion={async () => {
             await acceptSuggestion(openItem.id);
             setOpenItem(null);
@@ -3233,10 +3248,12 @@ function NewPantryItemModal({ onClose, onAdd, initialName = '', initialBrand = n
   );
 }
 
-function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onChangeCategory, onRemove, onUpdateMeta, onAcceptSuggestion, onDismissSuggestion, fetchPriceHistory }) {
+function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onChangeCategory, onRemove, onUpdateMeta, onUpdateName, onAcceptSuggestion, onDismissSuggestion, fetchPriceHistory }) {
   const STATES = [{ id: 'have', label: 'Tienes' }, { id: 'low', label: 'Por acabarse' }, { id: 'out', label: 'Se acabó' }];
   const [editingMeta, setEditingMeta] = useState(false);
   const [metaDraft, setMetaDraft] = useState(item.meta_text || '');
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState(item.name || '');
   const [history, setHistory] = useState(null); // null = no cargado, [] = vacío
   const inUse = item.quantity_in_use ?? 0;
   const inStock = item.quantity_in_stock ?? 0;
@@ -3269,7 +3286,17 @@ function PantryItemModal({ item, onClose, onChangeState, onChangeQuantities, onC
         <div className="modal-handle"></div>
         <div className="modal-head"><h2>Producto del pantry</h2><div className="sub">Cantidades, categoría y estado</div></div>
         <div className="product-modal-hero">
-          <div className="pname">{item.name}</div>
+          {!editingName ? (
+            <div className="pname" onClick={() => onUpdateName && setEditingName(true)} style={onUpdateName ? {cursor:'pointer'} : {}} title={onUpdateName ? 'Toca para editar' : ''}>
+              {item.name}
+            </div>
+          ) : (
+            <div style={{display:'flex', gap:6, justifyContent:'center', alignItems:'center', padding:'0 16px'}}>
+              <input type="text" className="text-input" style={{fontFamily:'var(--font-display)', fontSize:20, padding:'8px 12px', textAlign:'center'}} value={nameDraft} onChange={e => setNameDraft(e.target.value)} autoFocus
+                onKeyDown={(e) => { if (e.key === 'Enter') { onUpdateName(nameDraft); setEditingName(false); } if (e.key === 'Escape') { setNameDraft(item.name); setEditingName(false); } }} />
+              <button className="btn-primary-modal" style={{padding:'8px 14px', fontSize:13}} onClick={() => { onUpdateName(nameDraft); setEditingName(false); }}>Ok</button>
+            </div>
+          )}
           {!editingMeta ? (
             <div className="pmeta" onClick={() => setEditingMeta(true)} style={{cursor:'pointer', textDecoration:'underline dotted', textUnderlineOffset:3, fontSize:12, color:'var(--text-soft)'}}>
               {item.meta_text || 'agregar nota'}
