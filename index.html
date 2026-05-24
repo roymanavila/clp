@@ -349,6 +349,24 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .cat-option { padding: 7px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; background: #FAFAF7; border: 1.5px solid var(--border); color: var(--text-soft); cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
 .cat-option:active { transform: scale(0.97); }
 .cat-option.selected { background: var(--primary-faint); border-color: var(--primary); color: var(--primary-dark); font-weight: 600; }
+/* SCANNER REAL — preview de cámara + animación de detección + estado */
+.scanner-sheet { max-width: 480px; }
+.scanner-viewport { position: relative; margin: 0 16px 12px; aspect-ratio: 4/3; background: #0E1620; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.scanner-video { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.3s; }
+.scanner-video.visible { opacity: 1; }
+.scanner-frame { position: absolute; inset: 14% 10%; border: 2px solid rgba(255,255,255,0.55); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.30) inset; pointer-events: none; }
+.scanner-scanline { position: absolute; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, transparent, #FF5252 50%, transparent); box-shadow: 0 0 12px #FF5252; pointer-events: none; animation: scanline 2s ease-in-out infinite; top: 50%; }
+@keyframes scanline { 0%,100% { transform: translateY(-22%); } 50% { transform: translateY(22%); } }
+.scanner-status { position: absolute; inset: auto 16px 12px 16px; padding: 10px 14px; background: rgba(0,0,0,0.65); color: white; font-size: 13px; text-align: center; border-radius: 8px; backdrop-filter: blur(4px); }
+.scanner-status.error { background: rgba(198,40,40,0.85); }
+.scanner-status.searching { background: rgba(21,101,192,0.85); }
+.scanner-status.detected { background: rgba(46,125,50,0.85); }
+.scan-preview { display: flex; gap: 12px; align-items: center; margin: 0 16px 14px; padding: 12px; background: var(--primary-faint); border-radius: 12px; }
+.scan-preview-img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; flex-shrink: 0; background: white; }
+.scan-preview-body { flex: 1; min-width: 0; }
+.scan-preview-brand { font-weight: 600; font-size: 13px; color: var(--primary-dark); }
+.scan-preview-bc { font-family: var(--font-tech); font-size: 11px; color: var(--text-soft); margin-top: 2px; }
+.scan-preview-hint { font-size: 11px; color: var(--text-soft); font-style: italic; margin-top: 4px; }
 /* BEST STORE — banner de sugerencia + tarjeta de mejor tienda actual + histórico de precios */
 .suggest-banner { margin: 0 16px 12px; background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border: 1px solid #FBC02D; border-radius: 14px; padding: 14px; }
 .suggest-banner .sb-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
@@ -806,7 +824,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 </style>
 
 <script type="text/babel">
-const { useState, useMemo, useEffect, useCallback } = React;
+const { useState, useMemo, useEffect, useCallback, useRef } = React;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SUPABASE — cliente global
@@ -941,10 +959,43 @@ const INITIAL_HISTORY = [
   { id: 'arc2', storeId: 'aldi', date: 'martes 6 mayo', items: 5, total: 22.40, hasTicket: false },
   { id: 'arc3', storeId: 'woolworths', date: 'sábado 3 mayo', items: 9, total: 51.20, hasTicket: true },
 ];
-const SCANNER_DATABASE = [
-  { barcode: '9300658000016', name: 'Aceite de oliva 500ml', brand: 'Bertolli', price: 12.50, inPantry: true, lastUpdate: 'hace 12 días', stock: '½ botella' },
-  { barcode: '9300658000023', name: 'Detergente Earth Choice 2L', brand: 'Earth Choice', price: 7.90, inPantry: false },
-];
+// ───────────────────────────────────────────────────────────────────────
+// LOOKUP DE PRODUCTOS POR BARCODE
+// ───────────────────────────────────────────────────────────────────────
+// Estrategia de cascada:
+//   1) products table (cache global del proyecto)
+//   2) Open Food Facts API (v2, abierta, sin API key)
+//   3) Si OFF no tiene → null (el user llena nombre manualmente)
+// Cualquier hit de OFF se guarda en products para futuras consultas.
+async function lookupProductByBarcode(barcode) {
+  if (!barcode) return null;
+  // 1. Cache local (tabla products)
+  const { data: cached } = await sb.from('products').select('*').eq('barcode', barcode).maybeSingle();
+  if (cached) return { ...cached, source: 'cache' };
+  // 2. Open Food Facts
+  try {
+    const resp = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`);
+    const json = await resp.json();
+    if (json.status !== 1 || !json.product) return null;
+    const p = json.product;
+    const name = p.product_name_es || p.product_name_en || p.product_name || null;
+    if (!name) return null;
+    const productData = {
+      barcode,
+      name: name.trim(),
+      brand: (p.brands || '').split(',')[0]?.trim() || null,
+      category: null, // OFF tiene taxonomía propia, dejamos NULL para que user elija
+      image_url: p.image_front_url || p.image_url || null,
+    };
+    // Cachear en products (INSERT, sin esperar)
+    const { data: inserted } = await sb.from('products').insert(productData).select().single();
+    return { ...(inserted || productData), source: 'openfoodfacts' };
+  } catch (err) {
+    console.error('[lookupProductByBarcode] OFF fetch:', err);
+    return null;
+  }
+}
+
 const TASK_DETAILS = {
   9: { description: 'Encimera, fregadero y barrido de la cocina.', subtasks: ['Limpiar la encimera', 'Lavar el fregadero', 'Barrer el piso'] },
   8: { description: 'Limpieza completa del inodoro.', subtasks: ['Tapa y asiento', 'Interior con cepillo', 'Desinfectar la base'] },
@@ -1307,7 +1358,7 @@ function usePantry(householdId) {
     return { quantity_in_use: 0, quantity_in_stock: 0 }; // out
   };
 
-  const addItem = async ({ name, state = 'have', quantity_in_use, quantity_in_stock, category = null, meta_text = '' }) => {
+  const addItem = async ({ name, state = 'have', quantity_in_use, quantity_in_stock, category = null, meta_text = '', product_id = null }) => {
     if (!householdId || !name.trim()) return;
     // Si vienen explícitas, las uso. Si no, las derivo del state.
     const qty = (typeof quantity_in_use === 'number' && typeof quantity_in_stock === 'number')
@@ -1316,7 +1367,7 @@ function usePantry(householdId) {
     setSaving(true);
     const optimistic = {
       id: 'temp-' + Date.now(), household_id: householdId,
-      name: name.trim(), state, meta_text, category,
+      name: name.trim(), state, meta_text, category, product_id,
       quantity_in_use: qty.quantity_in_use, quantity_in_stock: qty.quantity_in_stock,
       created_at: new Date().toISOString()
     };
@@ -1326,6 +1377,7 @@ function usePantry(householdId) {
       name: name.trim(),
       meta_text,
       category,
+      product_id,
       quantity_in_use: qty.quantity_in_use,
       quantity_in_stock: qty.quantity_in_stock
       // NO mando `state`: el trigger BEFORE INSERT lo calcula
@@ -2538,51 +2590,185 @@ function StoreSelectorModal({ stores, scannedProduct, onClose, onChoose, onCreat
   );
 }
 
+// Escáner real con BarcodeDetector API (S25 + Chrome Android lo soporta nativamente).
+// Si no hay soporte o el usuario deniega cámara, fallback a input manual.
+// Al detectar, consulta lookupProductByBarcode (cache local → Open Food Facts) y
+// entrega un objeto enriquecido al onProductScanned.
 function ScannerModal({ stores, onClose, onProductScanned, pantryMode = false }) {
-  const [scanned, setScanned] = useState(null);
-  const simulateScan = (product) => {
-    if (pantryMode) {
-      // En modo pantry NO se pide tienda — entrada directa al inventario del hogar
-      onProductScanned(product);
-    } else {
-      setScanned(product);
+  const videoRef = useRef(null);
+  const detectorRef = useRef(null);
+  const streamRef = useRef(null);
+  const detectedRef = useRef(false); // evita disparar dos veces el mismo escaneo
+  const [cameraState, setCameraState] = useState('idle'); // idle | requesting | active | denied
+  const [manualMode, setManualMode] = useState(false);
+  const [manualBarcode, setManualBarcode] = useState('');
+  const [manualName, setManualName] = useState('');
+  const [lookingUp, setLookingUp] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const supported = typeof window !== 'undefined' && 'BarcodeDetector' in window;
+
+  const cleanup = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
     }
   };
-  if (scanned && !pantryMode) {
-    return (
-      <StoreSelectorModal stores={stores} scannedProduct={scanned} onClose={onClose}
-        onChoose={(storeId) => onProductScanned(scanned, storeId)}
-        onCreateNew={() => alert('Crear tienda: pendiente')} />
-    );
-  }
+
+  // Inicia la cámara y el loop de detección cuando estamos en modo cámara
+  useEffect(() => {
+    if (manualMode || !supported) return;
+    let cancelled = false;
+    let intervalId = null;
+    detectedRef.current = false;
+
+    (async () => {
+      setCameraState('requesting');
+      setErrorMsg(null);
+      try {
+        detectorRef.current = new window.BarcodeDetector({
+          formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code']
+        });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false
+        });
+        if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play().catch(() => {});
+        }
+        setCameraState('active');
+
+        // Loop de detección a ~5fps
+        intervalId = setInterval(async () => {
+          if (cancelled || detectedRef.current || !videoRef.current || !detectorRef.current) return;
+          try {
+            const codes = await detectorRef.current.detect(videoRef.current);
+            if (codes && codes.length > 0 && codes[0].rawValue) {
+              detectedRef.current = true;
+              const barcode = codes[0].rawValue;
+              if (navigator.vibrate) navigator.vibrate(80);
+              handleBarcodeFound(barcode);
+            }
+          } catch (e) {
+            // detección puede fallar en frames específicos; ignoramos silenciosamente
+          }
+        }, 200);
+      } catch (err) {
+        console.error('[Scanner] camera error:', err);
+        if (cancelled) return;
+        setCameraState('denied');
+        setErrorMsg(err?.name === 'NotAllowedError' ? 'Permiso de cámara denegado' : 'No se pudo activar la cámara');
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+      cleanup();
+    };
+  }, [manualMode, supported]);
+
+  const handleBarcodeFound = async (barcode) => {
+    cleanup(); // libera la cámara inmediatamente
+    setLookingUp(true);
+    const product = await lookupProductByBarcode(barcode);
+    setLookingUp(false);
+    onProductScanned({
+      barcode,
+      product_id: product?.id || null,
+      name: product?.name || null,
+      brand: product?.brand || null,
+      image_url: product?.image_url || null,
+      source: product?.source || 'unknown'
+    });
+  };
+
+  const handleManualSubmit = async () => {
+    if (!manualBarcode.trim()) return;
+    setLookingUp(true);
+    const product = await lookupProductByBarcode(manualBarcode.trim());
+    setLookingUp(false);
+    onProductScanned({
+      barcode: manualBarcode.trim(),
+      product_id: product?.id || null,
+      name: product?.name || manualName.trim() || null,
+      brand: product?.brand || null,
+      image_url: product?.image_url || null,
+      source: product?.source || 'manual'
+    });
+  };
+
+  const switchToManual = () => { cleanup(); setManualMode(true); };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+      <div className="modal-sheet scanner-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
         <div className="modal-head">
           <h2>📷 Escanear producto</h2>
-          <div className="sub">{pantryMode ? 'Lo que escanees se suma a tu despensa' : 'Apunta al código de barras o QR'}</div>
+          <div className="sub">{manualMode || !supported ? 'Ingresa el código manualmente' : 'Apunta al código de barras del producto'}</div>
         </div>
-        <div style={{margin: '0 16px 18px', background: '#1A2B3C', borderRadius: 16, padding: '40px 16px', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontFamily: 'var(--font-display)', fontSize: 14}}>
-          <div style={{width: 200, height: 110, margin: '0 auto 14px', border: '2px solid #64B5F6', borderRadius: 8, position: 'relative', background: 'rgba(100,181,246,0.05)'}}>
-            <div style={{position: 'absolute', top: '50%', left: 8, right: 8, height: 2, background: '#FF5252', boxShadow: '0 0 10px #FF5252', animation: 'scan 2s ease-in-out infinite'}}></div>
-          </div>
-          <div style={{color: 'rgba(255,255,255,0.7)'}}>Cámara simulada</div>
-        </div>
-        <div className="scan-options">
-          <div className="scan-options-title">SIMULAR ESCANEO DE</div>
-          {SCANNER_DATABASE.map(p => (
-            <button key={p.barcode} className="scan-btn" onClick={() => simulateScan(p)}>
-              <span className="ic">{p.inPantry ? '✓' : '🆕'}</span>
-              <span>
-                <div style={{fontWeight: 600, fontSize: 13}}>{p.name}</div>
-                <div style={{fontSize: 11, color: 'var(--text-soft)'}}>{p.brand} · ${p.price.toFixed(2)}</div>
-              </span>
+
+        {/* Modo cámara real */}
+        {!manualMode && supported && (
+          <>
+            <div className="scanner-viewport">
+              <video ref={videoRef} playsInline muted className={'scanner-video' + (cameraState === 'active' ? ' visible' : '')} />
+              {cameraState === 'active' && !lookingUp && (
+                <>
+                  <div className="scanner-frame"></div>
+                  <div className="scanner-scanline"></div>
+                </>
+              )}
+              {cameraState === 'requesting' && (
+                <div className="scanner-status">Solicitando permiso de cámara…</div>
+              )}
+              {cameraState === 'denied' && (
+                <div className="scanner-status error">
+                  {errorMsg || 'Cámara no disponible'}<br/>
+                  <span style={{fontSize:11, opacity:0.8}}>Usa el modo manual abajo</span>
+                </div>
+              )}
+              {lookingUp && (
+                <div className="scanner-status searching">Buscando producto…</div>
+              )}
+            </div>
+            <button className="btn-secondary" onClick={switchToManual} style={{margin:'10px 16px'}}>
+              Ingresar código manualmente
             </button>
-          ))}
-        </div>
-        <style>{`@keyframes scan { 0%,100% { transform: translateY(-30px); } 50% { transform: translateY(30px); } }`}</style>
+          </>
+        )}
+
+        {/* Modo manual o navegador sin soporte */}
+        {(manualMode || !supported) && (
+          <>
+            {!supported && (
+              <div style={{margin:'0 16px 14px', padding:'12px 14px', background:'var(--state-pending-bg, #FFF8E1)', borderRadius:10, fontSize:12, color:'var(--text)'}}>
+                Este navegador no soporta detección automática. Ingresa el código manualmente.
+              </div>
+            )}
+            <div className="input-block">
+              <div className="input-label">Código de barras</div>
+              <input type="text" inputMode="numeric" className="text-input" placeholder="ej. 9300658000016" value={manualBarcode} onChange={e => setManualBarcode(e.target.value)} autoFocus />
+            </div>
+            <div className="input-block">
+              <div className="input-label">Nombre (opcional)</div>
+              <input type="text" className="text-input" placeholder="Por si Open Food Facts no lo tiene" value={manualName} onChange={e => setManualName(e.target.value)} />
+            </div>
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => { if (supported) setManualMode(false); else onClose(); }}>
+                {supported ? 'Volver a cámara' : 'Cancelar'}
+              </button>
+              <button className="btn-primary-modal" onClick={handleManualSubmit} disabled={!manualBarcode.trim() || lookingUp}>
+                {lookingUp ? 'Buscando…' : 'Continuar'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -2615,23 +2801,40 @@ function PantryTab({ householdId }) {
   const [scanPrefill, setScanPrefill] = useState(null); // { name } cuando hay producto pre-llenado del escáner
   const [pantryToast, setPantryToast] = useState(null); // mensaje breve "+1 en reserva: X"
 
-  // Producto escaneado entra al pantry:
-  // - si ya existe (match por nombre) → suma 1 a in_stock
-  // - si no existe → abre modal "Nuevo producto" con nombre pre-llenado
+  // Producto escaneado entra al pantry. Tres caminos:
+  //   1) si ya existe en pantry por product_id (más confiable) → +1 in_stock
+  //   2) si ya existe por match de nombre laxo → +1 in_stock
+  //   3) si no existe → abrir modal "Nuevo producto" pre-llenado con datos de Open Food Facts
   const handleScannedProduct = async (scannedProduct) => {
     setScannerOpen(false);
-    const needle = scannedProduct.name.toLowerCase();
-    const existing = items.find(i => {
-      const n = (i.name || '').toLowerCase();
-      return n === needle || n.includes(needle) || needle.includes(n);
-    });
+    const { barcode, product_id, name, brand, image_url } = scannedProduct;
+
+    // Match 1: por product_id (existe en pantry y ya tenía vinculado este producto)
+    let existing = product_id ? items.find(i => i.product_id === product_id) : null;
+
+    // Match 2 (fallback): por nombre laxo
+    if (!existing && name) {
+      const needle = name.toLowerCase();
+      existing = items.find(i => {
+        const n = (i.name || '').toLowerCase();
+        return n === needle || n.includes(needle) || needle.includes(n);
+      });
+    }
+
     if (existing) {
       const newStock = (existing.quantity_in_stock ?? 0) + 1;
       await updateQuantities(existing.id, existing.quantity_in_use ?? 0, newStock);
       setPantryToast(`+1 en reserva · ${existing.name}`);
       setTimeout(() => setPantryToast(null), 2200);
     } else {
-      setScanPrefill({ name: scannedProduct.name });
+      // Pre-fill enriquecido para el modal de Nuevo producto
+      setScanPrefill({
+        name: name || '',
+        barcode: barcode || null,
+        brand: brand || null,
+        image_url: image_url || null,
+        product_id: product_id || null
+      });
     }
   };
 
@@ -2758,6 +2961,10 @@ function PantryTab({ householdId }) {
       {(addOpen || scanPrefill) && (
         <NewPantryItemModal
           initialName={scanPrefill?.name || ''}
+          initialBrand={scanPrefill?.brand || null}
+          initialImageUrl={scanPrefill?.image_url || null}
+          initialProductId={scanPrefill?.product_id || null}
+          initialBarcode={scanPrefill?.barcode || null}
           onClose={() => { setAddOpen(false); setScanPrefill(null); }}
           onAdd={async (payload) => {
             await addItem(payload);
@@ -2792,7 +2999,7 @@ function PantryTab({ householdId }) {
 // Modal "Nuevo producto" (Opción 3A: completo).
 // Pide nombre + categoría + estado inicial. Las cantidades se derivan del estado;
 // si el usuario quiere ajustarlas, lo hace después desde el modal de detalle.
-function NewPantryItemModal({ onClose, onAdd, initialName = '' }) {
+function NewPantryItemModal({ onClose, onAdd, initialName = '', initialBrand = null, initialImageUrl = null, initialProductId = null, initialBarcode = null }) {
   const [name, setName] = useState(initialName);
   const [category, setCategory] = useState('abarrotes');
   const [state, setState] = useState('have');
@@ -2804,17 +3011,39 @@ function NewPantryItemModal({ onClose, onAdd, initialName = '' }) {
   const canSave = name.trim().length > 0;
   const handleAdd = () => {
     if (!canSave) return;
-    onAdd({ name: name.trim(), state, category });
+    onAdd({
+      name: name.trim(),
+      state,
+      category,
+      product_id: initialProductId || null
+    });
   };
+  const fromScan = !!(initialBarcode || initialProductId);
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-sheet" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
         <div className="modal-handle"></div>
-        <div className="modal-head"><h2>Nuevo producto</h2><div className="sub">Algo que sueles tener en casa</div></div>
+        <div className="modal-head">
+          <h2>Nuevo producto</h2>
+          <div className="sub">{fromScan ? 'Identificado por código de barras' : 'Algo que sueles tener en casa'}</div>
+        </div>
+
+        {/* Preview del producto escaneado (si viene con datos enriquecidos) */}
+        {fromScan && (initialImageUrl || initialBrand || initialBarcode) && (
+          <div className="scan-preview">
+            {initialImageUrl && <img src={initialImageUrl} alt="" className="scan-preview-img" onError={(e) => { e.target.style.display = 'none'; }} />}
+            <div className="scan-preview-body">
+              {initialBrand && <div className="scan-preview-brand">{initialBrand}</div>}
+              {initialBarcode && <div className="scan-preview-bc">Código: {initialBarcode}</div>}
+              {!initialName && <div className="scan-preview-hint">No encontré el nombre, escríbelo abajo</div>}
+            </div>
+          </div>
+        )}
+
         <div className="input-block">
           <div className="input-label">Nombre</div>
-          <input type="text" className="text-input" placeholder="ej. Aceite de oliva 500ml" value={name} onChange={e => setName(e.target.value)} autoFocus />
+          <input type="text" className="text-input" placeholder="ej. Aceite de oliva 500ml" value={name} onChange={e => setName(e.target.value)} autoFocus={!initialName} />
         </div>
         <div className="cat-selector-block">
           <div className="csb-label">Categoría</div>
