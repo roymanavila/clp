@@ -2085,6 +2085,7 @@ function CartView({ householdId, userId, store, onBack }) {
   const { cart, items: cartItems, loading: cartLoading, saving, addCartItem, updateCartItem, removeCartItem, closeCart, reload: reloadCart } = useCart(householdId, store.id, userId);
   const [showClose, setShowClose] = useState(false);
   const [editItem, setEditItem] = useState(null); // cart_item bajo edición
+  const [showAddDirect, setShowAddDirect] = useState(false); // modal "+ item extra al carrito"
 
   // Items pendientes del pantry: low/out QUE NO estén ya en el carrito
   const inCartPantryIds = new Set(cartItems.map(i => i.pantry_item_id).filter(Boolean));
@@ -2167,9 +2168,17 @@ function CartView({ householdId, userId, store, onBack }) {
         <div className="ph-card">
           <span className="emoji">✨</span>
           <div className="title">Todo en su lugar</div>
-          <div className="body">No hay nada pendiente en el pantry, y tu carrito está vacío. Si querés agregar algo, escaneá un producto desde la sub-tab Pantry.</div>
+          <div className="body">No hay nada pendiente en el pantry, y tu carrito está vacío. Si querés agregar algo extra, usá el botón de abajo.</div>
         </div>
       )}
+
+      {/* Agregar item extra (no del pantry) */}
+      <div className="add-card" onClick={() => setShowAddDirect(true)} style={{marginTop:14}}>
+        + Agregar item extra al carrito
+      </div>
+      <div style={{padding: '0 22px 14px', fontSize: 11, color: 'var(--text-soft)', fontStyle: 'italic', textAlign: 'center'}}>
+        Para algo que no tenés en el pantry todavía
+      </div>
 
       {cart && cartItems.length > 0 && (
         <div style={{padding: '14px 16px 24px'}}>
@@ -2181,6 +2190,20 @@ function CartView({ householdId, userId, store, onBack }) {
       )}
 
       {saving && <div className="saving-toast">Guardando…</div>}
+
+      {showAddDirect && (
+        <AddDirectCartItemModal
+          onClose={() => setShowAddDirect(false)}
+          onAdd={async ({ name, quantity, unit_price }) => {
+            await addCartItem({
+              pantry_item_id: null,
+              product_name: name,
+              quantity,
+              unit_price
+            });
+            setShowAddDirect(false);
+          }} />
+      )}
 
       {editItem && (
         <CartItemEditor item={editItem}
@@ -2246,6 +2269,66 @@ function CartItemEditor({ item, onClose, onSave, onRemove }) {
         <div className="modal-actions">
           <button className="btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn-primary-modal" onClick={handleSave}>Guardar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Modal para agregar item directo al carrito (sin pasar por pantry).
+// Al cerrar carrito, el trigger SQL crea automáticamente la entry en pantry_inventory.
+function AddDirectCartItemModal({ onClose, onAdd }) {
+  const [name, setName] = useState('');
+  const [qty, setQty] = useState(1);
+  const [price, setPrice] = useState('');
+  const canSave = name.trim().length > 0;
+  const handleAdd = () => {
+    if (!canSave) return;
+    const p = parseFloat(price);
+    onAdd({
+      name: name.trim(),
+      quantity: Math.max(1, qty|0),
+      unit_price: isNaN(p) || p <= 0 ? null : p
+    });
+  };
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>Item extra al carrito</h2>
+          <div className="sub">Para algo que no tenés en el pantry todavía</div>
+        </div>
+        <div className="input-block">
+          <div className="input-label">Nombre</div>
+          <input type="text" className="text-input" placeholder="ej. Vino tinto, chocolate, manzanas" value={name} onChange={e => setName(e.target.value)} autoFocus />
+        </div>
+        <div className="qty-stepper-block">
+          <div className="qsb-label">Cantidad</div>
+          <div className="qty-steppers">
+            <div className="qty-stepper" style={{flex:'none', width:'100%'}}>
+              <div className="qty-stepper-controls">
+                <button className="qty-stepper-btn" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1}>−</button>
+                <div className="qty-stepper-val">{qty}</div>
+                <button className="qty-stepper-btn" onClick={() => setQty(qty + 1)}>+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="input-block">
+          <div className="input-label">Precio por unidad (opcional)</div>
+          <div className="input-with-prefix">
+            <span className="prefix">$</span>
+            <input type="number" inputMode="decimal" className="text-input" placeholder="0.00" value={price} onChange={e => setPrice(e.target.value)} />
+          </div>
+        </div>
+        <div style={{padding: '0 16px 14px', fontSize: 11, color: 'var(--text-soft)', fontStyle: 'italic', lineHeight: 1.4}}>
+          Al cerrar el carrito, este item se creará automáticamente en tu pantry para futuras compras.
+        </div>
+        <div className="modal-actions">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary-modal" onClick={handleAdd} disabled={!canSave}>Agregar al carrito</button>
         </div>
       </div>
     </div>
