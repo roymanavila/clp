@@ -368,6 +368,27 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .scan-preview-brand { font-weight: 600; font-size: 13px; color: var(--primary-dark); }
 .scan-preview-bc { font-family: var(--font-tech); font-size: 11px; color: var(--text-soft); margin-top: 2px; }
 .scan-preview-hint { font-size: 11px; color: var(--text-soft); font-style: italic; margin-top: 4px; }
+/* ScanResultModal — consulta tras escaneo desde Pantry */
+.scan-result-hero { display: flex; gap: 12px; align-items: center; margin: 0 16px 14px; padding: 12px 14px; background: white; border: 1px solid var(--border); border-radius: 14px; }
+.scan-result-img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; flex-shrink: 0; background: var(--bg); }
+.scan-result-body { flex: 1; min-width: 0; }
+.scan-result-name { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.scan-result-brand { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+.scan-result-bc { font-family: var(--font-tech); font-size: 11px; color: var(--text-soft); margin-top: 4px; opacity: 0.75; }
+.scan-result-found { margin: 0 16px 14px; padding: 14px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border: 1px solid #66BB6A; border-radius: 14px; }
+.scan-result-found .srf-head { font-size: 13px; font-weight: 700; color: #1B5E20; letter-spacing: 0.3px; }
+.scan-result-found .srf-name { font-size: 16px; font-weight: 600; color: var(--text); margin-top: 6px; }
+.scan-result-found .srf-quantities { display: flex; gap: 12px; align-items: center; margin: 12px 0; padding: 10px; background: rgba(255,255,255,0.6); border-radius: 10px; justify-content: space-around; }
+.scan-result-found .srf-qty-block { text-align: center; flex: 1; }
+.scan-result-found .srf-num { font-family: var(--font-tech); font-size: 22px; font-weight: 700; color: var(--text); }
+.scan-result-found .srf-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-soft); margin-top: 2px; }
+.scan-result-found .state-pill { display: inline-block; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+.scan-result-found .state-pill.state-have { background: #C8E6C9; color: #1B5E20; }
+.scan-result-found .state-pill.state-low { background: #FFE0B2; color: #E65100; }
+.scan-result-found .state-pill.state-out { background: #FFCDD2; color: #B71C1C; }
+.scan-result-notfound { margin: 0 16px 14px; padding: 14px; background: var(--bg); border: 1px dashed var(--text-soft); border-radius: 14px; }
+.scan-result-notfound .srnf-head { font-size: 14px; font-weight: 600; color: var(--text); }
+.scan-result-notfound .srnf-sub { font-size: 12px; color: var(--text-soft); margin: 8px 0 14px; line-height: 1.45; }
 /* BEST STORE — banner de sugerencia + tarjeta de mejor tienda actual + histórico de precios */
 .suggest-banner { margin: 0 16px 12px; background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%); border: 1px solid #FBC02D; border-radius: 14px; padding: 14px; }
 .suggest-banner .sb-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
@@ -2970,13 +2991,15 @@ function PantryTab({ householdId }) {
   const [scanPrefill, setScanPrefill] = useState(null); // { name } cuando hay producto pre-llenado del escáner
   const [pantryToast, setPantryToast] = useState(null); // mensaje breve "+1 en reserva: X"
 
-  // Producto escaneado entra al pantry. Tres caminos:
-  //   1) si ya existe en pantry por product_id (más confiable) → +1 in_stock
-  //   2) si ya existe por match de nombre laxo → +1 in_stock
-  //   3) si no existe → abrir modal "Nuevo producto" pre-llenado con datos de Open Food Facts
+  const [scanResult, setScanResult] = useState(null); // { scanned, match } cuando se abre modal de consulta tras escaneo
+
+  // Escáner en Pantry = HERRAMIENTA DE CONSULTA, no acción directa.
+  // Muestra si el producto está en pantry y en qué cantidades, con botón
+  // opcional para sumar +1 o crear nuevo. Útil para diferenciar variantes
+  // (atún en agua vs aceite, leche entera vs descremada).
   const handleScannedProduct = async (scannedProduct) => {
     setScannerOpen(false);
-    const { barcode, product_id, name, brand, image_url } = scannedProduct;
+    const { product_id, name } = scannedProduct;
 
     // Match 1: por product_id (existe en pantry y ya tenía vinculado este producto)
     let existing = product_id ? items.find(i => i.product_id === product_id) : null;
@@ -2990,21 +3013,8 @@ function PantryTab({ householdId }) {
       });
     }
 
-    if (existing) {
-      const newStock = (existing.quantity_in_stock ?? 0) + 1;
-      await updateQuantities(existing.id, existing.quantity_in_use ?? 0, newStock);
-      setPantryToast(`+1 en reserva · ${existing.name}`);
-      setTimeout(() => setPantryToast(null), 2200);
-    } else {
-      // Pre-fill enriquecido para el modal de Nuevo producto
-      setScanPrefill({
-        name: name || '',
-        barcode: barcode || null,
-        brand: brand || null,
-        image_url: image_url || null,
-        product_id: product_id || null
-      });
-    }
+    // SIEMPRE mostrar el modal de consulta (sin acción automática)
+    setScanResult({ scanned: scannedProduct, match: existing });
   };
 
   // Tap rápido en el círculo: cicla estado conceptual (have→low→out→have)
@@ -3127,6 +3137,29 @@ function PantryTab({ householdId }) {
           onClose={() => setScannerOpen(false)}
           onProductScanned={handleScannedProduct} />
       )}
+      {scanResult && (
+        <ScanResultModal
+          scanned={scanResult.scanned}
+          match={scanResult.match}
+          onClose={() => setScanResult(null)}
+          onAddOne={async (matchItem) => {
+            const newStock = (matchItem.quantity_in_stock ?? 0) + 1;
+            await updateQuantities(matchItem.id, matchItem.quantity_in_use ?? 0, newStock);
+            setScanResult(null);
+            setPantryToast(`+1 en reserva · ${matchItem.name}`);
+            setTimeout(() => setPantryToast(null), 2200);
+          }}
+          onCreateNew={() => {
+            setScanPrefill({
+              name: scanResult.scanned.name || '',
+              barcode: scanResult.scanned.barcode || null,
+              brand: scanResult.scanned.brand || null,
+              image_url: scanResult.scanned.image_url || null,
+              product_id: scanResult.scanned.product_id || null
+            });
+            setScanResult(null);
+          }} />
+      )}
       {(addOpen || scanPrefill) && (
         <NewPantryItemModal
           initialName={scanPrefill?.name || ''}
@@ -3243,6 +3276,80 @@ function NewPantryItemModal({ onClose, onAdd, initialName = '', initialBrand = n
           <button className="btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn-primary-modal" onClick={handleAdd} disabled={!canSave}>Guardar</button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Modal de consulta tras escanear desde el Pantry.
+// Muestra info del producto escaneado + si está o no en pantry + cantidades.
+// Si está: botón "+1 en reserva" (Roy decide). Si no: botón "Agregar al pantry".
+// La idea es validar si tengo el producto antes de agregarlo, especialmente
+// útil para diferenciar variantes (atún en agua vs aceite, etc).
+function ScanResultModal({ scanned, match, onAddOne, onCreateNew, onClose }) {
+  const { barcode, name, brand, image_url } = scanned;
+  const stateLabel = match ? (
+    match.state === 'have' ? 'Tienes' :
+    match.state === 'low' ? 'Por acabarse' :
+    match.state === 'out' ? 'Se acabó' : '—'
+  ) : null;
+  const stateClass = match ? `state-pill state-${match.state}` : '';
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-sheet" onClick={e => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <div className="modal-handle"></div>
+        <div className="modal-head">
+          <h2>📷 Producto escaneado</h2>
+          <div className="sub">{name ? 'Identificado' : 'Código sin nombre registrado'}</div>
+        </div>
+
+        {/* Hero del producto escaneado */}
+        <div className="scan-result-hero">
+          {image_url && (
+            <img src={image_url} alt="" className="scan-result-img" onError={(e) => { e.target.style.display = 'none'; }} />
+          )}
+          <div className="scan-result-body">
+            <div className="scan-result-name">{name || 'Sin nombre'}</div>
+            {brand && <div className="scan-result-brand">{brand}</div>}
+            <div className="scan-result-bc">{barcode}</div>
+          </div>
+        </div>
+
+        {/* Estado en pantry */}
+        {match ? (
+          <div className="scan-result-found">
+            <div className="srf-head">✓ Lo tienes en el pantry</div>
+            <div className="srf-name">{match.name}</div>
+            <div className="srf-quantities">
+              <div className="srf-qty-block">
+                <div className="srf-num">{match.quantity_in_use ?? 0}</div>
+                <div className="srf-lbl">en uso</div>
+              </div>
+              <div className="srf-qty-block">
+                <div className="srf-num">{match.quantity_in_stock ?? 0}</div>
+                <div className="srf-lbl">en reserva</div>
+              </div>
+              <div className="srf-qty-block">
+                <div className={stateClass}>{stateLabel}</div>
+              </div>
+            </div>
+            <div className="modal-actions" style={{paddingTop:6}}>
+              <button className="btn-secondary" onClick={onClose}>Solo consulta</button>
+              <button className="btn-primary-modal" onClick={() => onAddOne(match)}>+1 en reserva</button>
+            </div>
+          </div>
+        ) : (
+          <div className="scan-result-notfound">
+            <div className="srnf-head">No está en tu pantry</div>
+            <div className="srnf-sub">Útil cuando hay variantes parecidas (atún en agua vs en aceite). Si querés agregarlo ahora, te abro el formulario.</div>
+            <div className="modal-actions" style={{paddingTop:6}}>
+              <button className="btn-secondary" onClick={onClose}>Cerrar</button>
+              <button className="btn-primary-modal" onClick={onCreateNew}>+ Agregar al pantry</button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
